@@ -1,11 +1,17 @@
 Package: rnhanesdata
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: NHANES Accelerometry Data Pipeline
+Version: 1.0
+Author: Andrew Leroux [aut, cre]
+	Ciprian Crainiceanu[aut, cre]
+Maintainer: Andrew Leroux <aleroux2@jhu.edu>
+Description: A data package for processed NHANES accelerometry data with accompanying processing pipeline code.
+Depends:
+    R (>= 3.4.4), accelerometry (>= 3.1.2), nhanesaccel (>= 2.1.1), haven (>= 1.1.0)
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 6.1.0
