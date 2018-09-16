@@ -415,7 +415,7 @@ process_mort <- function(waves=c("C","D"),
                 }
                 rm(list=c("out","out.name","seqn","eligstat","mortstat","causeeval","permth_exm","pemth_int",
                           "ucod_leading","diabetes","hyperten","j","raw.data",
-                          paste0("mortsrce_",c("ndi","cmss","ssa","dc","dcl")))
+                          paste0("mortsrce_",c("ndi","cms","ssa","dc","dcl")))
                    )
 
         }
