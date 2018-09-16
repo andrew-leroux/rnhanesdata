@@ -407,15 +407,15 @@ process_mort <- function(waves=c("C","D"),
 
                 if(write){
                         if(is.null(localpath)){
-                                writepath <- paste0(getwd(), .Platform$file.sep, out.name[i])
+                                writepath <- paste0(getwd(), .Platform$file.sep)
                         }
                         eval(parse(text=paste0(out.name, "<- out")))
-                        eval(parse(text=paste0("save(", out.name, ", file=file.path(writepath, paste0(out.name[i], \".rda\")))")))
+                        eval(parse(text=paste0("save(", out.name, ", file=file.path(writepath, paste0(out.name, \".rda\")))")))
                         rm(list=c("writepath"))
                 }
                 rm(list=c("out","out.name","seqn","eligstat","mortstat","causeeval","permth_exm","pemth_int",
                           "ucod_leading","diabetes","hyperten","j","raw.data",
-                          paste0("mortsrce_",c("ndi","cmus","ssa","dc","dcl")))
+                          paste0("mortsrce_",c("ndi","cmss","ssa","dc","dcl")))
                    )
 
         }
