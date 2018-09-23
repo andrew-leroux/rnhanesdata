@@ -383,16 +383,19 @@ process_mort <- function(waves=c("C","D"),
                 }
 
 
+                ucod_leading                   <- trimws(ucod_leading)
+                ucod_leading[ucod_leading==""] <- NA
+
                 out.name <- paste0("Mortality_", waves[i])
                 out <- data.frame("SEQN"=as.integer(seqn),
                                   "eligstat"=as.integer(eligstat),
                                   "mortstat"=as.integer(mortstat),
-                                  "causeeval"=as.integer(causeavl),
+                                  "causeavl"=as.integer(causeavl),
                                   "permth_exm"=permth_exm,
                                   "permth_int"=permth_int,
                                   "ucod_leading"=ucod_leading,
-                                  "diabetes"=as.integer(diabetes),
-                                  "hyperten"=as.integer(hyperten),
+                                  "diabetes_cause_mort"=as.integer(diabetes),
+                                  "hyperten_cause_mort"=as.integer(hyperten),
                                   "mortsrce_ndi"=as.integer(mortsrce_ndi),
                                   "mortsrce_cms"=as.integer(mortsrce_cms),
                                   "mortsrce_ssa"=as.integer(mortsrce_ssa),
@@ -413,7 +416,7 @@ process_mort <- function(waves=c("C","D"),
                         eval(parse(text=paste0("save(", out.name, ", file=file.path(writepath, paste0(out.name, \".rda\")))")))
                         rm(list=c("writepath"))
                 }
-                rm(list=c("out","out.name","seqn","eligstat","mortstat","causeeval","permth_exm","pemth_int",
+                rm(list=c("out","out.name","seqn","eligstat","mortstat","causeavl","permth_exm","permth_int",
                           "ucod_leading","diabetes","hyperten","j","raw.data",
                           paste0("mortsrce_",c("ndi","cms","ssa","dc","dcl")))
                    )
@@ -632,8 +635,11 @@ process_covar <- function(waves=c("C","D"),
 #'
 #'
 #' @export
-exclude_accel <- function(act, flags, threshold = 600, rm_PAXSTAT = TRUE, rm_PAXCAL = TRUE,
+exclude_accel <- function(act, flags, threshold_lower = 600, threshold_upper = NULL, rm_PAXSTAT = TRUE, rm_PAXCAL = TRUE,
                           return_act = FALSE){
+        stopifnot(all(is.data.frame(act), is.data.frame(flags)))
+        stopifnot(all(colnames(act) == colnames(flags)))
+        stopifnot(all(c("PAXSTAT", "PAXCAL", paste0("MIN",1:1440)) %in% colnames(act)))
 
         stopifnot(all(is.finite(act$PAXSTAT),is.finite(act$PAXCAL)))
         flag_nonwear <- rowSums(flags[, paste('MIN', 1:1440, sep='')], na.rm = TRUE) < threshold
@@ -667,29 +673,114 @@ exclude_accel <- function(act, flags, threshold = 600, rm_PAXSTAT = TRUE, rm_PAX
 #'
 #'
 #' @export
-reweight_accel <- function(data){
-        data$valid <- 1
-        data$wtmec2yr_adj <- NULL
-        data$NormWts      <- NULL
-        data.wave1 <- subset(data, SDDSRVYR == 3)
-        data.wave2 <- subset(data, SDDSRVYR == 4)
+reweight_accel <- function(data, return_unadjusted_wts=TRUE){
+        stopifnot(all(c("SEQN","SDDSRVYR","WTMEC2YR","WTINT2YR") %in% colnames(data)))
+        stopifnot(all(data$SDDSRVYR %in% c(3,4)))
 
-        data.wave1.adjusted <- nhanes.accel.reweight(acceldata=data.wave1,
-                                                     wave=1, seqn.column=1,
-                                                     include.column=which(colnames(data.wave1) == 'valid'))
+        ret <- data
 
-        data.wave2.adjusted <- nhanes.accel.reweight(acceldata=data.wave2,
-                                                     wave=2, seqn.column=1,
-                                                     include.column=which(colnames(data.wave1) == 'valid'))
+        ret$wtint2yr_unadj_norm <- ret$wtmec2yr_unadj_norm <-
+            ret$wtint4yr_unadj <- ret$wtint4yr_unadj_norm <-
+            ret$wtmec4yr_unadj <- ret$wtmec4yr_unadj_norm <-
+            ret$wtint2yr_adj <- ret$wtint2yr_adj_norm <-
+            ret$wtmec2yr_adj <- ret$wtmec2yr_adj_norm <-
+            ret$wtint4yr_adj <- ret$wtint4yr_adj_norm <-
+            ret$wtmec4yr_adj <- ret$wtmec4yr_adj_norm <- NULL
 
-        all.data <- rbind(data.wave1.adjusted, data.wave2.adjusted)
-        if(nrow(data.wave1) == 0 | nrow(data.wave2) == 0) {
-                all.data$wtmec4yr_adj <- all.data$wtmec2yr_adj
-        } else {
-                all.data$wtmec4yr_adj <- all.data$wtmec2yr_adj/2
+
+
+
+        uwave     <- sort(unique(ret$SDDSRVYR))
+        age_bks   <- c(0, 1, 3, 6, 12, 16, 20, 30, 40, 50, 60, 70, 80, 85, Inf)
+        n_age_bks <- length(age_bks)
+
+
+        if(return_unadjusted_wts){
+            ret$wtint2yr_unadj_norm <- ret$WTINT2YR/mean(ret$WTINT2YR)
+            ret$wtmec2yr_unadj_norm <- ret$WTMEC2YR/mean(ret$WTMEC2YR)
+
+            ## calculate raw/normalized unadjusted 4-year weights
+            if(length(uwave) > 1){
+                ret$wtint4yr_unadj      <- ret$WTINT2YR/2
+                ret$wtint4yr_unadj_norm <- ret$wtint4yr_unadj/mean(ret$wtint4yr_unadj)
+
+                ret$wtmec4yr_unadj      <- ret$WTMEC2YR/2
+                ret$wtmec4yr_unadj_norm <- ret$wtmec4yr_unadj/mean(ret$wtmec4yr_unadj)
+            }
         }
 
-        all.data$NormWts <- (all.data$wtmec4yr_adj/sum(all.data$wtmec4yr_adj))*nrow(all.data)
 
-        all.data
+
+        data(list=c("Covariate_C","Covariate_D"), envir=environment(), package="rnhanesdata")
+        demo <- rbind(Covariate_C, Covariate_D)
+
+
+        ## create age categories, 85+ are coded as missing so impute a value >= 85
+        demo$age_mn                     <- demo$RIDAGEMN/12
+        demo$age_mn[is.na(demo$age_mn)] <- 86
+
+        demo$age_ex                     <- demo$RIDAGEEX/12
+        demo$age_ex[is.na(demo$age_ex)] <- 86
+
+        demo$age_cat_mn <- cut(demo$age_mn, breaks=age_bks, right=FALSE)
+        demo$age_cat_ex <- cut(demo$age_ex, breaks=age_bks, right=FALSE)
+
+        demo$Race2 <- factor(demo$Race, levels=c("Mexican American", "Other Hispanic","White","Black","Other"),
+                             labels=c("Mexican American", "Other", "Other","Black","Other"))
+
+
+        wtmec2yr_adj <- wtint2yr_adj <- rep(NA, nrow(ret))
+        for(i in seq_along(uwave)){
+            for(j in levels(demo$Gender)){
+                for(k in levels(demo$Race2)){
+                    for(l in levels(demo$age_cat_mn)){
+                        inx_int_full <- which(demo$Gender == j & demo$Race2 == k & demo$age_cat_mn == l & demo$SDDSRVYR==uwave[i])
+                        inx_mec_full <- which(demo$Gender == j & demo$Race2 == k & demo$age_cat_ex == l & demo$SDDSRVYR==uwave[i])
+                        seqn_int     <- demo$SEQN[which(demo$Gender == j & demo$Race2 == k & demo$age_cat_mn == l & demo$SDDSRVYR==uwave[i])]
+                        seqn_mec     <- demo$SEQN[which(demo$Gender == j & demo$Race2 == k & demo$age_cat_ex == l & demo$SDDSRVYR==uwave[i])]
+
+                        inx_ret_int <- which(ret$SEQN %in% seqn_int)
+                        inx_ret_mec <- which(ret$SEQN %in% seqn_mec)
+
+
+                        if(length(inx_ret_int) > 0){
+                            wt_int_full <- sum(demo$WTINT2YR[inx_int_full])
+                            wt_int_ret  <- sum(ret$WTINT2YR[inx_ret_int])
+
+                            wtint2yr_adj[inx_ret_int] <- ret$WTINT2YR[inx_ret_int]*wt_int_full/wt_int_ret
+                        }
+
+                        if(length(inx_ret_mec) > 0){
+                            wt_mec_full <- sum(demo$WTMEC2YR[inx_mec_full])
+                            wt_mec_ret  <- sum(ret$WTMEC2YR[inx_ret_mec])
+
+                            wtmec2yr_adj[inx_ret_mec] <- ret$WTMEC2YR[inx_ret_mec]*wt_mec_full/wt_mec_ret
+                        }
+                    }
+                }
+            }
+
+        }
+
+
+
+        ret$wtint2yr_adj      <- wtint2yr_adj
+        ret$wtint2yr_adj_norm <- ret$wtint2yr_adj/mean(ret$wtint2yr_adj)
+
+        ret$wtmec2yr_adj      <- wtmec2yr_adj
+        ret$wtmec2yr_adj_norm <- ret$wtmec2yr_adj/mean(ret$wtmec2yr_adj)
+
+        if(length(uwave) > 1){
+            ret$wtint4yr_adj      <- ret$wtint2yr_adj/2
+            ret$wtint4yr_adj_norm <- ret$wtint4yr_adj/mean(ret$wtint4yr_adj)
+
+            ret$wtmec4yr_adj      <- ret$wtmec2yr_adj/2
+            ret$wtmec4yr_adj_norm <- ret$wtmec4yr_adj/mean(ret$wtmec4yr_adj)
+        }
+
+        ret
 }
+
+
+
+

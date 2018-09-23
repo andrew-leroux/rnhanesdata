@@ -4,7 +4,7 @@
 \alias{reweight_accel}
 \title{Reweight NHANES accelerometry data}
 \usage{
-reweight_accel(data)
+reweight_accel(data, return_unadjusted_wts = TRUE)
 }
 \arguments{
 \item{data}{data frame to with survey weights to be re-weighted.Should only contain one subject per ror.}
