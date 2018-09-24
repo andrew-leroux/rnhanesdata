@@ -5,7 +5,7 @@
 \alias{Covariate_D}
 \title{A dataset containing survey sampling data (e.g. survey weights, PSUs, strata) and select processed
 demographic and lifestyle variables for NHANES 2005-2006 participants.}
-\format{A data frame with 10348 rows and 22 variables
+\format{A data frame with 10348 rows and 23 variables with one row per participant in the 2005-2006 wave.
 \describe{
    \item{SEQN}{Unique subject identifier}
    \item{SDDSRVYR}{Numeric variable denoting NHANES wave. SDDSRVYR = 3 correpsonds to the 2003-2004 wave}
@@ -15,6 +15,8 @@ demographic and lifestyle variables for NHANES 2005-2006 participants.}
    \item{WTMEC2YR}{Full sample examinatin weight.}
    \item{RIDAGEMN}{Age in months at date of screening for individuals under the age of 85. Participants over 85 are coded as NA.}
    \item{RIDAGEEX}{Age in months at examination (MEC) for individuals under the age of 85. Participants over 85 are coded as NA.}
+   \item{RIDAGEYR}{"Best" age in years at date of screening for individuals under the age of 85. Participants 85 and over are coded as 85. This variable is used when
+   determining thresholds for questions using age inclusion/exclusion criteria}
    \item{BMI}{Body mass index (kg/m^2). This variable is a copy of the "BMXBMI" variable in the "Body Measures" data.}
    \item{BMI_cat}{Body mass index categorized into: underweight (<= 18.5), normal (> 18.5, <= 25), overweight (> 25, <= 30), and obese (> 30).}
    \item{Race}{Self reported ethnicity categorized into five levels: Mexican American, Other Hispanic, (Non-Hispanic) White, (Non-Hispanic) Black, and Other. This is a factor version of the variable "RIDRETH1" in the "Demographic Variables & Sample Weights" data.}

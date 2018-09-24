@@ -1,17 +1,19 @@
 #' A dataset containing minute level accelerometry data reported as "Activity Counts" for NHANES 2003-2004 participants selected for the Mobile Examination Center (MEC) portion of the study.
 #'
-#' @format A data frame with 50232 rows and 1445 variables. There are 7 rows per unqiue subject identifier (SEQN). Rows are ordered descending temporally within subjects (i.e. row 1 is the first day of data for the first participant, row 2 is the following calendar day, etc.).
+#' @format A data frame with 50232 rows and 1445 variables. There are 7 rows per unqiue subject identifier (SEQN).
+#'         Rows are ordered descending temporally within subjects
+#'         (i.e. row 1 is the first day of data for the first participant, row 2 is the following calendar day, etc.).
 #' \describe{
 #'    \item{SEQN}{Unique subject identifier}
 #'    \item{PAXCAL}{Device calibration.
 #'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
-#'    Any individuals with either 2 or 9 in this variable should be handled very carefully if included in analyses.
+#'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
 #'    }
 #'    \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
-#'    Any individuals with 2 in this variable should be handled very carefully if included in analyses.
+#'    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
 #'    }
-#'    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
 #'    \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 3 corresponds to the 2003-2004 wave.}
+#'    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
 #'    \item{MIN1-MIN1440}{Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
 #' }
 #'
@@ -26,10 +28,10 @@
 #'    \item{SEQN}{Unique subject identifier}
 #'    \item{PAXCAL}{Device calibration.
 #'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
-#'    Any individuals with either 2 or 9 in this variable should be handled very carefully if included in analyses.
+#'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
 #'    }
 #'    \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
-#'    Any individuals with 2 in this variable should be handled very carefully if included in analyses.
+#'    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
 #'    }
 #'    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
 #'    \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
@@ -51,10 +53,10 @@
 #'    \item{SEQN}{Unique subject identifier}
 #'    \item{PAXCAL}{Device calibration.
 #'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
-#'    Any individuals with either 2 or 9 in this variable should be handled very carefully if included in analyses.
+#'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
 #'    }
 #'    \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
-#'    Any individuals with 2 in this variable should be handled very carefully if included in analyses.
+#'    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
 #'    }
 #'    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
 #'    \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 3 corresponds to the 2003-2004 wave.}
@@ -75,10 +77,10 @@
 #'    \item{SEQN}{Unique subject identifier}
 #'    \item{PAXCAL}{Device calibration.
 #'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
-#'    Any individuals with either 2 or 9 in this variable should be handled very carefully if included in analyses.
+#'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
 #'    }
 #'    \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
-#'    Any individuals with 2 in this variable should be handled very carefully if included in analyses.
+#'    Any individuals with 2 in this variable should be handled examined carefully before being included in any analysis.
 #'    }
 #'    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
 #'    \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
@@ -92,10 +94,10 @@
 
 
 
-#' A dataset containing survey sampling data (e.g. survey weights, PSUs, strata) and select processed
-#' demographic and lifestyle variables for NHANES 2003-2004 participants.
+#' A dataset containing survey sampling data (e.g. survey weights, PSUs, strata) and a few select processed
+#' demographic and lifestyle variables for NHANES 2003-2004 participant.
 #'
-#' @format A data frame with 10122 rows and 22 variables
+#' @format A data frame with 10122 rows and 23 variables with one row per participant in the 2003-2004 wave.
 #' \describe{
 #'    \item{SEQN}{Unique subject identifier}
 #'    \item{SDDSRVYR}{Numeric variable denoting NHANES wave. SDDSRVYR = 3 correpsonds to the 2003-2004 wave}
@@ -103,8 +105,10 @@
 #'    \item{SDMVSTRA}{Masked variance pseudo stratum. Used for variance estimation.}
 #'    \item{WTINT2YR}{Full sample interview weight.}
 #'    \item{WTMEC2YR}{Full sample examinatin weight.}
-#'    \item{RIDAGEMN}{Age in months at date of screening for individuals under the age of 85. Participants over 85 are coded as NA.}
-#'    \item{RIDAGEEX}{Age in months at examination (MEC) for individuals under the age of 85. Participants over 85 are coded as NA.}
+#'    \item{RIDAGEMN}{Age in months at date of screening for individuals under the age of 85. Participants 85 and over are coded as NA.}
+#'    \item{RIDAGEEX}{Age in months at examination (MEC) for individuals under the age of 85. Participants 85 and over are coded as NA.}
+#'    \item{RIDAGEYR}{"Best" age in years at date of screening for individuals under the age of 85. Participants 85 and over are coded as 85. This variable is used when
+#'    determining thresholds for questions using age inclusion/exclusion criteria}
 #'    \item{BMI}{Body mass index (kg/m^2). This variable is a copy of the "BMXBMI" variable in the "Body Measures" data.}
 #'    \item{BMI_cat}{Body mass index categorized into: underweight (<= 18.5), normal (> 18.5, <= 25), overweight (> 25, <= 30), and obese (> 30).}
 #'    \item{Race}{Self reported ethnicity categorized into five levels: Mexican American, Other Hispanic, (Non-Hispanic) White, (Non-Hispanic) Black, and Other. This is a factor version of the variable "RIDRETH1" in the "Demographic Variables & Sample Weights" data.}
@@ -149,7 +153,7 @@
 #' A dataset containing survey sampling data (e.g. survey weights, PSUs, strata) and select processed
 #' demographic and lifestyle variables for NHANES 2005-2006 participants.
 #'
-#' @format A data frame with 10348 rows and 22 variables
+#' @format A data frame with 10348 rows and 23 variables with one row per participant in the 2005-2006 wave.
 #' \describe{
 #'    \item{SEQN}{Unique subject identifier}
 #'    \item{SDDSRVYR}{Numeric variable denoting NHANES wave. SDDSRVYR = 3 correpsonds to the 2003-2004 wave}
@@ -159,6 +163,8 @@
 #'    \item{WTMEC2YR}{Full sample examinatin weight.}
 #'    \item{RIDAGEMN}{Age in months at date of screening for individuals under the age of 85. Participants over 85 are coded as NA.}
 #'    \item{RIDAGEEX}{Age in months at examination (MEC) for individuals under the age of 85. Participants over 85 are coded as NA.}
+#'    \item{RIDAGEYR}{"Best" age in years at date of screening for individuals under the age of 85. Participants 85 and over are coded as 85. This variable is used when
+#'    determining thresholds for questions using age inclusion/exclusion criteria}
 #'    \item{BMI}{Body mass index (kg/m^2). This variable is a copy of the "BMXBMI" variable in the "Body Measures" data.}
 #'    \item{BMI_cat}{Body mass index categorized into: underweight (<= 18.5), normal (> 18.5, <= 25), overweight (> 25, <= 30), and obese (> 30).}
 #'    \item{Race}{Self reported ethnicity categorized into five levels: Mexican American, Other Hispanic, (Non-Hispanic) White, (Non-Hispanic) Black, and Other. This is a factor version of the variable "RIDRETH1" in the "Demographic Variables & Sample Weights" data.}
@@ -214,6 +220,17 @@
 #' @format A data frame with - rows and - variables
 #' \describe{
 #'    \item{SEQN}{Unique subject identifier}
+#'    \item{eligstat}{}
+#'    \item{mortat}{Indicator for whether participant was found to be alive (1) or dead (2) at follow up given by
+#'    permth_exm and permth_int}
+#'    \item{permth_exm}{Time in months from the mobile examination center (MEC) assessment where mortality was assessed.}
+#'    \item{permth_int}{Time in months from the household interview where mortality was assessed.}
+#'    \item{ucod_leading}{Underlying cause of death recode from UCOD_113 leading causes where available. Specific causes:
+#'          \itemize{
+#'                  \item{001}{Diseases of the heart (I00-I09, I11, I13, I20-I51).}
+#'          }
+#'    }
+#'
 #' }
 #'
 #' @source \url{https://www.cdc.gov/nchs/data-linkage/mortality-public.htm}

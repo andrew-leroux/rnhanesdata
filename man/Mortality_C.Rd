@@ -8,6 +8,17 @@ As new mortality data is released this data file will be updated.}
 \format{A data frame with - rows and - variables
 \describe{
    \item{SEQN}{Unique subject identifier}
+   \item{eligstat}{}
+   \item{mortat}{Indicator for whether participant was found to be alive (1) or dead (2) at follow up given by
+   permth_exm and permth_int}
+   \item{permth_exm}{Time in months from the mobile examination center (MEC) assessment where mortality was assessed.}
+   \item{permth_int}{Time in months from the household interview where mortality was assessed.}
+   \item{ucod_leading}{Underlying cause of death recode from UCOD_113 leading causes where available. Specific causes:
+         \itemize{
+                 \item{001}{Diseases of the heart (I00-I09, I11, I13, I20-I51).}
+         }
+   }
+
 }}
 \source{
 \url{https://www.cdc.gov/nchs/data-linkage/mortality-public.htm}

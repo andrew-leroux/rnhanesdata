@@ -11,10 +11,10 @@ These wear/non-wear flags were calculated by applying the algorithm described in
    \item{SEQN}{Unique subject identifier}
    \item{PAXCAL}{Device calibration.
    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
-   Any individuals with either 2 or 9 in this variable should be handled very carefully if included in analyses.
+   Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
    }
    \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
-   Any individuals with 2 in this variable should be handled very carefully if included in analyses.
+   Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
    }
    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
    \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 3 corresponds to the 2003-2004 wave.}

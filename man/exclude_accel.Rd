@@ -4,21 +4,22 @@
 \alias{exclude_accel}
 \title{Remove days with too few/too much weartime and NHANES data quality flags.}
 \usage{
-exclude_accel(act, flags, threshold = 600, rm_PAXSTAT = TRUE,
-  rm_PAXCAL = TRUE, return_act = FALSE)
+exclude_accel(act, flags, threshold_lower = 600,
+  threshold_upper = NULL, rm_PAXSTAT = TRUE, rm_PAXCAL = TRUE,
+  return_act = FALSE)
 }
 \arguments{
 \item{act}{Activity data matrix}
 
 \item{flags}{Wear/Non-wear flag matrix}
 
-\item{threshold}{upper limit for number of non-wear minutes. Defaults to 600 minutes (10 hours).}
-
 \item{rm_PAXSTAT}{Logical argument indicating whether to remove based on the data reliability indicator variable PAXSTAT. Defaults to TRUE.}
 
 \item{rm_PAXCAL}{Logical argument indicating whether to remove based on the accelerometer calibration indicator variable PAXCAL. Defaults to TRUE.}
 
 \item{return_act}{Not currently implemented.}
+
+\item{threshold}{upper limit for number of non-wear minutes. Defaults to 600 minutes (10 hours).}
 }
 \description{
 This function subsets accelerometry data by wear/non-wear time criteria, as well as
