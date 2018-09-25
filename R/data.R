@@ -217,7 +217,7 @@
 #' A dataset containing processed publicly linked mortality data for NHANES 2003-2004 participants. This data corresponds to the 2011 release of the linked mortality data.
 #' As new mortality data is released this data file will be updated.
 #'
-#' @format A data frame with - rows and - variables
+#' @format A data frame with 10122 rows and 14 variables
 #' \describe{
 #'    \item{SEQN}{Unique subject identifier}
 #'    \item{eligstat}{Eligibility status for mortality follow-up
