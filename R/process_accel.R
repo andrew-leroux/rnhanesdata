@@ -635,14 +635,14 @@ process_covar <- function(waves=c("C","D"),
 #'
 #'
 #' @export
-exclude_accel <- function(act, flags, threshold_lower = 600, threshold_upper = NULL, rm_PAXSTAT = TRUE, rm_PAXCAL = TRUE,
+exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, rm_PAXCAL = TRUE,
                           return_act = FALSE){
         stopifnot(all(is.data.frame(act), is.data.frame(flags)))
         stopifnot(all(colnames(act) == colnames(flags)))
         stopifnot(all(c("PAXSTAT", "PAXCAL", paste0("MIN",1:1440)) %in% colnames(act)))
 
         stopifnot(all(is.finite(act$PAXSTAT),is.finite(act$PAXCAL)))
-        flag_nonwear <- rowSums(flags[, paste('MIN', 1:1440, sep='')], na.rm = TRUE) < threshold
+        flag_nonwear <- rowSums(flags[, paste('MIN', 1:1440, sep='')], na.rm = TRUE) < threshold_lower
 
         ## remove nonwear days and days flagged by NHANES
         cond <- c("flag_nonwear", "act$PAXSTAT!=1","act$PAXCAL!=1")[c(TRUE, rm_PAXSTAT, rm_PAXCAL)]
