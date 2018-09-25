@@ -239,18 +239,19 @@
 #'    \item{permth_int}{Time in months from the household interview where mortality was assessed.}
 #'    \item{ucod_leading}{Underlying cause of death recode from UCOD_113 leading causes where available. Specific causes:
 #'          \itemize{
-#'                  \item{001}{Diseases of the heart (I00-I09, I11, I13, I20-I51)}
-#'                  \item{002}{Malignant neoplasms (C00-C97)}
-#'                  \item{003}{Chronic lower respiratory diseases (J40-J47)}
-#'                  \item{004}{Accidents (unintentional injuries) (V01-X59, Y85-Y86)}
-#'                  \item{005}{Cerebrovascular diseases (I60-I69)}
-#'                  \item{006}{Alzheimer's disease (G30)}
-#'                  \item{007}{Diabetes mellitus (E10-E14)}
-#'                  \item{008}{Influenza and pneumonia (J09-J18)}
-#'                  \item{009}{Nephritis, nephrotic syndrome and nephrosis (N00-N07, N17-N19, N25-N27)}
-#'                  \item{010}{All other causes (residual)}
-#'                  \item{NA}{Ineligible, under age 18, assumed alive or no cause data}
+#'                  \item{001}{ Diseases of the heart (I00-I09, I11, I13, I20-I51)}
+#'                  \item{002}{ Malignant neoplasms (C00-C97)}
+#'                  \item{003}{ Chronic lower respiratory diseases (J40-J47)}
+#'                  \item{004}{ Accidents (unintentional injuries) (V01-X59, Y85-Y86)}
+#'                  \item{005}{ Cerebrovascular diseases (I60-I69)}
+#'                  \item{006}{ Alzheimer's disease (G30)}
+#'                  \item{007}{ Diabetes mellitus (E10-E14)}
+#'                  \item{008}{ Influenza and pneumonia (J09-J18)}
+#'                  \item{009}{ Nephritis, nephrotic syndrome and nephrosis (N00-N07, N17-N19, N25-N27)}
+#'                  \item{010}{ All other causes (residual)}
+#'                  \item{NA}{ Ineligible, under age 18, assumed alive or no cause data}
 #'          }
+#'      }
 #'      \item{diabetes_mcod}{diabetes flag from multiple cause of death (mcod)}
 #'      \item{hyperten_mcod}{hyperten flag from multiple cause of death (mcod)}
 #'      \item{mortscrce_ndi}{mortality source: NDI match}
@@ -258,7 +259,7 @@
 #'      \item{mortscrce_cms}{mortality source: CMS information}
 #'      \item{mortscrce_dc}{mortality source: death certificate match}
 #'      \item{mortscrce_dcl}{mortality source: data collection}
-#'    }
+#'
 #'
 #' }
 #'

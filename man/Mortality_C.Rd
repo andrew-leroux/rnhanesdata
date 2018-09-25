@@ -39,6 +39,7 @@ As new mortality data is released this data file will be updated.}
                  \item{010}{All other causes (residual)}
                  \item{NA}{Ineligible, under age 18, assumed alive or no cause data}
          }
+     }
      \item{diabetes_mcod}{diabetes flag from multiple cause of death (mcod)}
      \item{hyperten_mcod}{hyperten flag from multiple cause of death (mcod)}
      \item{mortscrce_ndi}{mortality source: NDI match}
@@ -46,7 +47,7 @@ As new mortality data is released this data file will be updated.}
      \item{mortscrce_cms}{mortality source: CMS information}
      \item{mortscrce_dc}{mortality source: death certificate match}
      \item{mortscrce_dcl}{mortality source: data collection}
-   }
+
 
 }}
 \source{
