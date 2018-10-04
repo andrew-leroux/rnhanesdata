@@ -386,7 +386,7 @@ process_mort <- function(waves=c("C","D"),
                 ucod_leading                   <- trimws(ucod_leading)
                 ucod_leading[ucod_leading==""] <- NA
 
-                out.name <- paste0("Mortality_", waves[i])
+                out.name <- paste0("Mortality_", mort_release_yr, "_",  waves[i])
                 out <- data.frame("SEQN"=as.integer(seqn),
                                   "eligstat"=as.integer(eligstat),
                                   "mortstat"=as.integer(mortstat),
@@ -673,7 +673,9 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #'
 #'
 #' @export
-reweight_accel <- function(data, return_unadjusted_wts=TRUE){
+reweight_accel <- function(data, return_unadjusted_wts=TRUE,
+                           age_bks = c(0, 1, 3, 6, 12, 16, 20, 30, 40, 50, 60, 70, 80, 85, Inf),
+                           right=FALSE){
         stopifnot(all(c("SEQN","SDDSRVYR","WTMEC2YR","WTINT2YR") %in% colnames(data)))
         stopifnot(all(data$SDDSRVYR %in% c(3,4)))
 
@@ -691,7 +693,6 @@ reweight_accel <- function(data, return_unadjusted_wts=TRUE){
 
 
         uwave     <- sort(unique(ret$SDDSRVYR))
-        age_bks   <- c(0, 1, 3, 6, 12, 16, 20, 30, 40, 50, 60, 70, 80, 85, Inf)
         n_age_bks <- length(age_bks)
 
 
@@ -722,8 +723,8 @@ reweight_accel <- function(data, return_unadjusted_wts=TRUE){
         demo$age_ex                     <- demo$RIDAGEEX/12
         demo$age_ex[is.na(demo$age_ex)] <- 86
 
-        demo$age_cat_mn <- cut(demo$age_mn, breaks=age_bks, right=FALSE)
-        demo$age_cat_ex <- cut(demo$age_ex, breaks=age_bks, right=FALSE)
+        demo$age_cat_mn <- cut(demo$age_mn, breaks=age_bks, right=right)
+        demo$age_cat_ex <- cut(demo$age_ex, breaks=age_bks, right=right)
 
         demo$Race2 <- factor(demo$Race, levels=c("Mexican American", "Other Hispanic","White","Black","Other"),
                              labels=c("Mexican American", "Other", "Other","Black","Other"))
