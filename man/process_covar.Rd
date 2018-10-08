@@ -9,7 +9,7 @@ process_covar(waves = c("C", "D"), varnames = c("SDDSRVYR", "WTMEC2YR",
   "RIAGENDR", "BMXWT", "BMXHT", "BMXBMI", "DMDEDUC2", "ALQ101", "ALQ110",
   "ALQ120Q", "ALQ120U", "ALQ130", "SMQ020", "SMD030", "SMQ040", "MCQ220",
   "MCQ160F", "MCQ160B", "MCQ160C", "PFQ049", "PFQ054", "PFQ057", "PFQ059",
-  "PFQ061B", "PFQ061C", "DIQ010"), dataPath = NULL, write = FALSE,
+  "PFQ061B", "PFQ061C", "DIQ010"), localpath = NULL, write = FALSE,
   extractAll = FALSE)
 }
 \arguments{
@@ -19,7 +19,7 @@ NHANES wave of interest. Defaults to a vector containing "C" and "D" correspondi
 \item{varnames}{character vector indicating which column names are to be searched for.
 Will check all .XPT files in located in the directory specified by dataPath. If extractAll = TRUE, then this argument is effectively ignored.}
 
-\item{dataPath}{file path where covariate data are saved. Covariate data must be in .XPT format,
+\item{localpath}{file path where covariate data are saved. Covariate data must be in .XPT format,
 and should be in their own folder. For example, PAXRAW_C.XPT should not be located in the folder with
 your covariate files. This will not cause an error, but the code will take much longer to run.}
 
@@ -30,7 +30,13 @@ If extractALL = TRUE, all variables from all .XPT files with
 Defaults to FALSE.}
 }
 \value{
-This function will return a list with each element corresponding to one wave of data.
+This function will return a list with number of elements less than or equal to the number of waves of data specified by the "waves"
+argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
+indicated by the localpath argument; or available in the data package. Each element of the list returned is a data frame. The columns of the data frame
+will depend on the variables specified in the "varnames" argument and whether those variable are available for some (or any) of the waves specfied by the waves argument.
+At a minimum, the returned dataframe will contain a column for each subject identifier (SEQN).
+
+If the demographic datasets are not in the directory specified by localpath, there is no guarantee that all participants in a wave will be included in the retunred results.
 }
 \description{
 This function merges covariate data

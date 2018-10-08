@@ -6,14 +6,14 @@
 \usage{
 process_flags(x, write = FALSE, localpath = NULL,
   days_distinct = FALSE, window = 90L, tol = 2L, tol_upper = 99L,
-  nci = TRUE, ...)
+  compress = "xz", ...)
 }
 \arguments{
 \item{x}{A list with each element corresponding to a data matrix of activity counts in the 1440+ format with 7 rows per individual.
 The data should be sorted by participant (SEQN) and then in descending order chronologically. The output of \code{\link{process_accel}} can be fed directly to
 this argument. See examples.}
 
-\item{write}{logical argument indicating whether a .rda file should be created for each wave of processed data.
+\item{write}{Logical value indicating whether a .rda file should be created for each wave of processed data.
 Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
 wave will be saved as an .rda file named Flags_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.}
 
@@ -22,9 +22,7 @@ wave will be saved as an .rda file named Flags_\*.rda where \* corresponds to th
 \item{window}{size of the moving window used to assess non-wear in minutes. Defaults to 90 minutes.
 See \code{\link{weartime}} for more details.}
 
-\item{tol}{maximum number of minutes with counts greater than 0 within the window allowed before a particular
-minute is considered "wear". That is, if for a given minute, the window around that minute has tol + 1
-activity counts greater than 0, this miute is considered "wear".
+\item{tol}{maximum number of minutes with counts greater than 0 within the a non-wear interval.
 See \code{\link{weartime}} for more details.}
 
 \item{tol_upper}{maximium activity count for any minute within the window
@@ -32,11 +30,38 @@ Defaults to 99. That is, for a given minute, if the window contains any minutes 
 activity counts greater than tol.upper, this minute is considered "wear".
 See \code{\link{weartime}} for more details.}
 
+\item{compress}{Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
+but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.}
+
 \item{...}{aditional arguments to be passed to \code{\link{weartime}}.}
 }
 \value{
 The function process_flags returns a list with number of elemnts equal to the number of elements in the object supplied to the "x" argument.
-Each element of the list returned is a dataframe with the following columns:
+Each element of the list returned is a dataframe that mirrors the format of dataframes returned from the \code{\link{process_accel}} function, but instead
+with the columns conveying activity count data replaced with 0/1 indicators for estimated periods of non-wear.
+More specifically, each element is a data frame with the following columns
+
+\itemize{
+   \item{SEQN:} {Unique subject identifier}
+   \item{PAXCAL:}{ Device calibration.
+   Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
+   Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
+   }
+   \item{PAXSTAT:}{ Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
+   Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
+   }
+   \item{SDDSRVYR:}{ Variable indicating which wave of the NHANES study this data is associated with. For example,
+   SDDSRVYR = 3 corresponds to the 2003-2004 wave and SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
+   \item{WEEKDAY:}{ Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
+   \item{MIN1-MIN1440:}{ Wear/Non-wear flag corresponding to each minute of the day. These columns can take on the following 3 values
+             \itemize{
+             \item{0:}{ A value of 0 indicates that a particular minute is determined to be "non-wear"}
+             \item{1:}{ A value of 1 indicated that a particular minute is determined to be "wear"}
+             \item{NA:}{ A value of NA indicates that a particular minute was missing data in the activity count data matrix used to create this set
+             of wear/non-wear flags}
+             }
+    For example, a value of 0 in the column MIN1 indicates that during the time period 00:00-00:01, it was estimated that the device was not worn.}
+}
 }
 \description{
 This function creates wear/non-wear flag matrices for processed NHANES 2003-2004 and 2005-2006 accelerometry data

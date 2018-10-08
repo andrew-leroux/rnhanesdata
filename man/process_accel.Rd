@@ -31,8 +31,8 @@ both the .xpt and .ZIP files are deleted locally. Defaults to FALSE.}
 \item{zipped}{logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
 If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored.}
 
-\item{compress}{character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
-but is not compatable with some old versions of R.}
+\item{compress}{Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
+but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.}
 }
 \value{
 This function will return a list with number of elements less than or equal to the number of waves of data specified by the names_accel_xpt
@@ -73,6 +73,7 @@ The function process_accel can be used to process the NHANES 2003-2004 and 2005-
 \examples{
 \dontrun{
 library("rnhanesdata")
+## download and
 process_accel()
 process_flags()
 }

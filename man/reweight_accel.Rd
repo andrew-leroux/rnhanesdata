@@ -10,17 +10,22 @@ reweight_accel(data, return_unadjusted_wts = TRUE, age_bks = c(0, 1, 3,
 \arguments{
 \item{data}{data frame to with survey weights to be re-weighted.Should only contain one subject per ror.}
 
-\item{return_unadjusted_wts}{}
+\item{return_unadjusted_wts}{Logical value indicating whether to return the unadjusted 2-year and, if applicable, 4-year survey weights for all participants.}
 
-\item{age_bks}{}
+\item{age_bks}{Vector of ages which define the intervals used for re-weighting. This argument is passed to the \code{\link{cut}} function to create age categories which are in turn
+used to re-weight participants. The argument "right" determines whether these intervals will be closed on the right or the left.}
 
-\item{right}{}
+\item{right}{Logical value indicating whether the age intervals defined by the "age_bks" arguement should be closed on the left (right=FALSE) or the right (right=TRUE).
+See \code{\link{cut}} for additional details and examples. Defaults to TRUE.}
 }
 \value{
-The function reweight_accel will return a dataframe
+The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" arguement
 }
 \description{
-This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves
+This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves.
+}
+\details{
+The reweight_accel function is designed to re-weight only the 2003-2004 and 2005-2006 waves.
 }
 \examples{
 \dontrun{

@@ -8,21 +8,75 @@ process_mort(waves = c("C", "D"), mort_release_yr = 2011,
   write = FALSE, localpath = NULL)
 }
 \arguments{
-\item{waves}{}
+\item{waves}{Character vector indicating the waves . Defaults to a vector with "C" and "D", corresponding to the 2003-2004 and 2005-2006 waves.}
 
-\item{mort_release_yr}{}
+\item{mort_release_yr}{Nuemric value indicating the year associated with the raw mortality data to be processed. The default, 2011, corresponds to the
+most recent raw mortality data included in the data package.}
 
 \item{write}{logical argument indicating whether a .rda file of wear/non-wear flags
 should be created for each wave of processed data. Defaults to FALSE.}
 
-\item{localpath}{}
+\item{localpath}{Character scalar describing the location where . If NULL, the funciton will look in pacakge data directory for the requested raw mortality data.
+Defaults to NULL.}
 }
 \value{
-This function returns a list
+This function will return a list with number of elements less than or equal to the number of waves of data specified by the "waves"
+argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
+indicated by the localpath argument; or available in the data package. Each element of the list returned is a data frame
+with columns:
+
+\itemize{
+   \item{SEQN:}{ Unique subject identifier}
+   \item{eligstat:}{ Eligibility status for mortality follow-up
+         \describe{
+                 \item{1}{ Eligible}
+                 \item{2}{ Under age 18, not available for public release}
+                 \item{3}{ Ineligible}
+         }
+   }
+   \item{mortat:}{ Indicator for whether participant was found to be alive or deceased at follow-up time given by
+   permth_exm and permth_int
+         \itemize{
+                 \item{0:}{ Assumed alive}
+                 \item{1:}{ Assumed deceased}
+                 \item{NA:}{ Under age 18, not available for public release or ineligible for mortality follow-up}
+         }
+   }
+   \item{permth_exm:}{ Time in months from the mobile examination center (MEC) assessment where mortality was assessed.}
+   \item{permth_int:}{ Time in months from the household interview where mortality was assessed.}
+   \item{ucod_leading:}{ Underlying cause of death recode from UCOD_113 leading causes where available. Specific causes:
+           \itemize{
+                 \item{001:}{ Diseases of the heart (I00-I09, I11, I13, I20-I51)}
+                 \item{002:}{ Malignant neoplasms (C00-C97)}
+                 \item{003:}{ Chronic lower respiratory diseases (J40-J47)}
+                 \item{004:}{ Accidents (unintentional injuries) (V01-X59, Y85-Y86)}
+                 \item{005:}{ Cerebrovascular diseases (I60-I69)}
+                 \item{006:}{ Alzheimer's disease (G30)}
+                 \item{007:}{ Diabetes mellitus (E10-E14)}
+                 \item{008:}{ Influenza and pneumonia (J09-J18)}
+                 \item{009:}{ Nephritis, nephrotic syndrome and nephrosis (N00-N07, N17-N19, N25-N27)}
+                 \item{010:}{ All other causes (residual)}
+                 \item{NA:}{ Ineligible, under age 18, assumed alive or no cause data}
+           }
+     }
+     \item{diabetes_mcod:}{ diabetes flag from multiple cause of death (mcod)}
+     \item{hyperten_mcod:}{ hyperten flag from multiple cause of death (mcod)}
+     \item{mortscrce_ndi:}{ mortality source: NDI match}
+     \item{mortscrce_ssa:}{ mortality source: SSA information}
+     \item{mortscrce_cms:}{ mortality source: CMS information}
+     \item{mortscrce_dc:}{ mortality source: death certificate match}
+     \item{mortscrce_dcl:}{ mortality source: data collection}
+
+}
 }
 \description{
 This function creates a clean mortality dataset which can be combined with data from the
 NHANES 2003-2004/2005-2006 waves.
+}
+\details{
+As of writing, this funciton has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.
+The raw data comes in the form of a vector of strings, with each string associated with on participant.
+The location of relevant variables withn each string is described in the document .... (see references)
 }
 \examples{
 \dontrun{
@@ -32,5 +86,5 @@ NHANES 2003-2004/2005-2006 waves.
 
 }
 \references{
-\url{https://www.cdc.gov/nchs/data-linkage/mortality-public.htm}
+NHANES linked public mortality files are described at the following link: \url{https://www.cdc.gov/nchs/data-linkage/mortality-public.htm}.
 }

@@ -29,8 +29,8 @@
 #' @param zipped logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
 #' If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored.
 #'
-#' @param compress character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
-#' but is not compatable with some old versions of R.
+#' @param compress Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
+#' but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.
 #'
 #'
 #' @details
@@ -67,6 +67,7 @@
 #' @examples
 #' \dontrun{
 #' library("rnhanesdata")
+#' ## download and
 #' process_accel()
 #' process_flags()
 #' }
@@ -98,6 +99,7 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
         if(any(!paste0(names_accel_xpt,".xpt") %in% list.files(localpath)) & local & !zipped){
             stop(paste0("One or more of ", paste0(names_accel_xpt,".xpt"), " not found in localpath directory."))
         }
+        stopifnot(compress %in% c("xz","gzip","bzip2"))
 
         out.name <- gsub("PAXRAW", "PAXINTEN", names_accel_xpt)
         ret <- c()
@@ -233,7 +235,7 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' The data should be sorted by participant (SEQN) and then in descending order chronologically. The output of \code{\link{process_accel}} can be fed directly to
 #' this argument. See examples.
 #'
-#' @param write logical argument indicating whether a .rda file should be created for each wave of processed data.
+#' @param write Logical value indicating whether a .rda file should be created for each wave of processed data.
 #'   Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
 #'   wave will be saved as an .rda file named Flags_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.
 #'
@@ -243,9 +245,7 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' @param window size of the moving window used to assess non-wear in minutes. Defaults to 90 minutes.
 #' See \code{\link{weartime}} for more details.
 #'
-#' @param tol maximum number of minutes with counts greater than 0 within the window allowed before a particular
-#' minute is considered "wear". That is, if for a given minute, the window around that minute has tol + 1
-#' activity counts greater than 0, this miute is considered "wear".
+#' @param tol maximum number of minutes with counts greater than 0 within the a non-wear interval.
 #' See \code{\link{weartime}} for more details.
 #'
 #' @param tol_upper maximium activity count for any minute within the window
@@ -253,13 +253,41 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' activity counts greater than tol.upper, this minute is considered "wear".
 #' See \code{\link{weartime}} for more details.
 #'
+#' @param compress Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
+#' but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.
+#'
 #' @param ... aditional arguments to be passed to \code{\link{weartime}}.
 #'
 #'
 #' @return
 #'
 #' The function process_flags returns a list with number of elemnts equal to the number of elements in the object supplied to the "x" argument.
-#' Each element of the list returned is a dataframe with the following columns:
+#' Each element of the list returned is a dataframe that mirrors the format of dataframes returned from the \code{\link{process_accel}} function, but instead
+#' with the columns conveying activity count data replaced with 0/1 indicators for estimated periods of non-wear.
+#' More specifically, each element is a data frame with the following columns
+#'
+#' \itemize{
+#'    \item{SEQN:} {Unique subject identifier}
+#'    \item{PAXCAL:}{ Device calibration.
+#'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
+#'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
+#'    }
+#'    \item{PAXSTAT:}{ Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
+#'    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
+#'    }
+#'    \item{SDDSRVYR:}{ Variable indicating which wave of the NHANES study this data is associated with. For example,
+#'    SDDSRVYR = 3 corresponds to the 2003-2004 wave and SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
+#'    \item{WEEKDAY:}{ Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
+#'    \item{MIN1-MIN1440:}{ Wear/Non-wear flag corresponding to each minute of the day. These columns can take on the following 3 values
+#'              \itemize{
+#'              \item{0:}{ A value of 0 indicates that a particular minute is determined to be "non-wear"}
+#'              \item{1:}{ A value of 1 indicated that a particular minute is determined to be "wear"}
+#'              \item{NA:}{ A value of NA indicates that a particular minute was missing data in the activity count data matrix used to create this set
+#'              of wear/non-wear flags}
+#'              }
+#'     For example, a value of 0 in the column MIN1 indicates that during the time period 00:00-00:01, it was estimated that the device was not worn.}
+#' }
+#'
 #'
 #' @examples
 #' \dontrun{
@@ -275,11 +303,13 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' @export
 process_flags <- function(x,
                           write=FALSE, localpath=NULL, days_distinct=FALSE,
-                          window=90L, tol=2L, tol_upper=99L, ...){
+                          window=90L, tol=2L, tol_upper=99L,
+                          compress="xz", ...){
         names_accel_xpt <- names(x)
         if(any(!grepl("^PAXINTEN_[A-Z]$", names_accel_xpt)) | is.null(names_accel_xpt)){
                 stop("x must be a list with each element corresponding to PAXINTEN_* where * denotes the letter corresponding the NHANES wave")
         }
+        stopifnot(compress %in% c("xz","gzip","bzip2"))
         out.name <- paste0("Flags_", substr(names_accel_xpt, nchar(names_accel_xpt), nchar(names_accel_xpt)))
 
         ret <- c()
@@ -324,7 +354,7 @@ process_flags <- function(x,
                                 localpath <- paste0(getwd(), .Platform$file.sep, out.name[i])
                         }
                         eval(parse(text=paste0(out.name[i], "<- out")))
-                        eval(parse(text=paste0("save(", out.name[i], ", file=file.path(localpath, paste0(out.name[i], \".rda\")))")))
+                        eval(parse(text=paste0("save(", out.name[i], ", file=file.path(localpath, paste0(out.name[i], \".rda\", compress=",compress,")))")))
                 }
                 rm(list=c("out","full_data","WMX","uid","activity_data"))
 
@@ -349,19 +379,76 @@ process_flags <- function(x,
 #' This function creates a clean mortality dataset which can be combined with data from the
 #' NHANES 2003-2004/2005-2006 waves.
 #'
-#' @param waves
+#' @param waves Character vector indicating the waves . Defaults to a vector with "C" and "D", corresponding to the 2003-2004 and 2005-2006 waves.
 #'
-#' @param mort_release_yr
+#' @param mort_release_yr Nuemric value indicating the year associated with the raw mortality data to be processed. The default, 2011, corresponds to the
+#' most recent raw mortality data included in the data package.
 #'
 #' @param write logical argument indicating whether a .rda file of wear/non-wear flags
 #' should be created for each wave of processed data. Defaults to FALSE.
 #'
-#' @param localpath
+#' @param localpath Character scalar describing the location where . If NULL, the funciton will look in pacakge data directory for the requested raw mortality data.
+#' Defaults to NULL.
+#'
+#'
+#' @details
+#'
+#' As of writing, this funciton has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.
+#' The raw data comes in the form of a vector of strings, with each string associated with on participant.
+#' The location of relevant variables withn each string is described in the document .... (see references)
+#'
 #'
 #' @return
 #'
 #'
-#' This function returns a list
+#' This function will return a list with number of elements less than or equal to the number of waves of data specified by the "waves"
+#' argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
+#' indicated by the localpath argument; or available in the data package. Each element of the list returned is a data frame
+#' with columns:
+#'
+#' \itemize{
+#'    \item{SEQN:}{ Unique subject identifier}
+#'    \item{eligstat:}{ Eligibility status for mortality follow-up
+#'          \describe{
+#'                  \item{1}{ Eligible}
+#'                  \item{2}{ Under age 18, not available for public release}
+#'                  \item{3}{ Ineligible}
+#'          }
+#'    }
+#'    \item{mortat:}{ Indicator for whether participant was found to be alive or deceased at follow-up time given by
+#'    permth_exm and permth_int
+#'          \itemize{
+#'                  \item{0:}{ Assumed alive}
+#'                  \item{1:}{ Assumed deceased}
+#'                  \item{NA:}{ Under age 18, not available for public release or ineligible for mortality follow-up}
+#'          }
+#'    }
+#'    \item{permth_exm:}{ Time in months from the mobile examination center (MEC) assessment where mortality was assessed.}
+#'    \item{permth_int:}{ Time in months from the household interview where mortality was assessed.}
+#'    \item{ucod_leading:}{ Underlying cause of death recode from UCOD_113 leading causes where available. Specific causes:
+#'            \itemize{
+#'                  \item{001:}{ Diseases of the heart (I00-I09, I11, I13, I20-I51)}
+#'                  \item{002:}{ Malignant neoplasms (C00-C97)}
+#'                  \item{003:}{ Chronic lower respiratory diseases (J40-J47)}
+#'                  \item{004:}{ Accidents (unintentional injuries) (V01-X59, Y85-Y86)}
+#'                  \item{005:}{ Cerebrovascular diseases (I60-I69)}
+#'                  \item{006:}{ Alzheimer's disease (G30)}
+#'                  \item{007:}{ Diabetes mellitus (E10-E14)}
+#'                  \item{008:}{ Influenza and pneumonia (J09-J18)}
+#'                  \item{009:}{ Nephritis, nephrotic syndrome and nephrosis (N00-N07, N17-N19, N25-N27)}
+#'                  \item{010:}{ All other causes (residual)}
+#'                  \item{NA:}{ Ineligible, under age 18, assumed alive or no cause data}
+#'            }
+#'      }
+#'      \item{diabetes_mcod:}{ diabetes flag from multiple cause of death (mcod)}
+#'      \item{hyperten_mcod:}{ hyperten flag from multiple cause of death (mcod)}
+#'      \item{mortscrce_ndi:}{ mortality source: NDI match}
+#'      \item{mortscrce_ssa:}{ mortality source: SSA information}
+#'      \item{mortscrce_cms:}{ mortality source: CMS information}
+#'      \item{mortscrce_dc:}{ mortality source: death certificate match}
+#'      \item{mortscrce_dcl:}{ mortality source: data collection}
+#'
+#' }
 #'
 #' @examples
 #' \dontrun{
@@ -370,7 +457,10 @@ process_flags <- function(x,
 #' }
 #'
 #' @references
-#' \url{https://www.cdc.gov/nchs/data-linkage/mortality-public.htm}
+#'
+#' NHANES linked public mortality files are described at the following link: \url{https://www.cdc.gov/nchs/data-linkage/mortality-public.htm}.
+#'
+#'
 #'
 #'
 #' @export
@@ -511,7 +601,7 @@ process_mort <- function(waves=c("C","D"),
 #' @param varnames character vector indicating which column names are to be searched for.
 #' Will check all .XPT files in located in the directory specified by dataPath. If extractAll = TRUE, then this argument is effectively ignored.
 #'
-#' @param dataPath file path where covariate data are saved. Covariate data must be in .XPT format,
+#' @param localpath file path where covariate data are saved. Covariate data must be in .XPT format,
 #' and should be in their own folder. For example, PAXRAW_C.XPT should not be located in the folder with
 #' your covariate files. This will not cause an error, but the code will take much longer to run.
 #'
@@ -523,7 +613,16 @@ process_mort <- function(waves=c("C","D"),
 #'
 #'
 #' @return
-#' This function will return a list with each element corresponding to one wave of data.
+#'
+#' This function will return a list with number of elements less than or equal to the number of waves of data specified by the "waves"
+#' argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
+#' indicated by the localpath argument; or available in the data package. Each element of the list returned is a data frame. The columns of the data frame
+#' will depend on the variables specified in the "varnames" argument and whether those variable are available for some (or any) of the waves specfied by the waves argument.
+#' At a minimum, the returned dataframe will contain a column for each subject identifier (SEQN).
+#'
+#' If the demographic datasets are not in the directory specified by localpath, there is no guarantee that all participants in a wave will be included in the retunred results.
+#'
+#'
 #'
 #'
 #' @examples
@@ -544,7 +643,7 @@ process_covar <- function(waves=c("C","D"),
                                        "ALQ101", "ALQ110", "ALQ120Q","ALQ120U", "ALQ130", "SMQ020", "SMD030", "SMQ040",
                                        "MCQ220","MCQ160F", "MCQ160B", "MCQ160C",
                                        "PFQ049","PFQ054","PFQ057","PFQ059", "PFQ061B", "PFQ061C", "DIQ010"),
-                          dataPath=NULL,
+                          localpath=NULL,
                           write=FALSE,
                           extractAll=FALSE){
 
@@ -556,10 +655,10 @@ process_covar <- function(waves=c("C","D"),
         ## ensure ID variable is in search
         varnames <- unique(c('SEQN',varnames))
         ## find all files of .xpt structure that correspond to the year specified in the data
-        if(is.null(dataPath)){
-                dataPath <- system.file("extdat/covar/",package="nhanesdata")
+        if(is.null(localpath)){
+                localpath <- system.file("extdat/covar/",package="nhanesdata")
         }
-        files_full   <- list.files(dataPath)
+        files_full   <- list.files(localpath)
 
         ret <-c()
 
@@ -574,7 +673,7 @@ process_covar <- function(waves=c("C","D"),
 
                 ## find which files contain the variables requested by the user
                 covarMats <- lapply(files, function(x){
-                        mat <- try(read_xpt(paste0(dataPath,x)))
+                        mat <- try(read_xpt(paste0(localpath,x)))
                         if(inherits(mat, "try-error")) return(NULL)
                         if(!"SEQN" %in% colnames(mat)) return(NULL)
                         ## expecting SEQN to be first column in all NHANES datasets
@@ -697,8 +796,7 @@ process_covar <- function(waves=c("C","D"),
 #'
 #'
 #' @export
-exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, rm_PAXCAL = TRUE,
-                          return_act = FALSE){
+exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, rm_PAXCAL = TRUE){
         stopifnot(all(is.data.frame(act), is.data.frame(flags)))
         stopifnot(all(colnames(act) == colnames(flags)))
         stopifnot(all(c("PAXSTAT", "PAXCAL", paste0("MIN",1:1440)) %in% colnames(act)))
@@ -721,20 +819,26 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #' Reweight NHANES accelerometry data
 #'
 #' @description
-#' This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves
+#' This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves.
 #'
 #' @param data data frame to with survey weights to be re-weighted.Should only contain one subject per ror.
 #'
-#' @param return_unadjusted_wts
+#' @param return_unadjusted_wts Logical value indicating whether to return the unadjusted 2-year and, if applicable, 4-year survey weights for all participants.
 #'
-#' @param age_bks
+#' @param age_bks Vector of ages which define the intervals used for re-weighting. This argument is passed to the \code{\link{cut}} function to create age categories which are in turn
+#' used to re-weight participants. The argument "right" determines whether these intervals will be closed on the right or the left.
 #'
-#' @param right
+#' @param right Logical value indicating whether the age intervals defined by the "age_bks" arguement should be closed on the left (right=FALSE) or the right (right=TRUE).
+#' See \code{\link{cut}} for additional details and examples. Defaults to TRUE.
+#'
+#' @details
+#'
+#' The reweight_accel function is designed to re-weight only the 2003-2004 and 2005-2006 waves.
 #'
 #'
 #' @return
 #'
-#' The function reweight_accel will return a dataframe
+#' The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" arguement
 #'
 #' @examples
 #' \dontrun{
