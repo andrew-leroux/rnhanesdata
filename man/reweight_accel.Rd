@@ -9,6 +9,15 @@ reweight_accel(data, return_unadjusted_wts = TRUE, age_bks = c(0, 1, 3,
 }
 \arguments{
 \item{data}{data frame to with survey weights to be re-weighted.Should only contain one subject per ror.}
+
+\item{return_unadjusted_wts}{}
+
+\item{age_bks}{}
+
+\item{right}{}
+}
+\value{
+The function reweight_accel will return a dataframe
 }
 \description{
 This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves

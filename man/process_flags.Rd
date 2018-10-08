@@ -6,7 +6,7 @@
 \usage{
 process_flags(x, write = FALSE, localpath = NULL,
   days_distinct = FALSE, window = 90L, tol = 2L, tol_upper = 99L,
-  ...)
+  nci = TRUE, ...)
 }
 \arguments{
 \item{x}{A list with each element corresponding to a data matrix of activity counts in the 1440+ format with 7 rows per individual.
@@ -33,6 +33,10 @@ activity counts greater than tol.upper, this minute is considered "wear".
 See \code{\link{weartime}} for more details.}
 
 \item{...}{aditional arguments to be passed to \code{\link{weartime}}.}
+}
+\value{
+The function process_flags returns a list with number of elemnts equal to the number of elements in the object supplied to the "x" argument.
+Each element of the list returned is a dataframe with the following columns:
 }
 \description{
 This function creates wear/non-wear flag matrices for processed NHANES 2003-2004 and 2005-2006 accelerometry data

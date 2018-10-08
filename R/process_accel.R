@@ -17,15 +17,56 @@
 #'
 #' @param localpath character string indicating where the locally zipped raw .xpt files are.
 #'
+#' @param urls character
+#'
 #' @param write logical argument indicating whether a .rda file should be created for each wave of processed data.
 #'   Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
 #'   wave will be saved as an .rda file named PAXINTEN_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.
 #'
-#' @param deleteraw logical argument indicating whether to delete the unzipped .xpt files after reading them into R.
+#' @param deleteraw logical scalar indicating whether to delete the (un)zipped .xpt files after reading them into R. If deleteraw=TRUE and zipped=TRUE,
+#' both the .xpt and .ZIP files are deleted locally. Defaults to FALSE.
+#'
+#' @param zipped logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
+#' If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored.
+#'
+#' @param compress character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
+#' but is not compatable with some old versions of R.
+#'
+#'
+#' @details
+#'
+#' The function process_accel can be used to process the NHANES 2003-2004 and 2005-2006 waves accelerometry data.
+#'
+#' @return
+#'
+#' This function will return a list with number of elements less than or equal to the number of waves of data specified by the names_accel_xpt
+#' argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
+#' indicated by the localpath argument; or 2) downloadable from the website(s) indicated by the "urls" argument. Each element of the list returned is a data frame
+#' with columns:
+#'
+#' \itemize{
+#'    \item{SEQN:} {Unique subject identifier}
+#'    \item{PAXCAL:}{ Device calibration.
+#'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
+#'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
+#'    }
+#'    \item{PAXSTAT:}{ Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
+#'    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
+#'    }
+#'    \item{SDDSRVYR:}{ Variable indicating which wave of the NHANES study this data is associated with. For example,
+#'    SDDSRVYR = 3 corresponds to the 2003-2004 wave and SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
+#'    \item{WEEKDAY:}{ Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
+#'    \item{MIN1-MIN1440:}{ Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
+#' }
+#'
+#' Although process_accel will try to process any ".xpt" or ".ZIP" file which follows the NHANES accelerometry naming convention, it has only been tested
+#' on the NHANES 2003-2006 waves' accelerometry data. As future NHANES accelerometry data are released, we intend to verify that process_accel
+#' will correctly transform the newly released data into our 1440+ format.
+#' The function documentation, and, if necessary the function itself, will be updated as needed going forward.
 #'
 #' @examples
 #' \dontrun{
-#' library("nhanesdata")
+#' library("rnhanesdata")
 #' process_accel()
 #' process_flags()
 #' }
@@ -36,9 +77,8 @@
 #'
 #' @export
 process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
-                          write=FALSE, local=FALSE,
-                          localpath=NULL, deleteraw=TRUE,
-                          urls=NULL){
+                          write=FALSE, local=FALSE, localpath=NULL, urls=NULL,
+                          deleteraw=FALSE, zipped=TRUE, compress="xz"){
 
         if(local & is.null(localpath)){
                 stop("If specifying local = TRUE, must specify localpath as a local directory where the zipped data files are saved.")
@@ -52,8 +92,11 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
         if(any(!local & is.null(urls), !local & length(urls) != length(names_accel_xpt)) ){
                 stop("If the data is not locally stored urls must be a vector of the same length as names_accel_xpt.")
         }
-        if(any(!paste0(names_accel_xpt,".ZIP") %in% list.files(localpath)) & local){
+        if(any(!paste0(names_accel_xpt,".ZIP") %in% list.files(localpath)) & local & zipped){
                 stop(paste0("One or more of ", paste0(names_accel_xpt,".ZIP"), " not found in localpath directory."))
+        }
+        if(any(!paste0(names_accel_xpt,".xpt") %in% list.files(localpath)) & local & !zipped){
+            stop(paste0("One or more of ", paste0(names_accel_xpt,".xpt"), " not found in localpath directory."))
         }
 
         out.name <- gsub("PAXRAW", "PAXINTEN", names_accel_xpt)
@@ -62,21 +105,28 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
                 datapath <- c()
                 # if local=FALSE, download the data directly from the link provided in URLS
                 if(!local){
-                        datapath <- system.file("extdat","act",package="nhanesdata")
+                        datapath <- system.file("extdat",package="nhanesdata")
                         temp <- tempfile()
                         download.file(urls[i], temp)
                         sim.data <- read_xpt(unzip(temp,
                                                    tolower(paste0(names_accel_xpt[i],".xpt"))))
                         unlink(temp)
-                        if(deleteraw) file.remove(paste0(datapath, names_accel_xpt[i],".xpt"))
                 }
                 if(local){
                         datapath <- localpath
-                        sim.data <- read_xpt(unzip(paste0(datapath, names_accel_xpt[i],".ZIP"),
-                                                   tolower(paste0(names_accel_xpt[i],".xpt")),
-                                                   exdir=datapath)
-                        )
-                        if(deleteraw) file.remove(paste0(datapath, names_accel_xpt[i],".xpt"))
+                        if(zipped){
+                            sim.data <- read_xpt(unzip(paste0(datapath, names_accel_xpt[i],".ZIP"),
+                                                       tolower(paste0(names_accel_xpt[i],".xpt")),
+                                                       exdir=datapath)
+                                                )
+                        }
+                }
+                if(deleteraw){
+                    ext_tmp <- c(".xpt")
+                    if(zipped) ext_tmp <- c(ext_tmp, ".ZIP")
+
+                    file.remove(paste0(datapath, names_accel_xpt[i],ext_tmp))
+                    rm(list=c("ext_tmp"))
                 }
 
 
@@ -145,7 +195,7 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 
                 if(write){
                         eval(parse(text=paste0("assign(\"",out.name[i], "\", value=ret[[out.name[i]]])")))
-                        eval(parse(text=paste0("save(", out.name[i],",file=\"", datapath, out.name[i], ".rda\")")))
+                        eval(parse(text=paste0("save(", out.name[i],",file=\"", datapath, out.name[i], ".rda\", compress=", compress,")")))
                         message(paste0("Wave ", i, " Saved as: ", datapath, out.name[i], ".rda"))
                         rm(list=c(out.name[i]))
                 }
@@ -206,6 +256,11 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' @param ... aditional arguments to be passed to \code{\link{weartime}}.
 #'
 #'
+#' @return
+#'
+#' The function process_flags returns a list with number of elemnts equal to the number of elements in the object supplied to the "x" argument.
+#' Each element of the list returned is a dataframe with the following columns:
+#'
 #' @examples
 #' \dontrun{
 #' process_accel(write=FALSE)
@@ -220,9 +275,9 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' @export
 process_flags <- function(x,
                           write=FALSE, localpath=NULL, days_distinct=FALSE,
-                          window=90L, tol=2L, tol_upper=99L, ...){
+                          window=90L, tol=2L, tol_upper=99L, nci=TRUE, ...){
         names_accel_xpt <- names(x)
-        if(any(!grepl("^PAXINTEN_[A-Z]$", names_accel_xpt))){
+        if(any(!grepl("^PAXINTEN_[A-Z]$", names_accel_xpt)) | is.null(names_accel_xpt)){
                 stop("x must be a list with each element corresponding to PAXINTEN_* where * denotes the letter corresponding the NHANES wave")
         }
         out.name <- paste0("Flags_", substr(names_accel_xpt, nchar(names_accel_xpt), nchar(names_accel_xpt)))
@@ -246,7 +301,7 @@ process_flags <- function(x,
                 for(j in 1:length(uid)){
                         inx_i           <- which(full_data$SEQN == uid[j])
                         activity_data_i <- as.vector(t(activity_data[inx_i,]))
-                        wt              <- weartime(activity_data_i, window = window, tol = tol,
+                        wt              <- weartime(activity_data_i, window = window, tol = tol, nci=nci,
                                                     tol_upper = tol_upper, days_distinct=days_distinct, ...)
                         WMX[inx_i,] <- matrix(wt, ncol=1440, nrow=length(inx_i), byrow=TRUE)
                         rm(list=c("wt","inx_i","activity_data_i"))
@@ -266,15 +321,15 @@ process_flags <- function(x,
 
                 if(write){
                         if(is.null(localpath)){
-                                writepath <- paste0(getwd(), .Platform$file.sep, out.name[i])
+                                localpath <- paste0(getwd(), .Platform$file.sep, out.name[i])
                         }
                         eval(parse(text=paste0(out.name[i], "<- out")))
-                        eval(parse(text=paste0("save(", out.name[i], ", file=file.path(writepath, paste0(out.name[i], \".rda\")))")))
+                        eval(parse(text=paste0("save(", out.name[i], ", file=file.path(localpath, paste0(out.name[i], \".rda\")))")))
                 }
                 rm(list=c("out","full_data","WMX","uid","activity_data"))
 
         }
-        class(ret) <- c(class(ret), "flags1440")
+
         ret
 
 }
@@ -294,12 +349,19 @@ process_flags <- function(x,
 #' This function creates a clean mortality dataset which can be combined with data from the
 #' NHANES 2003-2004/2005-2006 waves.
 #'
+#' @param waves
 #'
+#' @param mort_release_yr
 #'
 #' @param write logical argument indicating whether a .rda file of wear/non-wear flags
 #' should be created for each wave of processed data. Defaults to FALSE.
 #'
+#' @param localpath
 #'
+#' @return
+#'
+#'
+#' This function returns a list
 #'
 #' @examples
 #' \dontrun{
@@ -663,6 +725,16 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #'
 #' @param data data frame to with survey weights to be re-weighted.Should only contain one subject per ror.
 #'
+#' @param return_unadjusted_wts
+#'
+#' @param age_bks
+#'
+#' @param right
+#'
+#'
+#' @return
+#'
+#' The function reweight_accel will return a dataframe
 #'
 #' @examples
 #' \dontrun{

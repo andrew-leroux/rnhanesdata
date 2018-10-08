@@ -5,8 +5,8 @@
 \title{Process NHANES 2003-2004 and 2005-2006 accelerometry data}
 \usage{
 process_accel(names_accel_xpt = c("PAXRAW_C", "PAXRAW_D"),
-  write = FALSE, local = FALSE, localpath = NULL, deleteraw = TRUE,
-  urls = NULL)
+  write = FALSE, local = FALSE, localpath = NULL, urls = NULL,
+  deleteraw = FALSE, zipped = TRUE, compress = "xz")
 }
 \arguments{
 \item{names_accel_xpt}{A character vector of names for the zipped raw files. These should be of the form PAXRAW_\* where \* corresponds to the
@@ -23,7 +23,42 @@ the zipped data will be sourced locally. Defaults to FALSE.}
 
 \item{localpath}{character string indicating where the locally zipped raw .xpt files are.}
 
-\item{deleteraw}{logical argument indicating whether to delete the unzipped .xpt files after reading them into R.}
+\item{urls}{character}
+
+\item{deleteraw}{logical scalar indicating whether to delete the (un)zipped .xpt files after reading them into R. If deleteraw=TRUE and zipped=TRUE,
+both the .xpt and .ZIP files are deleted locally. Defaults to FALSE.}
+
+\item{zipped}{logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
+If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored.}
+
+\item{compress}{character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
+but is not compatable with some old versions of R.}
+}
+\value{
+This function will return a list with number of elements less than or equal to the number of waves of data specified by the names_accel_xpt
+argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
+indicated by the localpath argument; or 2) downloadable from the website(s) indicated by the "urls" argument. Each element of the list returned is a data frame
+with columns:
+
+\itemize{
+   \item{SEQN:} {Unique subject identifier}
+   \item{PAXCAL:}{ Device calibration.
+   Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
+   Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
+   }
+   \item{PAXSTAT:}{ Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
+   Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
+   }
+   \item{SDDSRVYR:}{ Variable indicating which wave of the NHANES study this data is associated with. For example,
+   SDDSRVYR = 3 corresponds to the 2003-2004 wave and SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
+   \item{WEEKDAY:}{ Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
+   \item{MIN1-MIN1440:}{ Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
+}
+
+Although process_accel will try to process any ".xpt" or ".ZIP" file which follows the NHANES accelerometry naming convention, it has only been tested
+on the NHANES 2003-2006 waves' accelerometry data. As future NHANES accelerometry data are released, we intend to verify that process_accel
+will correctly transform the newly released data into our 1440+ format.
+The function documentation, and, if necessary the function itself, will be updated as needed going forward.
 }
 \description{
 This function processes the raw NHANES 2003-2004 and 2005-2006 accelerometry data
@@ -32,9 +67,12 @@ Note that due to the large file size of the unzipped .xpt files, this function u
 amount of RAM (~12 GB peak). To avoid crashing your computer when running, please ensure you have
 enough RAM available.
 }
+\details{
+The function process_accel can be used to process the NHANES 2003-2004 and 2005-2006 waves accelerometry data.
+}
 \examples{
 \dontrun{
-library("nhanesdata")
+library("rnhanesdata")
 process_accel()
 process_flags()
 }

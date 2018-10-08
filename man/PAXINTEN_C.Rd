@@ -7,18 +7,19 @@
 \format{A data frame with 50232 rows and 1445 variables. There are 7 rows per unqiue subject identifier (SEQN).
         Rows are ordered descending temporally within subjects
         (i.e. row 1 is the first day of data for the first participant, row 2 is the following calendar day, etc.).
-\describe{
-   \item{SEQN}{Unique subject identifier}
-   \item{PAXCAL}{Device calibration.
+\itemize{
+   \item{SEQN:} {Unique subject identifier}
+   \item{PAXCAL:}{ Device calibration.
    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
    }
-   \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
+   \item{PAXSTAT:}{ Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
    }
-   \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 3 corresponds to the 2003-2004 wave.}
-   \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
-   \item{MIN1-MIN1440}{Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
+   \item{SDDSRVYR:}{ Variable indicating which wave of the NHANES study this data is associated with. For example,
+   SDDSRVYR = 3 corresponds to the 2003-2004 wave and SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
+   \item{WEEKDAY:}{ Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
+   \item{MIN1-MIN1440:}{ Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
 }}
 \source{
 \url{https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAXRAW_C.htm}

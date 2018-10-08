@@ -3,18 +3,19 @@
 #' @format A data frame with 50232 rows and 1445 variables. There are 7 rows per unqiue subject identifier (SEQN).
 #'         Rows are ordered descending temporally within subjects
 #'         (i.e. row 1 is the first day of data for the first participant, row 2 is the following calendar day, etc.).
-#' \describe{
-#'    \item{SEQN}{Unique subject identifier}
-#'    \item{PAXCAL}{Device calibration.
+#' \itemize{
+#'    \item{SEQN:} {Unique subject identifier}
+#'    \item{PAXCAL:}{ Device calibration.
 #'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
 #'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
 #'    }
-#'    \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
+#'    \item{PAXSTAT:}{ Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
 #'    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
 #'    }
-#'    \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 3 corresponds to the 2003-2004 wave.}
-#'    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
-#'    \item{MIN1-MIN1440}{Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
+#'    \item{SDDSRVYR:}{ Variable indicating which wave of the NHANES study this data is associated with. For example,
+#'    SDDSRVYR = 3 corresponds to the 2003-2004 wave and SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
+#'    \item{WEEKDAY:}{ Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
+#'    \item{MIN1-MIN1440:}{ Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
 #' }
 #'
 #' @source \url{https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAXRAW_C.htm}
@@ -24,18 +25,19 @@
 #' A dataset containing minute level accelerometry data reported as "Activity Counts" for NHANES 2003-2004 participants selected for the Mobile Examination Center (MEC) portion of the study.
 #'
 #' @format A data frame with 52185 rows and 1445 variables. There are 7 rows per unqiue subject identifier (SEQN). Rows are ordered descending temporally within subjects (i.e. row 1 is the first day of data for the first participant, row 2 is the following calendar day, etc.).
-#' \describe{
-#'    \item{SEQN}{Unique subject identifier}
-#'    \item{PAXCAL}{Device calibration.
+#' \itemize{
+#'    \item{SEQN:} {Unique subject identifier}
+#'    \item{PAXCAL:}{ Device calibration.
 #'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
 #'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
 #'    }
-#'    \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
+#'    \item{PAXSTAT:}{ Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
 #'    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
 #'    }
-#'    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
-#'    \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
-#'    \item{MIN1-MIN1440}{Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
+#'    \item{SDDSRVYR:}{ Variable indicating which wave of the NHANES study this data is associated with. For example,
+#'    SDDSRVYR = 3 corresponds to the 2003-2004 wave and SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
+#'    \item{WEEKDAY:}{ Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
+#'    \item{MIN1-MIN1440:}{ Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
 #' }
 #'
 #' @source \url{https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/PAXRAW_D.htm}
@@ -49,18 +51,26 @@
 #' These wear/non-wear flags were calculated by applying the algorithm described in Troiano et. al (2008) <doi:10.1249/mss.0b013e31815a51b3>.
 #'
 #' @format A data frame with 50232 rows and 1445 variables. There are 7 rows per unqiue subject identifier (SEQN). Rows are ordered descending temporally within subjects (i.e. row 1 is the first day of data for the first participant, row 2 is the following calendar day, etc.).
-#' \describe{
-#'    \item{SEQN}{Unique subject identifier}
-#'    \item{PAXCAL}{Device calibration.
+#' \itemize{
+#'    \item{SEQN:}{ Unique subject identifier}
+#'    \item{PAXCAL:}{ Device calibration.
 #'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
 #'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
 #'    }
-#'    \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
+#'    \item{PAXSTAT:}{ Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
 #'    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
 #'    }
-#'    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
-#'    \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 3 corresponds to the 2003-2004 wave.}
-#'    \item{MIN1-MIN1440}{Wear/Non-wear flag corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
+#'    \item{WEEKDAY:} { Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
+#'    \item{SDDSRVYR:}{ Variable indicating which wave of the NHANES study this data is associated with. For example,
+#'    SDDSRVYR = 3 corresponds to the 2003-2004 wave and SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
+#'    \item{MIN1-MIN1440:}{ Wear/Non-wear flag corresponding to each minute of the day. These columns can take on the following 3 values
+#'              \itemize{
+#'              \item{0:}{ A value of 0 indicates that a particular minute is determined to be "non-wear"}
+#'              \item{1:}{ A value of 1 indicated that a particular minute is determined to be "wear"}
+#'              \item{NA:}{ A value of NA indicates that a particular minute was missing data in the activity count data matrix used to create this set
+#'              of wear/non-wear flags}
+#'              }
+#'     For example, a value of 0 in the column MIN1 indicates that during the time period 00:00-00:01, it was estimated that the device was not worn.}
 #' }
 #'
 "Flags_C"
@@ -73,18 +83,26 @@
 #' These wear/non-wear flags were calculated by applying the algorithm described in Troiano et. al (2008) <doi:10.1249/mss.0b013e31815a51b3>.
 #'
 #' @format A data frame with 52185 rows and 1445 variables. There are 7 rows per unqiue subject identifier (SEQN). Rows are ordered descending temporally within subjects (i.e. row 1 is the first day of data for the first participant, row 2 is the following calendar day, etc.).
-#' \describe{
-#'    \item{SEQN}{Unique subject identifier}
-#'    \item{PAXCAL}{Device calibration.
+#' \itemize{
+#'    \item{SEQN:}{ Unique subject identifier}
+#'    \item{PAXCAL:}{ Device calibration.
 #'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
 #'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
 #'    }
-#'    \item{PAXSTAT}{Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
-#'    Any individuals with 2 in this variable should be handled examined carefully before being included in any analysis.
+#'    \item{PAXSTAT:}{ Data reliability status flag. 1 = Data deemed reliable, 2 = Data reliability is questioable.
+#'    Any individuals with 2 in this variable should be examined carefully before being included in any analysis.
 #'    }
-#'    \item{WEEKDAY}{Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
-#'    \item{SDDSRVYR}{Variable indicating which wave of the NHANES study this data is associated with. SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
-#'    \item{MIN1-MIN1440}{Wear/Non-wear flag corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
+#'    \item{WEEKDAY:} { Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
+#'    \item{SDDSRVYR:}{ Variable indicating which wave of the NHANES study this data is associated with. For example,
+#'    SDDSRVYR = 3 corresponds to the 2003-2004 wave and SDDSRVYR = 4 corresponds to the 2005-2006 wave.}
+#'    \item{MIN1-MIN1440:}{ Wear/Non-wear flag corresponding to each minute of the day. These columns can take on the following 3 values
+#'              \itemize{
+#'              \item{0:}{ A value of 0 indicates that a particular minute is determined to be "non-wear"}
+#'              \item{1:}{ A value of 1 indicated that a particular minute is determined to be "wear"}
+#'              \item{NA:}{ A value of NA indicates that a particular minute was missing data in the activity count data matrix used to create this set
+#'              of wear/non-wear flags}
+#'              }
+#'     For example, a value of 0 in the column MIN1 indicates that during the time period 00:00-00:01, it was estimated that the device was not worn.}
 #' }
 #'
 "Flags_D"

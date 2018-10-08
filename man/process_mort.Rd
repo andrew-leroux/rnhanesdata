@@ -8,8 +8,17 @@ process_mort(waves = c("C", "D"), mort_release_yr = 2011,
   write = FALSE, localpath = NULL)
 }
 \arguments{
+\item{waves}{}
+
+\item{mort_release_yr}{}
+
 \item{write}{logical argument indicating whether a .rda file of wear/non-wear flags
 should be created for each wave of processed data. Defaults to FALSE.}
+
+\item{localpath}{}
+}
+\value{
+This function returns a list
 }
 \description{
 This function creates a clean mortality dataset which can be combined with data from the
