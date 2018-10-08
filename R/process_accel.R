@@ -275,7 +275,7 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' @export
 process_flags <- function(x,
                           write=FALSE, localpath=NULL, days_distinct=FALSE,
-                          window=90L, tol=2L, tol_upper=99L, nci=TRUE, ...){
+                          window=90L, tol=2L, tol_upper=99L, ...){
         names_accel_xpt <- names(x)
         if(any(!grepl("^PAXINTEN_[A-Z]$", names_accel_xpt)) | is.null(names_accel_xpt)){
                 stop("x must be a list with each element corresponding to PAXINTEN_* where * denotes the letter corresponding the NHANES wave")
@@ -301,7 +301,7 @@ process_flags <- function(x,
                 for(j in 1:length(uid)){
                         inx_i           <- which(full_data$SEQN == uid[j])
                         activity_data_i <- as.vector(t(activity_data[inx_i,]))
-                        wt              <- weartime(activity_data_i, window = window, tol = tol, nci=nci,
+                        wt              <- weartime(activity_data_i, window = window, tol = tol,
                                                     tol_upper = tol_upper, days_distinct=days_distinct, ...)
                         WMX[inx_i,] <- matrix(wt, ncol=1440, nrow=length(inx_i), byrow=TRUE)
                         rm(list=c("wt","inx_i","activity_data_i"))
