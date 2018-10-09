@@ -17,7 +17,8 @@ process_covar(waves = c("C", "D"), varnames = c("SDDSRVYR", "WTMEC2YR",
 NHANES wave of interest. Defaults to a vector containing "C" and "D" corresponding to the NHANES 2003-2004 and 2005-2006 waves.}
 
 \item{varnames}{character vector indicating which column names are to be searched for.
-Will check all .XPT files in located in the directory specified by dataPath. If extractAll = TRUE, then this argument is effectively ignored.}
+Will check all .XPT files in located in the directory specified by dataPath. If extractAll = TRUE, then this argument is effectively ignored. Defaults
+to variables which are required to create the processed data matrices \code{\link{Covariate_C}} and  \code{\link{Covariate_D}}.}
 
 \item{localpath}{file path where covariate data are saved. Covariate data must be in .XPT format,
 and should be in their own folder. For example, PAXRAW_C.XPT should not be located in the folder with
@@ -39,8 +40,10 @@ At a minimum, the returned dataframe will contain a column for each subject iden
 If the demographic datasets are not in the directory specified by localpath, there is no guarantee that all participants in a wave will be included in the retunred results.
 }
 \description{
-This function merges covariate data
-from one or more  NHANES data files across one or more waves of the study.
+This function retrieves and merges covariate data
+from one or more NHANES data files across one or more waves of the study. Variables are merged using the NHANES unique subject identifier (SEQN).
+}
+\details{
 This function will only recognize those files which have "SEQN" as their first column name as this is the format across all NHANES data files.
 }
 \examples{

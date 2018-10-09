@@ -16,7 +16,8 @@ most recent raw mortality data included in the data package.}
 \item{write}{logical argument indicating whether a .rda file of wear/non-wear flags
 should be created for each wave of processed data. Defaults to FALSE.}
 
-\item{localpath}{Character scalar describing the location where . If NULL, the funciton will look in pacakge data directory for the requested raw mortality data.
+\item{localpath}{Character scalar describing the location where the raw data are stored.
+If NULL, the funciton will look in pacakge data directory for the requested raw mortality data.
 Defaults to NULL.}
 }
 \value{
@@ -79,10 +80,16 @@ The raw data comes in the form of a vector of strings, with each string associat
 The location of relevant variables withn each string is described in the document .... (see references)
 }
 \examples{
-\dontrun{
+library("rnhanesdata")
 
+## process NHANES mortality data using the raw mortality data release from 2011 that comes
+## with the package
+mort_ls <- process_mort()
 
-}
+## verify that this yields identical results to the processed data included in the package
+identical(mort_ls$Mortality_2011_C, Mortality_2011_C)
+identical(mort_ls$Mortality_2011_D, Mortality_2011_D)
+
 
 }
 \references{

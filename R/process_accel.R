@@ -11,31 +11,34 @@
 #' letter of the alphabet indicating which "wave" the data is from. For example, PAXRAW_C and PAXRAW_D correspond to the 2003-2004 and 2005-2006 waves
 #' accelerometery data, respectively. A vector containing PAXRAW_C and PAXRAW_D is the default and will process both 2003-2004 and 2005-2006 waves data.
 #'
-#' @param local logical argument indicating whether the zippped raw .xpt accelerometry files are stored locally.
-#' If FALSE, will download the data into a temporary file from the CDC website and process the data. If TRUE,
+#' @param local Logical value indicating whether the zippped raw .xpt accelerometry files are stored locally.
+#' If FALSE, will download the data into a temporary file from the CDC website and process the data. If TRUE, localpath must be specified and
 #' the zipped data will be sourced locally. Defaults to FALSE.
 #'
-#' @param localpath character string indicating where the locally zipped raw .xpt files are.
+#' @param localpath Character string indicating where the locally zipped raw .xpt files are.
 #'
-#' @param urls character
+#' @param urls Character vector provides the website URLs where the NHANES accelerometry data can be downloaded. The default contains the URLs which will directly download the data frome
+#' the CDC's website. This argument, if specified, must be the same length as the names_accel_xpt argument. Downloading the data through R is often slower than downloading the data outside of R.
+#' See the examples section below for how to download and process the data directly from the CDC.
 #'
-#' @param write logical argument indicating whether a .rda file should be created for each wave of processed data.
+#' @param write Logical value indicating whether a .rda file should be created for each wave of processed data.
 #'   Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
 #'   wave will be saved as an .rda file named PAXINTEN_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.
 #'
-#' @param deleteraw logical scalar indicating whether to delete the (un)zipped .xpt files after reading them into R. If deleteraw=TRUE and zipped=TRUE,
+#' @param deleteraw Logical value indicating whether to delete the (un)zipped .xpt files after reading them into R. If deleteraw=TRUE and zipped=TRUE,
 #' both the .xpt and .ZIP files are deleted locally. Defaults to FALSE.
 #'
-#' @param zipped logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
-#' If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored.
+#' @param zipped Logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
+#' If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored. Note that if the data are saved locally, processing speed is
+#' substantially increased by unzipping before calling the process_accel function.
 #'
 #' @param compress Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
 #' but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.
 #'
+#' @param check_data logical value indicating whether to perform some checks of the data. If TRUE, the function will incur additional processing time.
+#' The NHANES 2003-2006 data have been tested and already passed these checks. Defaults to FALSE.
 #'
-#' @details
 #'
-#' The function process_accel can be used to process the NHANES 2003-2004 and 2005-2006 waves accelerometry data.
 #'
 #' @return
 #'
@@ -67,9 +70,19 @@
 #' @examples
 #' \dontrun{
 #' library("rnhanesdata")
-#' ## download and
-#' process_accel()
-#' process_flags()
+#' ## download and process the data directly from the cdc
+#' ## the first element of accel_ls corresponds to PAXINTEN_C and
+#' ## the second element of accel_ls corresponds to PAXINTEN_D
+#' accel_ls <- process_accel(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
+#'                           local=FALSE, deletraw=TRUE,
+#'                           urls=urls=c("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAXRAW_C.ZIP",
+#'                                       "https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/PAXRAW_D.ZIP")
+#'                          )
+#'
+#' ## check to see that the data processed using the process_accel function
+#' ## are identical to the processed data included in the package
+#' identical(accel_ls[[1]], PAXINTEN_C)
+#' identical(accel_ls[[2]], PAXINTEN_D)
 #' }
 #'
 #' @importFrom haven read_xpt
@@ -78,8 +91,10 @@
 #'
 #' @export
 process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
-                          write=FALSE, local=FALSE, localpath=NULL, urls=NULL,
-                          deleteraw=FALSE, zipped=TRUE, compress="xz"){
+                          write=FALSE, local=FALSE,
+                          localpath=NULL, urls=NULL,
+                          deleteraw=FALSE, zipped=TRUE, compress="xz",
+                          check_data=FALSE){
 
         if(local & is.null(localpath)){
                 stop("If specifying local = TRUE, must specify localpath as a local directory where the zipped data files are saved.")
@@ -103,24 +118,29 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 
         out.name <- gsub("PAXRAW", "PAXINTEN", names_accel_xpt)
         ret <- c()
+
+        pb <- txtProgressBar(min=0, max=length(names_accel_xpt), style=3)
+
         for(i in seq_along(names_accel_xpt)){
                 datapath <- c()
+                xpt_nm <- tolower(paste0(names_accel_xpt[i],".xpt"))
                 # if local=FALSE, download the data directly from the link provided in URLS
                 if(!local){
                         datapath <- system.file("extdat",package="nhanesdata")
                         temp <- tempfile()
                         download.file(urls[i], temp)
-                        sim.data <- read_xpt(unzip(temp,
-                                                   tolower(paste0(names_accel_xpt[i],".xpt"))))
+                        sim.data <- read_xpt(unzip(temp, xpt_nm))
                         unlink(temp)
                 }
                 if(local){
                         datapath <- localpath
                         if(zipped){
-                            sim.data <- read_xpt(unzip(paste0(datapath, names_accel_xpt[i],".ZIP"),
-                                                       tolower(paste0(names_accel_xpt[i],".xpt")),
+                            sim.data <- read_xpt(unzip(file.path(datapath, paste0(names_accel_xpt[i],".ZIP")),
+                                                       xpt_nm,
                                                        exdir=datapath)
                                                 )
+                        } else {
+                            sim.data <- read_xpt(file.path(datapath, xpt_nm))
                         }
                 }
                 if(deleteraw){
@@ -134,8 +154,28 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 
                 uid <- as.character(unique(sim.data$SEQN))
 
-                ## read_xpt reads all variables in as numeric, check for truncation on reading in
-                stopifnot(all(nchar(uid)==5))
+                if(check_data){
+                    ## read_xpt reads all variables in as numeric, check for truncation on reading in
+                    stopifnot(all(nchar(uid)==5))
+
+                    ## get all indices for all subjects
+                    sp_n_inx <- split(1:nrow(sim.data), sim.data$SEQN)
+
+                    ## check that all subjects have 7 or fewer days
+                    sp_n_ln <- vapply(sp_n_inx, length, numeric(1))
+                    if(!all(sp_n_ln <= 7*1440)) stop("Some participants have more than 7 days of data")
+
+                    ## check that within a subject all data are sequential (i.e. no intermittent missing minutes)
+                    ## AND that all these numbers are equal to the column PAXN
+                    sp_n <- lapply(sp_n_inx, function(x){
+                                tmp <- sim.data[x,]
+                                tmp$n <- (tmp$PAXMINUT + 60*tmp$PAXHOUR) + (rep(0:6, each=1440)*1440)[1:length(x)]
+                                any(diff(tmp$n) != 1) | any(tmp$n+1 != tmp$PAXN)
+                            })
+                    if(!all(!unlist(sp_n))) stop("There is some intermittent missingness within participants. Please check the data source.")
+                }
+
+
 
                 ## create empty data frame with full 7 days of data for each subject (10,080 rows/subject)
                 n    <- length(uid)
@@ -144,7 +184,7 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
                 full.list <- data.frame(SEQN=seqn,PAXN=paxn)
                 rm(list=c("n","seqn","paxn"))
 
-                ## merge data sets to create data will include NAs for missing days/times
+
                 inx <- match(paste0(full.list$SEQN, "_", full.list$PAXN),
                              paste0(sim.data$SEQN, "_", sim.data$PAXN))
                 full.na <- cbind(full.list, sim.data[inx,-c(1,5)])
@@ -197,14 +237,15 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 
                 if(write){
                         eval(parse(text=paste0("assign(\"",out.name[i], "\", value=ret[[out.name[i]]])")))
-                        eval(parse(text=paste0("save(", out.name[i],",file=\"", datapath, out.name[i], ".rda\", compress=", compress,")")))
-                        message(paste0("Wave ", i, " Saved as: ", datapath, out.name[i], ".rda"))
+                        # eval(parse(text=paste0("save(", out.name[i],",file=\"", datapath, out.name[i], ".rda\", compress=\"", compress,"\")")))
+                        eval(parse(text=paste0("save(", out.name[i],",file=file.path(datapath, paste0(out.name[i], \".rda\")), compress=\"", compress,"\")")))
+                        # message(paste0("Wave ", i, " Saved as: ", datapath, out.name[i], ".rda"))
                         rm(list=c(out.name[i]))
                 }
 
                 rm(list=c("pax","pax.wide","col.name","idweekday"))
 
-                message(paste(names_accel_xpt[i], "Processed"))
+                setTxtProgressBar(pb, i)
         }
         ret
 }
@@ -227,18 +268,23 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' Process wear/non-wear flags for NHANES 2003-2004 and 2005-2006 accelerometry data
 #'
 #' @description
-#' This function creates wear/non-wear flag matrices for processed NHANES 2003-2004 and 2005-2006 accelerometry data
+#'
+#' This function creates wear/non-wear flag matrices for processed NHANES 2003-2004 and 2005-2006 accelerometry data.
+#' The underlying algorithm for estimating wear/non-wear flags is implemented in the \code{\link{weartime}} function from the accelerometry package.
 #'
 #'
 #'
-#' @param x A list with each element corresponding to a data matrix of activity counts in the 1440+ format with 7 rows per individual.
-#' The data should be sorted by participant (SEQN) and then in descending order chronologically. The output of \code{\link{process_accel}} can be fed directly to
-#' this argument. See examples.
+#' @param x A list with each element corresponding to a data matrix of activity counts in the 1440+ format with 7 rows per individual. Each element of x should be named, and each
+#' name should correspond to the naming convention used by the output of \code{\link{process_accel}}.
+#' For example, the processed accelerometry data corresponding to the 2003-2004 wave should be named "PAXINTEN_C".
+#' The data should be sorted by participant (SEQN) and then in descending order chronologically. If days are not ordered chronologically and distinct_days=FALSE,
+#' then the resulting wear/non-wear flag output may not be accurate.
+#' The output of \code{\link{process_accel}} can be fed directly to this argument. See examples.
 #'
 #' @param write Logical value indicating whether a .rda file should be created for each wave of processed data.
 #'   Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
 #'   wave will be saved as an .rda file named Flags_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.
-#'
+#'   If write=TRUE and localpath=NULL, then the data will be written to the current working directory.
 #'
 #' @param localpath character string indicating where the locally processed .rda files should be saved if write = TRUE.
 #'
@@ -257,6 +303,11 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.
 #'
 #' @param ... aditional arguments to be passed to \code{\link{weartime}}.
+#'
+#'
+#' @details
+#'
+#' --describe non-wear detection algorithm briefly here --
 #'
 #'
 #' @return
@@ -291,7 +342,14 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #'
 #' @examples
 #' \dontrun{
-#' process_accel(write=FALSE)
+#' library("rnhanesdata")
+#' ## In the interest of reducing computation time for this example, we use the already processed accelerometry data
+#' accel_ls <- list("PAXTIEN_C" = PAXINTEN_C, "PAXINTEN_D" = PAXINTEN_D)
+#' flags_ls <- process_flags(x=accel_ls)
+#'
+#' ## Check to see that these processed flags are identical to those provided in the package
+#' identical(flags_ls$Flags_C, Flags_C)
+#' identical(flags_ls$Flags_D, Flags_D)
 #' }
 #'
 #' @references
@@ -314,6 +372,8 @@ process_flags <- function(x,
 
         ret <- c()
 
+
+        pb <- txtProgressBar(min=0, max=length(names_accel_xpt), style=3)
         for(i in seq_along(names_accel_xpt)){
                 full_data <- x[[i]]
 
@@ -354,9 +414,11 @@ process_flags <- function(x,
                                 localpath <- paste0(getwd(), .Platform$file.sep, out.name[i])
                         }
                         eval(parse(text=paste0(out.name[i], "<- out")))
-                        eval(parse(text=paste0("save(", out.name[i], ", file=file.path(localpath, paste0(out.name[i], \".rda\", compress=",compress,")))")))
+                        eval(parse(text=paste0("save(", out.name[i], ", file=file.path(localpath, paste0(out.name[i], \".rda\")), compress=\"",compress,"\")")))
                 }
                 rm(list=c("out","full_data","WMX","uid","activity_data"))
+
+                setTxtProgressBar(pb, i)
 
         }
 
@@ -387,7 +449,8 @@ process_flags <- function(x,
 #' @param write logical argument indicating whether a .rda file of wear/non-wear flags
 #' should be created for each wave of processed data. Defaults to FALSE.
 #'
-#' @param localpath Character scalar describing the location where . If NULL, the funciton will look in pacakge data directory for the requested raw mortality data.
+#' @param localpath Character scalar describing the location where the raw data are stored.
+#' If NULL, the funciton will look in pacakge data directory for the requested raw mortality data.
 #' Defaults to NULL.
 #'
 #'
@@ -451,10 +514,16 @@ process_flags <- function(x,
 #' }
 #'
 #' @examples
-#' \dontrun{
+#' library("rnhanesdata")
 #'
+#' ## process NHANES mortality data using the raw mortality data release from 2011 that comes
+#' ## with the package
+#' mort_ls <- process_mort()
 #'
-#' }
+#' ## verify that this yields identical results to the processed data included in the package
+#' identical(mort_ls$Mortality_2011_C, Mortality_2011_C)
+#' identical(mort_ls$Mortality_2011_D, Mortality_2011_D)
+#'
 #'
 #' @references
 #'
@@ -491,6 +560,7 @@ process_mort <- function(waves=c("C","D"),
         }
 
         ret <- c()
+        pb <- txtProgressBar(min=0, max=length(waves_mort), style=3)
         for(i in seq_along(waves_mort)){
                 raw.data = readLines(filepath[i])
 
@@ -573,6 +643,7 @@ process_mort <- function(waves=c("C","D"),
                           paste0("mortsrce_",c("ndi","cms","ssa","dc","dcl")))
                    )
 
+                setTxtProgressBar(pb, i)
         }
 
         ret
@@ -590,16 +661,16 @@ process_mort <- function(waves=c("C","D"),
 #' Merge non-accelerometry data for NHANES waves
 #'
 #' @description
-#' This function merges covariate data
-#' from one or more  NHANES data files across one or more waves of the study.
-#' This function will only recognize those files which have "SEQN" as their first column name as this is the format across all NHANES data files.
+#' This function retrieves and merges covariate data
+#' from one or more NHANES data files across one or more waves of the study. Variables are merged using the NHANES unique subject identifier (SEQN).
 #'
 #'
 #' @param waves character vector with entries of (capitalized) letter of the alphabet corresponding to the
 #' NHANES wave of interest. Defaults to a vector containing "C" and "D" corresponding to the NHANES 2003-2004 and 2005-2006 waves.
 #'
 #' @param varnames character vector indicating which column names are to be searched for.
-#' Will check all .XPT files in located in the directory specified by dataPath. If extractAll = TRUE, then this argument is effectively ignored.
+#' Will check all .XPT files in located in the directory specified by dataPath. If extractAll = TRUE, then this argument is effectively ignored. Defaults
+#' to variables which are required to create the processed data matrices \code{\link{Covariate_C}} and  \code{\link{Covariate_D}}.
 #'
 #' @param localpath file path where covariate data are saved. Covariate data must be in .XPT format,
 #' and should be in their own folder. For example, PAXRAW_C.XPT should not be located in the folder with
@@ -611,6 +682,10 @@ process_mort <- function(waves=c("C","D"),
 #' If extractALL = TRUE, all variables from all .XPT files with
 #' Defaults to FALSE.
 #'
+#'
+#' @details
+#'
+#'  This function will only recognize those files which have "SEQN" as their first column name as this is the format across all NHANES data files.
 #'
 #' @return
 #'
@@ -661,7 +736,7 @@ process_covar <- function(waves=c("C","D"),
         files_full   <- list.files(localpath)
 
         ret <-c()
-
+        pb <- txtProgressBar(min=0, max=length(waves), style=3)
         for(i in seq_along(waves)){
                 cohort <- waves[i]
 
@@ -760,6 +835,8 @@ process_covar <- function(waves=c("C","D"),
                 ret[[out.name]] <- CovarMat
 
                 rm(list=c("CovarMat","out.name"))
+
+                setTxtProgressBar(pb, i)
         }
 
         ret
@@ -771,26 +848,60 @@ process_covar <- function(waves=c("C","D"),
 #' Remove days with too few/too much weartime and NHANES data quality flags.
 #'
 #' @description
-#' This function subsets accelerometry data by wear/non-wear time criteria, as well as
+#' This function subsets accelerometry data by total wear/non-wear time criteria, as well as
 #' NHANES data quality flags.
 #'
-#' @param act Activity data matrix
+#' @param act Activity data matrix. Should contain, at a minimum, the columns: SEQN, PAXCAL, PAXSTAT, WEEKDAY, SDDSRVYR. In addition,
+#' the activity data matrix should have 1440 columns with MIN1, MIN2, ..., MIN1440.
 #'
-#' @param flags Wear/Non-wear flag matrix
+#' @param flags Wear/non-wear flag matrix. Should contain the same columns as the activity data matrix, in the same order. However, instead of
+#' activity counts, the columns MIN1, MIN2, ..., MIN1440 should be binary (0/1) wear/non-wear flags where 1 indicates wear and 0 indicates non-wear.
 #'
-#' @param threshold upper limit for number of non-wear minutes. Defaults to 600 minutes (10 hours).
+#' @param threshold_lower Lower limit on the amount of wear-time for a day to be considered good. Defaults to 600 minutes which implies a "good" day has
+#' at least 10 hours of weartime.
 #'
-#' @param rm_PAXSTAT Logical argument indicating whether to remove based on the data reliability indicator variable PAXSTAT. Defaults to TRUE.
+#' @param rm_PAXSTAT Logical value indicating whether to remove based on the data reliability indicator variable PAXSTAT. Defaults to TRUE.
 #'
-#' @param rm_PAXCAL Logical argument indicating whether to remove based on the accelerometer calibration indicator variable PAXCAL. Defaults to TRUE.
+#' @param rm_PAXCAL Logical value indicating whether to remove based on the accelerometer calibration indicator variable PAXCAL. Defaults to TRUE.
 #'
-#' @param return_act Not currently implemented.
+#' @details
+#'
+#'
+#' Fundamentally, all this function does is check to see if a day has a user specified amount  of estimated  total wear time (ignoring timing of wear)
+#' and checking for whether any data quality concerns were indicated by NHANES via the PAXSTAT and PAXCAL variables.
+#' Because this function doesn't actually use the activity count data, it's not technically necessary to include the activity data matrix. However, forcing
+#' the activity data matrix to be included and checking that subject-days are identical between the activity and wear/non-wear flag matrices adds a layer of
+#' protection against subsetting or sorting one data matrix but not the other.
+#'
+#' This function ignores missing data. Missing values to not count toward (or against) wear time.
+#'
+#'
+#' @return
+#'
+#' This function returns a numeric vector containing the indices of days which were identified as "good". These indices can be used to subset
+#' the accelerometry data as desired.
 #'
 #'
 #' @examples
-#' \dontrun{
-#' process_accel(write=FALSE)
-#' }
+#'
+#' library("rnhanesdata")
+#'
+#' ## remove all days with fewer than 10 hours of wear time in the 2003-2004 accelerometry data
+#' ## and exclude all days with data quality/calibration flags
+#' data("PAXINTEN_C")
+#' data("Flags_C")
+#'
+#' ## obtain indices for "good" days using the default threshold of at least 10 hours of weartime
+#' keep_inx <- exclude_accel(act = PAXINTEN_C, flags = Flags_C)
+#' ## subset the accelerometry and flags data using these indices
+#' accel_good_C <- PAXINTEN_C[keep_inx,]
+#' flags_good_C <- Flags_C[keep_inx,]
+#'
+#' ## check that all remaining days have at least 10 hours of wear
+#' ## and there are no data quality issues as flagged by the PAXSTAT and PAXCAL variables
+#' summary(rowSums(flags_good_C[,paste0("MIN",1:1440)], na.rm=TRUE))
+#' table(flags_good_C$PAXSTAT)
+#' table(flags_good_C$PAXCAL)
 #'
 #' @references
 #'
@@ -799,13 +910,19 @@ process_covar <- function(waves=c("C","D"),
 exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, rm_PAXCAL = TRUE){
         stopifnot(all(is.data.frame(act), is.data.frame(flags)))
         stopifnot(all(colnames(act) == colnames(flags)))
-        stopifnot(all(c("PAXSTAT", "PAXCAL", paste0("MIN",1:1440)) %in% colnames(act)))
+        stopifnot(all(c("SEQN","WEEKDAY","PAXSTAT", "PAXCAL", paste0("MIN",1:1440)) %in% colnames(act)))
+
+        act_cols <- which(colnames(act) %in% paste0("1:1440"))
+        if(!identical(act[,-act_cols], flags[,-act_cols])){
+            stop("One or more columns of the act and flags do not match. Please double check that these two dataframes are identical except for the activity count and wear/non-wear columns")
+        }
+
+
 
         stopifnot(all(is.finite(act$PAXSTAT),is.finite(act$PAXCAL)))
-        flag_nonwear <- rowSums(flags[, paste('MIN', 1:1440, sep='')], na.rm = TRUE) < threshold_lower
+        flag_nonwear <- rowSums(flags[, act_cols], na.rm = TRUE) < threshold_lower
 
-        ## remove nonwear days and days flagged by NHANES
-        cond <- c("flag_nonwear", "act$PAXSTAT!=1","act$PAXCAL!=1")[c(TRUE, rm_PAXSTAT, rm_PAXCAL)]
+        cond <- c("flag_nonwear", "(!act$PAXSTAT %in% 1)","(!act$PAXCAL %in% 1)")[c(TRUE, rm_PAXSTAT, rm_PAXCAL)]
         cond <- paste(cond, collapse="|")
 
         if(return_act) return(eval(parse(text=paste("return(act[!(",cond, "),])"))))

@@ -8,26 +8,56 @@ exclude_accel(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE,
   rm_PAXCAL = TRUE)
 }
 \arguments{
-\item{act}{Activity data matrix}
+\item{act}{Activity data matrix. Should contain, at a minimum, the columns: SEQN, PAXCAL, PAXSTAT, WEEKDAY, SDDSRVYR. In addition,
+the activity data matrix should have 1440 columns with MIN1, MIN2, ..., MIN1440.}
 
-\item{flags}{Wear/Non-wear flag matrix}
+\item{flags}{Wear/non-wear flag matrix. Should contain the same columns as the activity data matrix, in the same order. However, instead of
+activity counts, the columns MIN1, MIN2, ..., MIN1440 should be binary (0/1) wear/non-wear flags where 1 indicates wear and 0 indicates non-wear.}
 
-\item{rm_PAXSTAT}{Logical argument indicating whether to remove based on the data reliability indicator variable PAXSTAT. Defaults to TRUE.}
+\item{threshold_lower}{Lower limit on the amount of wear-time for a day to be considered good. Defaults to 600 minutes which implies a "good" day has
+at least 10 hours of weartime.}
 
-\item{rm_PAXCAL}{Logical argument indicating whether to remove based on the accelerometer calibration indicator variable PAXCAL. Defaults to TRUE.}
+\item{rm_PAXSTAT}{Logical value indicating whether to remove based on the data reliability indicator variable PAXSTAT. Defaults to TRUE.}
 
-\item{threshold}{upper limit for number of non-wear minutes. Defaults to 600 minutes (10 hours).}
-
-\item{return_act}{Not currently implemented.}
+\item{rm_PAXCAL}{Logical value indicating whether to remove based on the accelerometer calibration indicator variable PAXCAL. Defaults to TRUE.}
+}
+\value{
+This function returns a numeric vector containing the indices of days which were identified as "good". These indices can be used to subset
+the accelerometry data as desired.
 }
 \description{
-This function subsets accelerometry data by wear/non-wear time criteria, as well as
+This function subsets accelerometry data by total wear/non-wear time criteria, as well as
 NHANES data quality flags.
 }
-\examples{
-\dontrun{
-process_accel(write=FALSE)
+\details{
+Fundamentally, all this function does is check to see if a day has a user specified amount  of estimated  total wear time (ignoring timing of wear)
+and checking for whether any data quality concerns were indicated by NHANES via the PAXSTAT and PAXCAL variables.
+Because this function doesn't actually use the activity count data, it's not technically necessary to include the activity data matrix. However, forcing
+the activity data matrix to be included and checking that subject-days are identical between the activity and wear/non-wear flag matrices adds a layer of
+protection against subsetting or sorting one data matrix but not the other.
+
+This function ignores missing data. Missing values to not count toward (or against) wear time.
 }
+\examples{
+
+library("rnhanesdata")
+
+## remove all days with fewer than 10 hours of wear time in the 2003-2004 accelerometry data
+## and exclude all days with data quality/calibration flags
+data("PAXINTEN_C")
+data("Flags_C")
+
+## obtain indices for "good" days using the default threshold of at least 10 hours of weartime
+keep_inx <- exclude_accel(act = PAXINTEN_C, flags = Flags_C)
+## subset the accelerometry and flags data using these indices
+accel_good_C <- PAXINTEN_C[keep_inx,]
+flags_good_C <- Flags_C[keep_inx,]
+
+## check that all remaining days have at least 10 hours of wear
+## and there are no data quality issues as flagged by the PAXSTAT and PAXCAL variables
+summary(rowSums(flags_good_C[,paste0("MIN",1:1440)], na.rm=TRUE))
+table(flags_good_C$PAXSTAT)
+table(flags_good_C$PAXCAL)
 
 }
 \references{

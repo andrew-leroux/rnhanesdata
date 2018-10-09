@@ -9,13 +9,17 @@ process_flags(x, write = FALSE, localpath = NULL,
   compress = "xz", ...)
 }
 \arguments{
-\item{x}{A list with each element corresponding to a data matrix of activity counts in the 1440+ format with 7 rows per individual.
-The data should be sorted by participant (SEQN) and then in descending order chronologically. The output of \code{\link{process_accel}} can be fed directly to
-this argument. See examples.}
+\item{x}{A list with each element corresponding to a data matrix of activity counts in the 1440+ format with 7 rows per individual. Each element of x should be named, and each
+name should correspond to the naming convention used by the output of \code{\link{process_accel}}.
+For example, the processed accelerometry data corresponding to the 2003-2004 wave should be named "PAXINTEN_C".
+The data should be sorted by participant (SEQN) and then in descending order chronologically. If days are not ordered chronologically and distinct_days=FALSE,
+then the resulting wear/non-wear flag output may not be accurate.
+The output of \code{\link{process_accel}} can be fed directly to this argument. See examples.}
 
 \item{write}{Logical value indicating whether a .rda file should be created for each wave of processed data.
 Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
-wave will be saved as an .rda file named Flags_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.}
+wave will be saved as an .rda file named Flags_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.
+If write=TRUE and localpath=NULL, then the data will be written to the current working directory.}
 
 \item{localpath}{character string indicating where the locally processed .rda files should be saved if write = TRUE.}
 
@@ -64,11 +68,22 @@ More specifically, each element is a data frame with the following columns
 }
 }
 \description{
-This function creates wear/non-wear flag matrices for processed NHANES 2003-2004 and 2005-2006 accelerometry data
+This function creates wear/non-wear flag matrices for processed NHANES 2003-2004 and 2005-2006 accelerometry data.
+The underlying algorithm for estimating wear/non-wear flags is implemented in the \code{\link{weartime}} function from the accelerometry package.
+}
+\details{
+--describe non-wear detection algorithm briefly here --
 }
 \examples{
 \dontrun{
-process_accel(write=FALSE)
+library("rnhanesdata")
+## In the interest of reducing computation time for this example, we use the already processed accelerometry data
+accel_ls <- list("PAXTIEN_C" = PAXINTEN_C, "PAXINTEN_D" = PAXINTEN_D)
+flags_ls <- process_flags(x=accel_ls)
+
+## Check to see that these processed flags are identical to those provided in the package
+identical(flags_ls$Flags_C, Flags_C)
+identical(flags_ls$Flags_D, Flags_D)
 }
 
 }

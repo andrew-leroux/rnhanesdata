@@ -6,33 +6,40 @@
 \usage{
 process_accel(names_accel_xpt = c("PAXRAW_C", "PAXRAW_D"),
   write = FALSE, local = FALSE, localpath = NULL, urls = NULL,
-  deleteraw = FALSE, zipped = TRUE, compress = "xz")
+  deleteraw = FALSE, zipped = TRUE, compress = "xz",
+  check_data = FALSE)
 }
 \arguments{
 \item{names_accel_xpt}{A character vector of names for the zipped raw files. These should be of the form PAXRAW_\* where \* corresponds to the
 letter of the alphabet indicating which "wave" the data is from. For example, PAXRAW_C and PAXRAW_D correspond to the 2003-2004 and 2005-2006 waves
 accelerometery data, respectively. A vector containing PAXRAW_C and PAXRAW_D is the default and will process both 2003-2004 and 2005-2006 waves data.}
 
-\item{write}{logical argument indicating whether a .rda file should be created for each wave of processed data.
+\item{write}{Logical value indicating whether a .rda file should be created for each wave of processed data.
 Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
 wave will be saved as an .rda file named PAXINTEN_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.}
 
-\item{local}{logical argument indicating whether the zippped raw .xpt accelerometry files are stored locally.
-If FALSE, will download the data into a temporary file from the CDC website and process the data. If TRUE,
+\item{local}{Logical value indicating whether the zippped raw .xpt accelerometry files are stored locally.
+If FALSE, will download the data into a temporary file from the CDC website and process the data. If TRUE, localpath must be specified and
 the zipped data will be sourced locally. Defaults to FALSE.}
 
-\item{localpath}{character string indicating where the locally zipped raw .xpt files are.}
+\item{localpath}{Character string indicating where the locally zipped raw .xpt files are.}
 
-\item{urls}{character}
+\item{urls}{Character vector provides the website URLs where the NHANES accelerometry data can be downloaded. The default contains the URLs which will directly download the data frome
+the CDC's website. This argument, if specified, must be the same length as the names_accel_xpt argument. Downloading the data through R is often slower than downloading the data outside of R.
+See the examples section below for how to download and process the data directly from the CDC.}
 
-\item{deleteraw}{logical scalar indicating whether to delete the (un)zipped .xpt files after reading them into R. If deleteraw=TRUE and zipped=TRUE,
+\item{deleteraw}{Logical value indicating whether to delete the (un)zipped .xpt files after reading them into R. If deleteraw=TRUE and zipped=TRUE,
 both the .xpt and .ZIP files are deleted locally. Defaults to FALSE.}
 
-\item{zipped}{logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
-If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored.}
+\item{zipped}{Logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
+If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored. Note that if the data are saved locally, processing speed is
+substantially increased by unzipping before calling the process_accel function.}
 
 \item{compress}{Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
 but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.}
+
+\item{check_data}{logical value indicating whether to perform some checks of the data. If TRUE, the function will incur additional processing time.
+The NHANES 2003-2006 data have been tested and already passed these checks. Defaults to FALSE.}
 }
 \value{
 This function will return a list with number of elements less than or equal to the number of waves of data specified by the names_accel_xpt
@@ -67,15 +74,22 @@ Note that due to the large file size of the unzipped .xpt files, this function u
 amount of RAM (~12 GB peak). To avoid crashing your computer when running, please ensure you have
 enough RAM available.
 }
-\details{
-The function process_accel can be used to process the NHANES 2003-2004 and 2005-2006 waves accelerometry data.
-}
 \examples{
 \dontrun{
 library("rnhanesdata")
-## download and
-process_accel()
-process_flags()
+## download and process the data directly from the cdc
+## the first element of accel_ls corresponds to PAXINTEN_C and
+## the second element of accel_ls corresponds to PAXINTEN_D
+accel_ls <- process_accel(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
+                          local=FALSE, deletraw=TRUE,
+                          urls=urls=c("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAXRAW_C.ZIP",
+                                      "https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/PAXRAW_D.ZIP")
+                         )
+
+## check to see that the data processed using the process_accel function
+## are identical to the processed data included in the package
+identical(accel_ls[[1]], PAXINTEN_C)
+identical(accel_ls[[2]], PAXINTEN_D)
 }
 
 }
