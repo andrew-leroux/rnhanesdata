@@ -23,7 +23,10 @@ If write=TRUE and localpath=NULL, then the data will be written to the current w
 
 \item{localpath}{character string indicating where the locally processed .rda files should be saved if write = TRUE.}
 
-\item{window}{size of the moving window used to assess non-wear in minutes. Defaults to 90 minutes.
+\item{days_distinct}{Logical value indicating whether days should be treated as distinct time series within participants. If TRUE, then
+subjects' wear status at 11:59PM does not affect their wear status at 00:01AM the next morning. Defaults to FALSE, this is generally recommended.}
+
+\item{window}{Numeric value indicated the size of the moving window used to assess non-wear in minutes. Defaults to 90 minutes.
 See \code{\link{weartime}} for more details.}
 
 \item{tol}{maximum number of minutes with counts greater than 0 within the a non-wear interval.

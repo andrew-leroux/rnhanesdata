@@ -119,12 +119,20 @@
 #' @author
 #'
 #' Andrew Leroux <aleroux2@jhu.edu>
+#'
 #' Ciprian Crainiceanu
 #'
 #' @references
 #'
 #'
 NULL
+
+
+
+
+
+## quiets concerns of R CMD check for reweight_accel
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("Covariate_C","Covariate_D"))
 
 
 

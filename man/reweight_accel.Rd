@@ -8,7 +8,7 @@ reweight_accel(data, return_unadjusted_wts = TRUE, age_bks = c(0, 1, 3,
   6, 12, 16, 20, 30, 40, 50, 60, 70, 80, 85, Inf), right = FALSE)
 }
 \arguments{
-\item{data}{data frame to with survey weights to be re-weighted.Should only contain one subject per ror.}
+\item{data}{Data frame to with survey weights to be re-weighted. Should only contain one participant.}
 
 \item{return_unadjusted_wts}{Logical value indicating whether to return the unadjusted 2-year and, if applicable, 4-year survey weights for all participants.}
 
@@ -25,7 +25,10 @@ The function reweight_accel will return a dataframe with the same columns as the
 This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves.
 }
 \details{
-The reweight_accel function is designed to re-weight only the 2003-2004 and 2005-2006 waves.
+The reweight_accel function is designed to re-weight only the 2003-2004 and 2005-2006 waves in the context of missing data.
+That is, this function will re-weight individuals in the data supplied to the funciton
+The re-weighting is performed using age, sex, and ehtnicity strata.
+The underlying assumption
 }
 \examples{
 \dontrun{

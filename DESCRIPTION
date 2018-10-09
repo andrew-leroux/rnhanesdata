@@ -7,7 +7,7 @@ Author: Andrew Leroux [aut, cre]
 Maintainer: Andrew Leroux <aleroux2@jhu.edu>
 Description: A data package for processed NHANES accelerometry data with accompanying processing pipeline code.
 Depends:
-    R (>= 3.4.4), accelerometry (>= 3.1.2), haven (>= 1.1.0)
+    R (>= 3.4.0), accelerometry (>= 3.1.2), haven (>= 1.1.0)
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true

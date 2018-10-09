@@ -6,33 +6,33 @@
 \title{A dataset containing survey sampling data (e.g. survey weights, PSUs, strata) and select processed
 demographic and lifestyle variables for NHANES 2005-2006 participants.}
 \format{A data frame with 10348 rows and 23 variables with one row per participant in the 2005-2006 wave.
-\describe{
-   \item{SEQN}{Unique subject identifier}
-   \item{SDDSRVYR}{Numeric variable denoting NHANES wave. SDDSRVYR = 3 correpsonds to the 2003-2004 wave}
-   \item{SDMVPSU}{Masked variance pseudo probability sampling units. Used for variance estimation.}
-   \item{SDMVSTRA}{Masked variance pseudo stratum. Used for variance estimation.}
-   \item{WTINT2YR}{Full sample interview weight.}
-   \item{WTMEC2YR}{Full sample examinatin weight.}
-   \item{RIDAGEMN}{Age in months at date of screening for individuals under the age of 85. Participants over 85 are coded as NA.}
-   \item{RIDAGEEX}{Age in months at examination (MEC) for individuals under the age of 85. Participants over 85 are coded as NA.}
-   \item{RIDAGEYR}{"Best" age in years at date of screening for individuals under the age of 85. Participants 85 and over are coded as 85. This variable is used when
+\itemize{
+   \item{SEQN:}{ Unique subject identifier}
+   \item{SDDSRVYR:}{ Numeric variable denoting NHANES wave. SDDSRVYR = 3 correpsonds to the 2003-2004 wave}
+   \item{SDMVPSU:}{ Masked variance pseudo probability sampling units. Used for variance estimation.}
+   \item{SDMVSTRA:}{ Masked variance pseudo stratum. Used for variance estimation.}
+   \item{WTINT2YR:}{ Full sample interview weight.}
+   \item{WTMEC2YR:}{ Full sample examinatin weight.}
+   \item{RIDAGEMN:}{ Age in months at date of screening for individuals under the age of 85. Participants 85 and over are coded as NA.}
+   \item{RIDAGEEX:}{ Age in months at examination (MEC) for individuals under the age of 85. Participants 85 and over are coded as NA.}
+   \item{RIDAGEYR:}{ "Best" age in years at date of screening for individuals under the age of 85. Participants 85 and over are coded as 85. This variable is used when
    determining thresholds for questions using age inclusion/exclusion criteria}
-   \item{BMI}{Body mass index (kg/m^2). This variable is a copy of the "BMXBMI" variable in the "Body Measures" data.}
-   \item{BMI_cat}{Body mass index categorized into: underweight (<= 18.5), normal (> 18.5, <= 25), overweight (> 25, <= 30), and obese (> 30).}
-   \item{Race}{Self reported ethnicity categorized into five levels: Mexican American, Other Hispanic, (Non-Hispanic) White, (Non-Hispanic) Black, and Other. This is a factor version of the variable "RIDRETH1" in the "Demographic Variables & Sample Weights" data.}
-   \item{Gender}{Self reported gender categorized into Male and Female. This is a factor version of the variable "RIAGENDR" in the "Demographic Variables & Sample Weights" data.}
-   \item{Diabetes}{Self reported doctor diagnosed diabetes (excluding gestational diabetes) categorized into: Yes, No, Borderline, Refused, Don't know. This is a factor version of the variable DIQ010 in the  "Diabetes" data.}
-   \item{CHF}{Self reported medical professional diagnosed  congestive heart failure categorized into: Yes, No,  Refused, Don't know. This is a factor version of the variable MCQ160B in the  "Medical Conditions" data.}
-   \item{CHD}{Self reported medical professional diagnosed  coronary heart disease categorized into: Yes, No,  Refused, Don't know. This is a factor version of the variable MCQ160C in the  "Medical Conditions" data.}
-   \item{Cancer}{Self reported medical professional diagnosed history of any kind of cancer categorized into: Yes, No, Refused, Don't know. This is a factor version of the variable MCQ220 in the  "Medical Conditions" data.}
-   \item{Stroke}{Self reported medical professional diagnosed history of stroke categorized into: Yes, No, Refused, Don't know. This is a factor version of the variable MCQ160F in the  "Medical Conditions" data.}
-   \item{MobilityProblem}{Self reported mobility problem categorized into: No difficulty and Any difficulty.
+   \item{BMI:}{ Body mass index (kg/m^2). This variable is a copy of the "BMXBMI" variable in the "Body Measures" data.}
+   \item{BMI_cat:}{ Body mass index categorized into: underweight (<= 18.5), normal (> 18.5, <= 25), overweight (> 25, <= 30), and obese (> 30).}
+   \item{Race:}{ Self reported ethnicity categorized into five levels: Mexican American, Other Hispanic, (Non-Hispanic) White, (Non-Hispanic) Black, and Other. This is a factor version of the variable "RIDRETH1" in the "Demographic Variables & Sample Weights" data.}
+   \item{Gender:}{ Self reported gender categorized into Male and Female. This is a factor version of the variable "RIAGENDR" in the "Demographic Variables & Sample Weights" data.}
+   \item{Diabetes:}{ Self reported doctor diagnosed diabetes (excluding gestational diabetes) categorized into: Yes, No, Borderline, Refused, Don't know. This is a factor version of the variable DIQ010 in the  "Diabetes" data.}
+   \item{CHF:} {Self reported medical professional diagnosed  congestive heart failure categorized into: Yes, No,  Refused, Don't know. This is a factor version of the variable MCQ160B in the  "Medical Conditions" data.}
+   \item{CHD:}{ Self reported medical professional diagnosed  coronary heart disease categorized into: Yes, No,  Refused, Don't know. This is a factor version of the variable MCQ160C in the  "Medical Conditions" data.}
+   \item{Cancer:}{ Self reported medical professional diagnosed history of any kind of cancer categorized into: Yes, No, Refused, Don't know. This is a factor version of the variable MCQ220 in the  "Medical Conditions" data.}
+   \item{Stroke:}{ Self reported medical professional diagnosed history of stroke categorized into: Yes, No, Refused, Don't know. This is a factor version of the variable MCQ160F in the  "Medical Conditions" data.}
+   \item{MobilityProblem:}{ Self reported mobility problem categorized into: No difficulty and Any difficulty.
    This variable is derived from the responses to questions: PFQ049, PFQ054, PFQ057, PFQ059, PFQ061B, and PFQ061C in the "Physical Functioning" data.
    If individuals reported any difficulty climbing up 10 stairs (PFQ061B) or walking a quarter mile (PFQ061C), they were classified as "Any difficulty" for this variable.
    If individuals reported that they did not perform either of these activities they were classified as "Any difficulty".
    If individuals reported that they required special equipment to walk, they were not asked PFQ061B/PFQ061C and were considered "Any difficulty" for this variable.
    Any indivdual who was 59 or younger and responded "No difficulty" to higher level physical functioning questions were not asked PFQ061B/PFQ061C and were considered "No difficulty" for this variable.}
-   \item{DrinkStatus}{Current alcohol consumption status categorized into: Non-drinker, Moderate drinker, Heavy drinker. This variable is derived from several questionairre responses in the "Alcohol Use" data.
+   \item{DrinkStatus:}{ Current alcohol consumption status categorized into: Non-drinker, Moderate drinker, Heavy drinker. This variable is derived from several questionairre responses in the "Alcohol Use" data.
    Non-drinkers are identified as those individuals who either 1) responded "No" to whether they have had "at least 12 alcoholic drinks" in any one year,
    or over the course of their life (ALQ101, ALQ110); or 2) responded that they have had 0 drinks over the last 12 months (ALQ120Q).
    Moderate and heavy drinkers were identified using the CDC's gender specific thresholds of no more than 7 and 14 drinks per week for women and men, respectively.
@@ -41,10 +41,10 @@ demographic and lifestyle variables for NHANES 2005-2006 participants.}
    2) Heavy drinking here does not incorporate and information on binge drinking;
    3) This data is only publicly available for participants 20+ years old at the time of interview; and
    4) Any answer of "refused" or "don't know" was considered missing for ALQ101, ALQ110, ALQ120Q, ALQ120U, ALQ130.}
-   \item{DrinksPerWeek}{Self reported number of drinks per week based on responses to questions ALQ120Q, ALQ120U, and ALQ130.
+   \item{DrinksPerWeek:}{ Self reported number of drinks per week based on responses to questions ALQ120Q, ALQ120U, and ALQ130.
    Individuals who responded "No" to to whether they have had "at least 12 alcoholic drinks" in any one year,
    or over the course of their life (ALQ101, ALQ110) were classified as 0 drinks per week.}
-   \item{SmokeCigs}{Self reported cigarette smoking status categorized into: Never, Former, and Current.
+   \item{SmokeCigs:}{ Self reported cigarette smoking status categorized into: Never, Former, and Current.
    This variable is derived from responses to questions SMQ020 and SMQ040 in the "Smoking - Cigarette/Tobacco Use - Adult" data.
    We consider anyone who responds "No" to the question of whether they have ever smoked 100 cigarettes in their life (SMQ020) to be "Never" smokers.
    Former smokers are those individuals who respond "Yes" to having ever smoked 100 cigarettes in their life, but currently smoke "Not at all" (SMQ040).

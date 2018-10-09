@@ -87,7 +87,8 @@
 #'
 #' @importFrom haven read_xpt
 #'
-#' @importFrom utils write.csv unzip
+#' @importFrom utils write.csv unzip download.file
+
 #'
 #' @export
 process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
@@ -288,7 +289,10 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #'
 #' @param localpath character string indicating where the locally processed .rda files should be saved if write = TRUE.
 #'
-#' @param window size of the moving window used to assess non-wear in minutes. Defaults to 90 minutes.
+#' @param days_distinct Logical value indicating whether days should be treated as distinct time series within participants. If TRUE, then
+#' subjects' wear status at 11:59PM does not affect their wear status at 00:01AM the next morning. Defaults to FALSE, this is generally recommended.
+#'
+#' @param window Numeric value indicated the size of the moving window used to assess non-wear in minutes. Defaults to 90 minutes.
 #' See \code{\link{weartime}} for more details.
 #'
 #' @param tol maximum number of minutes with counts greater than 0 within the a non-wear interval.
@@ -343,11 +347,13 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' @examples
 #' \dontrun{
 #' library("rnhanesdata")
-#' ## In the interest of reducing computation time for this example, we use the already processed accelerometry data
+#' ## In the interest of reducing computation time for this example,
+#' ## we use the already processed accelerometry data
 #' accel_ls <- list("PAXTIEN_C" = PAXINTEN_C, "PAXINTEN_D" = PAXINTEN_D)
 #' flags_ls <- process_flags(x=accel_ls)
 #'
-#' ## Check to see that these processed flags are identical to those provided in the package
+#' ## Check to see that these processed flags are identical to
+#' ## those provided in the package
 #' identical(flags_ls$Flags_C, Flags_C)
 #' identical(flags_ls$Flags_D, Flags_D)
 #' }
@@ -356,7 +362,7 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #'
 #' @importFrom accelerometry weartime
 #'
-#' @importFrom utils write.csv
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 #' @export
 process_flags <- function(x,
@@ -529,7 +535,7 @@ process_flags <- function(x,
 #'
 #' NHANES linked public mortality files are described at the following link: \url{https://www.cdc.gov/nchs/data-linkage/mortality-public.htm}.
 #'
-#'
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 #'
 #' @export
@@ -708,6 +714,9 @@ process_mort <- function(waves=c("C","D"),
 #'
 #' @references
 #'
+#'
+#'
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 #' @export
 process_covar <- function(waves=c("C","D"),
@@ -925,8 +934,6 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
         cond <- c("flag_nonwear", "(!act$PAXSTAT %in% 1)","(!act$PAXCAL %in% 1)")[c(TRUE, rm_PAXSTAT, rm_PAXCAL)]
         cond <- paste(cond, collapse="|")
 
-        if(return_act) return(eval(parse(text=paste("return(act[!(",cond, "),])"))))
-
         eval(parse(text=paste("return(which(!(",cond,")))")))
 }
 
@@ -938,7 +945,7 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #' @description
 #' This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves.
 #'
-#' @param data data frame to with survey weights to be re-weighted.Should only contain one subject per ror.
+#' @param data Data frame to with survey weights to be re-weighted. Should only contain one participant.
 #'
 #' @param return_unadjusted_wts Logical value indicating whether to return the unadjusted 2-year and, if applicable, 4-year survey weights for all participants.
 #'
@@ -950,7 +957,10 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #'
 #' @details
 #'
-#' The reweight_accel function is designed to re-weight only the 2003-2004 and 2005-2006 waves.
+#' The reweight_accel function is designed to re-weight only the 2003-2004 and 2005-2006 waves in the context of missing data.
+#' That is, this function will re-weight individuals in the data supplied to the funciton
+#' The re-weighting is performed using age, sex, and ehtnicity strata.
+#' The underlying assumption
 #'
 #'
 #' @return
@@ -971,6 +981,7 @@ reweight_accel <- function(data, return_unadjusted_wts=TRUE,
                            right=FALSE){
         stopifnot(all(c("SEQN","SDDSRVYR","WTMEC2YR","WTINT2YR") %in% colnames(data)))
         stopifnot(all(data$SDDSRVYR %in% c(3,4)))
+        if(any(duplicated(data$SEQN))) stop("Data must be in the form of one row per participant")
 
         ret <- data
 
