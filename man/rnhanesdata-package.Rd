@@ -113,5 +113,6 @@ documentation. However, all variables contained in the "raw NHANES data" files l
 }
 \author{
 Andrew Leroux <aleroux2@jhu.edu>
+
 Ciprian Crainiceanu
 }

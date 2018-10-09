@@ -921,7 +921,7 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
         stopifnot(all(colnames(act) == colnames(flags)))
         stopifnot(all(c("SEQN","WEEKDAY","PAXSTAT", "PAXCAL", paste0("MIN",1:1440)) %in% colnames(act)))
 
-        act_cols <- which(colnames(act) %in% paste0("1:1440"))
+        act_cols <- which(colnames(act) %in% paste0("MIN",1:1440))
         if(!identical(act[,-act_cols], flags[,-act_cols])){
             stop("One or more columns of the act and flags do not match. Please double check that these two dataframes are identical except for the activity count and wear/non-wear columns")
         }
@@ -931,7 +931,7 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
         stopifnot(all(is.finite(act$PAXSTAT),is.finite(act$PAXCAL)))
         flag_nonwear <- rowSums(flags[, act_cols], na.rm = TRUE) < threshold_lower
 
-        cond <- c("flag_nonwear", "(!act$PAXSTAT %in% 1)","(!act$PAXCAL %in% 1)")[c(TRUE, rm_PAXSTAT, rm_PAXCAL)]
+        cond <- c("flag_nonwear", "!(act$PAXSTAT %in% 1)","!(act$PAXCAL %in% 1)")[c(TRUE, rm_PAXSTAT, rm_PAXCAL)]
         cond <- paste(cond, collapse="|")
 
         eval(parse(text=paste("return(which(!(",cond,")))")))

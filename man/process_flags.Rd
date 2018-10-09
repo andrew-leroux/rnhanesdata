@@ -80,11 +80,13 @@ The underlying algorithm for estimating wear/non-wear flags is implemented in th
 \examples{
 \dontrun{
 library("rnhanesdata")
-## In the interest of reducing computation time for this example, we use the already processed accelerometry data
+## In the interest of reducing computation time for this example,
+## we use the already processed accelerometry data
 accel_ls <- list("PAXTIEN_C" = PAXINTEN_C, "PAXINTEN_D" = PAXINTEN_D)
 flags_ls <- process_flags(x=accel_ls)
 
-## Check to see that these processed flags are identical to those provided in the package
+## Check to see that these processed flags are identical to
+## those provided in the package
 identical(flags_ls$Flags_C, Flags_C)
 identical(flags_ls$Flags_D, Flags_D)
 }
