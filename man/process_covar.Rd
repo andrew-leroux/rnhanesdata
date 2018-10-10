@@ -18,7 +18,8 @@ NHANES wave of interest. Defaults to a vector containing "C" and "D" correspondi
 
 \item{varnames}{character vector indicating which column names are to be searched for.
 Will check all .XPT files in located in the directory specified by dataPath. If extractAll = TRUE, then this argument is effectively ignored. Defaults
-to variables which are required to create the processed data matrices \code{\link{Covariate_C}} and  \code{\link{Covariate_D}}.}
+to variables which are required to create the processed data matrices \code{\link{Covariate_C}} and  \code{\link{Covariate_D}}. If "SEQN" is not included in
+varnames, it will be autmatically added.}
 
 \item{localpath}{file path where covariate data are saved. Covariate data must be in .XPT format,
 and should be in their own folder. For example, PAXRAW_C.XPT should not be located in the folder with
@@ -31,26 +32,71 @@ If extractALL = TRUE, all variables from all .XPT files with
 Defaults to FALSE.}
 }
 \value{
-This function will return a list with number of elements less than or equal to the number of waves of data specified by the "waves"
-argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
-indicated by the localpath argument; or available in the data package. Each element of the list returned is a data frame. The columns of the data frame
-will depend on the variables specified in the "varnames" argument and whether those variable are available for some (or any) of the waves specfied by the waves argument.
-At a minimum, the returned dataframe will contain a column for each subject identifier (SEQN).
+This function will return a list with number of elements equal to the number of waves of data specified by the "waves" argument.
+The name of each element is Covariate_\* where  \* corresponds to each element of the "waves" argument.
+If none of the variables listed in the "varnames" arguemnt (and/or SEQN if SEQN was not supplied to the  "varnames" argument)
+for a particular wave are found, then the element of the returned object will be NULL.
+If none of the user specified variables are found, but subject identifiers (SEQN) are found, then the SEQN variable will be returned.
+See the examples below for illustrations of these scenarios.
 
-If the demographic datasets are not in the directory specified by localpath, there is no guarantee that all participants in a wave will be included in the retunred results.
+
+Most variables in NHANES are measured once per individual. In the event that a user requests a variable which has multiple records for a subject,
+this function will return the variable in matrix format, with one row per participant and number of columns equal to the number of observations per participant.
+This matrix is returned within each dataframe using an object with class "AsIs" (See \code{\link{I}} for details). For a concerte example, see the examples below.
 }
 \description{
 This function retrieves and merges covariate data
 from one or more NHANES data files across one or more waves of the study. Variables are merged using the NHANES unique subject identifier (SEQN).
 }
 \details{
-This function will only recognize those files which have "SEQN" as their first column name as this is the format across all NHANES data files.
+This function will search all .XPT files which matche the NHANES naming convention associated with the
+character vector supplied to the "waves" argument in the specified data directory
+(either the "localpath" argument, or the raw NHANES data included in the \code{\link{rnhanesdata}} package).
+Any file which matches the relevant naming convention AND has "SEQN" as their first column name will be searched for the variables requested in the
+"varnames" argument.
+
+It is recommended that if using the process_covar function to merge variables locally, that the local directory include the demographic dataset for each wave.
+The reason for this is that without the demographic dataset, there is no guarantee that all
+participants in a wave will be included in the retunred results.
+If the demographic datasets are not in the directory specified by localpath a warnining will be produced.
+In addition, it is recommended that the local directory contain only .XPT files associated with NHANES.
 }
 \examples{
-\dontrun{
+library("rnhanesdata")
+
+## retrieve default variables
+covar_ls <- process_covar()
+
+## re-code gender for the both the 2003-2004 and 2005-2006 waves
+covar_ls$Covariate_C$Gender <- factor(covar_ls$Covariate_C$RIAGENDR, levels=1:2,
+                                      labels=c("Male","Female"), ordered=FALSE)
+covar_ls$Covariate_D$Gender <- factor(covar_ls$Covariate_D$RIAGENDR, levels=1:2,
+                                      labels=c("Male","Female"), ordered=FALSE)
+
+## check that this matches the gender information in the processed data
+identical(covar_ls$Covariate_C[,c("SEQN","Gender")], Covariate_C[,c("SEQN","Gender")])
+identical(covar_ls$Covariate_D[,c("SEQN","Gender")], Covariate_D[,c("SEQN","Gender")])
+
+## See the data processing package vignette
+## for code to fully reproduce the processed data
+## included in the package
 
 
-}
+## Example where only the participant identifer (SEQN) is found for
+## the 2003-2004 and 2005-2006 waves, and no data is found for the 2007-2008 wave.
+covar_ls2 <- process_covar(waves=c("C","D","E"), varnames=c("ThisIsNotValid"))
+str(covar_ls2)
+
+
+## Example of variables with possibly multiple responses per participant.
+## These variables correspond to self reported physical activity types:
+##   PADACTIV: physical activity type (i.e. basketball, swimming, etc.)
+##   PADLEVEL: intensity of activity identified by PADACTIV (moderate or vigorous)
+##   PADTIMES: # of times activity identified by PADACTIV was done in the past 30 days
+covar_ls3 <- process_covar(waves=c("C","D"), varnames=c("PADACTIV","PADLEVEL","PADTIMES"))
+str(covar_ls3)
+
+
 
 }
 \references{

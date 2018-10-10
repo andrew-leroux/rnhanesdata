@@ -48,7 +48,7 @@ indicated by the localpath argument; or 2) downloadable from the website(s) indi
 with columns:
 
 \itemize{
-   \item{SEQN:} {Unique subject identifier}
+   \item{SEQN:}{ Unique subject identifier}
    \item{PAXCAL:}{ Device calibration.
    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
@@ -61,11 +61,6 @@ with columns:
    \item{WEEKDAY:}{ Day of the week: 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday.}
    \item{MIN1-MIN1440:}{ Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
 }
-
-Although process_accel will try to process any ".xpt" or ".ZIP" file which follows the NHANES accelerometry naming convention, it has only been tested
-on the NHANES 2003-2006 waves' accelerometry data. As future NHANES accelerometry data are released, we intend to verify that process_accel
-will correctly transform the newly released data into our 1440+ format.
-The function documentation, and, if necessary the function itself, will be updated as needed going forward.
 }
 \description{
 This function processes the raw NHANES 2003-2004 and 2005-2006 accelerometry data
@@ -73,6 +68,13 @@ as provided by the NHANES study on the CDC website.
 Note that due to the large file size of the unzipped .xpt files, this function uses a non-trivial
 amount of RAM (~12 GB peak). To avoid crashing your computer when running, please ensure you have
 enough RAM available.
+}
+\details{
+This function takes the long format of the NHANES 2003-2006 accelerometry data and transforms it into the 1440+ format, with one row per participant-day, and
+7 rows per participant. Although process_accel will try to process any ".xpt" or ".ZIP" file which follows the NHANES accelerometry naming convention, it has only been tested
+on the NHANES 2003-2006 waves' accelerometry data. As future NHANES accelerometry data are released, we intend to verify that process_accel
+will correctly transform the newly released data into our 1440+ format.
+The function documentation, and, if necessary the function itself, will be updated as needed going forward.
 }
 \examples{
 \dontrun{

@@ -38,6 +38,13 @@
 #' @param check_data logical value indicating whether to perform some checks of the data. If TRUE, the function will incur additional processing time.
 #' The NHANES 2003-2006 data have been tested and already passed these checks. Defaults to FALSE.
 #'
+#' @details
+#'
+#' This function takes the long format of the NHANES 2003-2006 accelerometry data and transforms it into the 1440+ format, with one row per participant-day, and
+#' 7 rows per participant. Although process_accel will try to process any ".xpt" or ".ZIP" file which follows the NHANES accelerometry naming convention, it has only been tested
+#' on the NHANES 2003-2006 waves' accelerometry data. As future NHANES accelerometry data are released, we intend to verify that process_accel
+#' will correctly transform the newly released data into our 1440+ format.
+#' The function documentation, and, if necessary the function itself, will be updated as needed going forward.
 #'
 #'
 #' @return
@@ -48,7 +55,7 @@
 #' with columns:
 #'
 #' \itemize{
-#'    \item{SEQN:} {Unique subject identifier}
+#'    \item{SEQN:}{ Unique subject identifier}
 #'    \item{PAXCAL:}{ Device calibration.
 #'    Was the device calibrated when it was returned by the participant? 1 = Yes, 2 = No, 9 = Don't Know.
 #'    Any individuals with either 2 or 9 in this variable should be examined carefully before being included in any analysis.
@@ -62,10 +69,6 @@
 #'    \item{MIN1-MIN1440:}{ Activity count corresponding to each minute of the day. For example, MIN1 is the activity count for 00:00-00:01. }
 #' }
 #'
-#' Although process_accel will try to process any ".xpt" or ".ZIP" file which follows the NHANES accelerometry naming convention, it has only been tested
-#' on the NHANES 2003-2006 waves' accelerometry data. As future NHANES accelerometry data are released, we intend to verify that process_accel
-#' will correctly transform the newly released data into our 1440+ format.
-#' The function documentation, and, if necessary the function itself, will be updated as needed going forward.
 #'
 #' @examples
 #' \dontrun{
@@ -311,7 +314,17 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #'
 #' @details
 #'
-#' --describe non-wear detection algorithm briefly here --
+#' There are many way to estimate non-wear periods in accelerometry data. Fundamentally, they all involve finding extended periods of implausibly low activity.
+#' However, there is no one perfect algorithm, and what qualifies as "implausible" is device-, placement-, and population-dependent. Here, we use the algorithm
+#' implemented by default in the \code{\link{accelerometry}} package via the \code{\link{weartime}} function. This algorithm is
+#'  similar to the algorithm used in Troiano et. al (...).
+#'
+#' There are a number of parameters the algirothm implemented in \code{\link{weartime}} uses to control how aggressive non-wear time identification is.
+#' By making the algorithm more agressive (decreasing window size, increasing tolerance for non-zero activity counts), one increases the likelihood of false positives.
+#' Conversely, making the algorithm less agressive increases the likelihood of false negatives. By default we use a semi-conservative window size of 90 minutes, and
+#' ... these values have been validated using the ... Algorithm in Choi et. al (...).
+#'
+#' The main idea of this particular algorithm is to look at moving windows of a certain size and determine whether .
 #'
 #'
 #' @return
@@ -349,7 +362,7 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' library("rnhanesdata")
 #' ## In the interest of reducing computation time for this example,
 #' ## we use the already processed accelerometry data
-#' accel_ls <- list("PAXTIEN_C" = PAXINTEN_C, "PAXINTEN_D" = PAXINTEN_D)
+#' accel_ls <- list("PAXINTEN_C" = PAXINTEN_C, "PAXINTEN_D" = PAXINTEN_D)
 #' flags_ls <- process_flags(x=accel_ls)
 #'
 #' ## Check to see that these processed flags are identical to
@@ -359,6 +372,10 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' }
 #'
 #' @references
+#'
+#'
+#' National Cancer Institute. Risk factor monitoring and methods: SAS programs for analyzing NHANES 2003-2004 accelerometer data. Available at: http://riskfactor.cancer.gov/tools/nhanes_pam. Accessed Aug. 19, 2018.
+#'
 #'
 #' @importFrom accelerometry weartime
 #'
@@ -388,7 +405,7 @@ process_flags <- function(x,
                 }
 
                 activity_data <- as.matrix(full_data[,paste0("MIN",1:1440)])
-                activity_data[is.na(activity_data)] = 0    # replace NAs with zeros
+                activity_data[is.na(activity_data)] = 0
 
                 WMX <- matrix(NA,nrow = nrow(activity_data), ncol = ncol(activity_data))
 
@@ -462,9 +479,12 @@ process_flags <- function(x,
 #'
 #' @details
 #'
-#' As of writing, this funciton has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.
+#' As of writing, this function has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.
 #' The raw data comes in the form of a vector of strings, with each string associated with on participant.
-#' The location of relevant variables withn each string is described in the document .... (see references)
+#' This function extracts variables using the substring locations described in the document .... (see references).
+#' Assuming mortality releases for other waves use the same format, this function . However we can not guarantee at this time.
+#' As future mortality data are released, we will update the package with both the processed and raw mortality data for the NHANES 2003-2006 waves.
+#' If necessary, we will modify the code to be able to process all releases of the mortality data for 2011 and beyond.
 #'
 #'
 #' @return
@@ -478,10 +498,10 @@ process_flags <- function(x,
 #' \itemize{
 #'    \item{SEQN:}{ Unique subject identifier}
 #'    \item{eligstat:}{ Eligibility status for mortality follow-up
-#'          \describe{
-#'                  \item{1}{ Eligible}
-#'                  \item{2}{ Under age 18, not available for public release}
-#'                  \item{3}{ Ineligible}
+#'          \itemize{
+#'                  \item{1:}{ Eligible}
+#'                  \item{2:}{ Under age 18, not available for public release}
+#'                  \item{3:}{ Ineligible}
 #'          }
 #'    }
 #'    \item{mortat:}{ Indicator for whether participant was found to be alive or deceased at follow-up time given by
@@ -676,7 +696,8 @@ process_mort <- function(waves=c("C","D"),
 #'
 #' @param varnames character vector indicating which column names are to be searched for.
 #' Will check all .XPT files in located in the directory specified by dataPath. If extractAll = TRUE, then this argument is effectively ignored. Defaults
-#' to variables which are required to create the processed data matrices \code{\link{Covariate_C}} and  \code{\link{Covariate_D}}.
+#' to variables which are required to create the processed data matrices \code{\link{Covariate_C}} and  \code{\link{Covariate_D}}. If "SEQN" is not included in
+#' varnames, it will be autmatically added.
 #'
 #' @param localpath file path where covariate data are saved. Covariate data must be in .XPT format,
 #' and should be in their own folder. For example, PAXRAW_C.XPT should not be located in the folder with
@@ -691,28 +712,77 @@ process_mort <- function(waves=c("C","D"),
 #'
 #' @details
 #'
-#'  This function will only recognize those files which have "SEQN" as their first column name as this is the format across all NHANES data files.
+#' This function will search all .XPT files which matche the NHANES naming convention associated with the
+#' character vector supplied to the "waves" argument in the specified data directory
+#' (either the "localpath" argument, or the raw NHANES data included in the \code{\link{rnhanesdata}} package).
+#' Any file which matches the relevant naming convention AND has "SEQN" as their first column name will be searched for the variables requested in the
+#' "varnames" argument.
+#'
+#' It is recommended that if using the process_covar function to merge variables locally, that the local directory include the demographic dataset for each wave.
+#' The reason for this is that without the demographic dataset, there is no guarantee that all
+#' participants in a wave will be included in the retunred results.
+#' If the demographic datasets are not in the directory specified by localpath a warnining will be produced.
+#' In addition, it is recommended that the local directory contain only .XPT files associated with NHANES.
 #'
 #' @return
 #'
-#' This function will return a list with number of elements less than or equal to the number of waves of data specified by the "waves"
-#' argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
-#' indicated by the localpath argument; or available in the data package. Each element of the list returned is a data frame. The columns of the data frame
-#' will depend on the variables specified in the "varnames" argument and whether those variable are available for some (or any) of the waves specfied by the waves argument.
-#' At a minimum, the returned dataframe will contain a column for each subject identifier (SEQN).
 #'
-#' If the demographic datasets are not in the directory specified by localpath, there is no guarantee that all participants in a wave will be included in the retunred results.
+#' This function will return a list with number of elements equal to the number of waves of data specified by the "waves" argument.
+#' The name of each element is Covariate_\* where  \* corresponds to each element of the "waves" argument.
+#' If none of the variables listed in the "varnames" arguemnt (and/or SEQN if SEQN was not supplied to the  "varnames" argument)
+#' for a particular wave are found, then the element of the returned object will be NULL.
+#' If none of the user specified variables are found, but subject identifiers (SEQN) are found, then the SEQN variable will be returned.
+#' See the examples below for illustrations of these scenarios.
 #'
+#'
+#' Most variables in NHANES are measured once per individual. In the event that a user requests a variable which has multiple records for a subject,
+#' this function will return the variable in matrix format, with one row per participant and number of columns equal to the number of observations per participant.
+#' This matrix is returned within each dataframe using an object with class "AsIs" (See \code{\link{I}} for details). For a concerte example, see the examples below.
 #'
 #'
 #'
 #' @examples
-#' \dontrun{
+#' library("rnhanesdata")
+#'
+#' ## retrieve default variables
+#' covar_ls <- process_covar()
+#'
+#' ## re-code gender for the both the 2003-2004 and 2005-2006 waves
+#' covar_ls$Covariate_C$Gender <- factor(covar_ls$Covariate_C$RIAGENDR, levels=1:2,
+#'                                       labels=c("Male","Female"), ordered=FALSE)
+#' covar_ls$Covariate_D$Gender <- factor(covar_ls$Covariate_D$RIAGENDR, levels=1:2,
+#'                                       labels=c("Male","Female"), ordered=FALSE)
+#'
+#' ## check that this matches the gender information in the processed data
+#' identical(covar_ls$Covariate_C[,c("SEQN","Gender")], Covariate_C[,c("SEQN","Gender")])
+#' identical(covar_ls$Covariate_D[,c("SEQN","Gender")], Covariate_D[,c("SEQN","Gender")])
+#'
+#' ## See the data processing package vignette
+#' ## for code to fully reproduce the processed data
+#' ## included in the package
 #'
 #'
-#' }
+#' ## Example where only the participant identifer (SEQN) is found for
+#' ## the 2003-2004 and 2005-2006 waves, and no data is found for the 2007-2008 wave.
+#' covar_ls2 <- process_covar(waves=c("C","D","E"), varnames=c("ThisIsNotValid"))
+#' str(covar_ls2)
+#'
+#'
+#' ## Example of variables with possibly multiple responses per participant.
+#' ## These variables correspond to self reported physical activity types:
+#' ##   PADACTIV: physical activity type (i.e. basketball, swimming, etc.)
+#' ##   PADLEVEL: intensity of activity identified by PADACTIV (moderate or vigorous)
+#' ##   PADTIMES: # of times activity identified by PADACTIV was done in the past 30 days
+#' ## See the codebook at https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAQIAF_C.htm#PADTIMES
+#' ## for additional descriptions of these variables for the 2003-2004 wave
+#' covar_ls3 <- process_covar(waves=c("C","D"), varnames=c("PADACTIV","PADLEVEL","PADTIMES"))
+#' str(covar_ls3)
+#'
+#'
 #'
 #' @references
+#'
+#'
 #'
 #'
 #'
@@ -736,7 +806,9 @@ process_covar <- function(waves=c("C","D"),
         stopifnot(is.vector(waves))
 
         waves <- sort(waves)
-        ## ensure ID variable is in search
+        ## add a counter if SEQN is supplied to the varnames argument -- this only affects a message printed to the user on # of matched variables
+        cnt   <- ifelse("SEQN" %in% varnames, 1, 0)
+        ## ensure ID variable (SEQN) is in search regardless of whether it was included in the varnames argument
         varnames <- unique(c('SEQN',varnames))
         ## find all files of .xpt structure that correspond to the year specified in the data
         if(is.null(localpath)){
@@ -744,7 +816,14 @@ process_covar <- function(waves=c("C","D"),
         }
         files_full   <- list.files(localpath)
 
-        ret <-c()
+        if(any(!paste0("DEMO_",waves,".XPT") %in% files_full)){
+            warning(cat(paste0("One or more demographic files were not found in the data directory (",paste0("DEMO_",waves,".XPT", collapse=", ") , ").
+                           There is no guarantee all participants for a particular wave will be included in the returned object.")))
+        }
+
+
+        ret <- rep(list(NULL), length(waves))
+        names(ret) <- paste0("Covariate_", waves)
         pb <- txtProgressBar(min=0, max=length(waves), style=3)
         for(i in seq_along(waves)){
                 cohort <- waves[i]
@@ -753,7 +832,11 @@ process_covar <- function(waves=c("C","D"),
                 ## find only those files associated with a particular NHANES wave
                 files   <- files_full[substr(files_full, (nchar(files_full) - 5), nchar(files_full)) == pathExt]
 
-                if(length(files) == 0) next
+                if(length(files) == 0){
+                        message("No data associated with wave: ", waves[i], " was found.")
+                        setTxtProgressBar(pb, i)
+                        next
+                }
 
                 ## find which files contain the variables requested by the user
                 covarMats <- lapply(files, function(x){
@@ -764,7 +847,6 @@ process_covar <- function(waves=c("C","D"),
                         if(!"SEQN" == colnames(mat)[1]) return(NULL)
                         ## if extractAll = FALSE, return only those columns specified in the varnames argument
                         if(!extractAll){
-                                if(length(setdiff(intersect(colnames(mat),varnames), "SEQN"))==0) return(NULL)
                                 mat <- mat[,colnames(mat)%in%varnames,drop=FALSE]
                         }
                         ## if extractAll = TRUE, return all columns
@@ -778,13 +860,15 @@ process_covar <- function(waves=c("C","D"),
                 matchedNames <- lapply(covarMats, colnames)
                 numMatched   <- length(unlist(matchedNames))
 
-                if(numMatched == 0) stop('Error: No Variable Names Recognized for this Year/Variable Combination')
+                if(numMatched == 0) {
+                    message("\n No variable names recognized for this wave/variable combination except SEQN (participant ID)")
+                }
                 if(numMatched > 0 & !extractAll)  message(
-                        paste("For", cohort, "cohort,",
-                              (numMatched - length(matchedNames)),
-                              'Covariates Found of', (length(varnames)-1),'specified.',
+                        cat(paste("\n For", cohort, "cohort,",
+                              (numMatched - length(matchedNames) + cnt),
+                              'Covariates Found of', (length(varnames)-1 + cnt),'specified.',
                               'Missing covariates:',
-                              paste(setdiff(varnames, unlist(matchedNames)),collapse=", ") ))
+                              paste(setdiff(varnames, unlist(matchedNames)),collapse=", ") )))
 
                 ## Merge the covariate data
                 ids        <- lapply(covarMats, function(x) x[['SEQN']])
@@ -823,10 +907,10 @@ process_covar <- function(waves=c("C","D"),
                                         })
                                 )
                         message(
-                                paste("Variables with repeated observations per subject found for the following variables:",
+                                cat(paste("Variables with repeated observations per subject found for the following variables:",
                                       paste(sapply(covarMats[rep_inx], function(x) colnames(x)[-1])  , collapse=","),
                                       "Note that these variables will be stored with class AsIs() objects in resulting data frames. ",
-                                      "See ?I for details on AsIs class.")
+                                      "See ?I for details on AsIs class."))
                                 )
                 }
 
@@ -926,6 +1010,9 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
             stop("One or more columns of the act and flags do not match. Please double check that these two dataframes are identical except for the activity count and wear/non-wear columns")
         }
 
+        if(!all(as.vector(as.matrix(flags[,act_cols]))) %in% c(0,1,NA)){
+            stop("Wear/non-wear flags need to be either 0 (non-wear), 1 (wear), or NA (missing)")
+        }
 
 
         stopifnot(all(is.finite(act$PAXSTAT),is.finite(act$PAXCAL)))
@@ -965,7 +1052,26 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #'
 #' @return
 #'
-#' The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" arguement
+#' The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" argument with up to 14 additional columns
+#'
+#'
+#' If any of these columns are already in the dataframe supplied to the data argument, they will be overwritten and a warning will be printed.
+#' This may occur when an individual subsets their data multiple times and re-weights at each step.
+#'
+#' \itemize{
+#'      \item{Examination survey weights}
+#'      \itemize{
+#'           \item{wtmec2yr_unadj_norm: }{}
+#'           \item{wtmec4yr_unadj_norm: }{}
+#'      }
+#'
+#'      \item{Interview survey weights}
+#'      \itemize{
+#'           \item{wtint2yr_unadj_norm: }{}
+#'      }
+#'
+#'
+#' }
 #'
 #' @examples
 #' \dontrun{
@@ -985,13 +1091,27 @@ reweight_accel <- function(data, return_unadjusted_wts=TRUE,
 
         ret <- data
 
-        ret$wtint2yr_unadj_norm <- ret$wtmec2yr_unadj_norm <-
-            ret$wtint4yr_unadj <- ret$wtint4yr_unadj_norm <-
-            ret$wtmec4yr_unadj <- ret$wtmec4yr_unadj_norm <-
-            ret$wtint2yr_adj <- ret$wtint2yr_adj_norm <-
-            ret$wtmec2yr_adj <- ret$wtmec2yr_adj_norm <-
-            ret$wtint4yr_adj <- ret$wtint4yr_adj_norm <-
-            ret$wtmec4yr_adj <- ret$wtmec4yr_adj_norm <- NULL
+        vars_wts <- c("wtint2yr_unadj_norm","wtmec2yr_unadj_norm",
+                      "wtint4yr_unadj", "wtint4yr_unadj_norm",
+                      "wtmec4yr_unadj", "wtmec4yr_unadj_norm",
+                      "wtint2yr_adj", "wtint2yr_adj_norm",
+                      "wtint4yr_adj", "wtint4yr_adj_norm",
+                      "wtmec4yr_adj", "wtmec4yr_adj_norm")
+
+        if(any(vars_wts) %in% colnames(data)){
+            warning(paste0("Variables:",  paste0(vars_wts[vars_wts %in% colnames(data)],collapse=", ") ," found in data. These have been overwritten."))
+        }
+
+        for(i in vars_wts) ret[[i]] <- NULL
+        rm(list=c("vars_wts","i"))
+
+        # ret$wtint2yr_unadj_norm <- ret$wtmec2yr_unadj_norm <-
+        #     ret$wtint4yr_unadj <- ret$wtint4yr_unadj_norm <-
+        #     ret$wtmec4yr_unadj <- ret$wtmec4yr_unadj_norm <-
+        #     ret$wtint2yr_adj <- ret$wtint2yr_adj_norm <-
+        #     ret$wtmec2yr_adj <- ret$wtmec2yr_adj_norm <-
+        #     ret$wtint4yr_adj <- ret$wtint4yr_adj_norm <-
+        #     ret$wtmec4yr_adj <- ret$wtmec4yr_adj_norm <- NULL
 
 
 

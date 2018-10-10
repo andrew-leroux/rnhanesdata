@@ -239,7 +239,7 @@
 #' \itemize{
 #'    \item{SEQN:}{ Unique subject identifier}
 #'    \item{eligstat:}{ Eligibility status for mortality follow-up
-#'          \describe{
+#'          \itemize{
 #'                  \item{1}{ Eligible}
 #'                  \item{2}{ Under age 18, not available for public release}
 #'                  \item{3}{ Ineligible}
@@ -293,7 +293,7 @@
 #' \itemize{
 #'    \item{SEQN:}{ Unique subject identifier}
 #'    \item{eligstat:}{ Eligibility status for mortality follow-up
-#'          \describe{
+#'          \itemize{
 #'                  \item{1}{ Eligible}
 #'                  \item{2}{ Under age 18, not available for public release}
 #'                  \item{3}{ Ineligible}

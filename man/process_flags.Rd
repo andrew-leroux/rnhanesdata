@@ -75,14 +75,24 @@ This function creates wear/non-wear flag matrices for processed NHANES 2003-2004
 The underlying algorithm for estimating wear/non-wear flags is implemented in the \code{\link{weartime}} function from the accelerometry package.
 }
 \details{
---describe non-wear detection algorithm briefly here --
+There are many way to estimate non-wear periods in accelerometry data. Fundamentally, they all involve finding extended periods of implausibly low activity.
+However, there is no one perfect algorithm, and what qualifies as "implausible" is device-, placement-, and population-dependent. Here, we use the algorithm
+implemented by default in the \code{\link{accelerometry}} package via the \code{\link{weartime}} function. This algorithm is
+ similar to the algorithm used in Troiano et. al (...).
+
+There are a number of parameters the algirothm implemented in \code{\link{weartime}} uses to control how aggressive non-wear time identification is.
+By making the algorithm more agressive (decreasing window size, increasing tolerance for non-zero activity counts), one increases the likelihood of false positives.
+Conversely, making the algorithm less agressive increases the likelihood of false negatives. By default we use a semi-conservative window size of 90 minutes, and
+... these values have been validated using the ... Algorithm in Choi et. al (...).
+
+The main idea of this particular algorithm is to look at moving windows of a certain size and determine whether .
 }
 \examples{
 \dontrun{
 library("rnhanesdata")
 ## In the interest of reducing computation time for this example,
 ## we use the already processed accelerometry data
-accel_ls <- list("PAXTIEN_C" = PAXINTEN_C, "PAXINTEN_D" = PAXINTEN_D)
+accel_ls <- list("PAXINTEN_C" = PAXINTEN_C, "PAXINTEN_D" = PAXINTEN_D)
 flags_ls <- process_flags(x=accel_ls)
 
 ## Check to see that these processed flags are identical to
@@ -93,5 +103,5 @@ identical(flags_ls$Flags_D, Flags_D)
 
 }
 \references{
-
+National Cancer Institute. Risk factor monitoring and methods: SAS programs for analyzing NHANES 2003-2004 accelerometer data. Available at: http://riskfactor.cancer.gov/tools/nhanes_pam. Accessed Aug. 19, 2018.
 }

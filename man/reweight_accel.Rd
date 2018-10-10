@@ -19,7 +19,26 @@ used to re-weight participants. The argument "right" determines whether these in
 See \code{\link{cut}} for additional details and examples. Defaults to TRUE.}
 }
 \value{
-The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" arguement
+The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" argument with up to 14 additional columns
+
+
+If any of these columns are already in the dataframe supplied to the data argument, they will be overwritten and a warning will be printed.
+This may occur when an individual subsets their data multiple times and re-weights at each step.
+
+\itemize{
+     \item{Examination survey weights}
+     \itemize{
+          \item{wtmec2yr_unadj_norm: }{}
+          \item{wtmec4yr_unadj_norm: }{}
+     }
+
+     \item{Interview survey weights}
+     \itemize{
+          \item{wtint2yr_unadj_norm: }{}
+     }
+
+
+}
 }
 \description{
 This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves.
