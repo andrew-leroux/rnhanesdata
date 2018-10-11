@@ -47,7 +47,7 @@ This function retrieves and merges covariate data
 from one or more NHANES data files across one or more waves of the study. Variables are merged using the NHANES unique subject identifier (SEQN).
 }
 \details{
-This function will search all .XPT files which matche the NHANES naming convention associated with the
+This function will search all .XPT files which match the NHANES naming convention associated with the
 character vector supplied to the "waves" argument in the specified data directory
 (either the "localpath" argument, or the raw NHANES data included in the \code{\link{rnhanesdata}} package).
 Any file which matches the relevant naming convention AND has "SEQN" as their first column name will be searched for the variables requested in the

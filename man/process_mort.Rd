@@ -74,10 +74,10 @@ NHANES 2003-2004/2005-2006 waves.
 \details{
 As of writing, this function has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.
 The raw data comes in the form of a vector of strings, with each string associated with on participant.
-This function extracts variables using the substring locations described in the document .... (see references).
-Assuming mortality releases for other waves use the same format, this function . However we can not guarantee at this time.
+Assuming mortality releases for other waves use the same format, this function.
 As future mortality data are released, we will update the package with both the processed and raw mortality data for the NHANES 2003-2006 waves.
 If necessary, we will modify the code to be able to process all releases of the mortality data for 2011 and beyond.
+The documentation here will be updated as we confirm future mortality data releases are processed correctly using this function.
 }
 \examples{
 library("rnhanesdata")

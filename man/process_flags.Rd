@@ -67,14 +67,11 @@ The underlying algorithm for estimating wear/non-wear flags is implemented in th
 There are many way to estimate non-wear periods in accelerometry data. Fundamentally, they all involve finding extended periods of implausibly low activity.
 However, there is no one perfect algorithm, and what qualifies as "implausible" is device-, placement-, and population-dependent. Here, we use the algorithm
 implemented by default in the \code{\link{accelerometry}} package via the \code{\link{weartime}} function. This algorithm is
- similar to the algorithm used in Troiano et. al (...).
+ similar to the algorithm used in Troiano et. al (2008).
 
 There are a number of parameters the algirothm implemented in \code{\link{weartime}} uses to control how aggressive non-wear time identification is.
 By making the algorithm more agressive (decreasing window size, increasing tolerance for non-zero activity counts), one increases the likelihood of false positives.
-Conversely, making the algorithm less agressive increases the likelihood of false negatives. By default we use a semi-conservative window size of 90 minutes, and
-... these values have been validated using the ... Algorithm in Choi et. al (...).
-
-The main idea of this particular algorithm is to look at moving windows of a certain size and determine whether .
+Conversely, making the algorithm less agressive increases the likelihood of false negatives. By default we use a fairly conservative window size of 90 minutes.
 }
 \examples{
 \dontrun{
