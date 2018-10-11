@@ -17,7 +17,7 @@ accelerometery data, respectively. A vector containing PAXRAW_C and PAXRAW_D is 
 If FALSE, will download the data into a temporary file from the CDC website and process the data. If TRUE, localpath must be specified and
 the zipped data will be sourced locally. Defaults to FALSE.}
 
-\item{localpath}{Character string indicating where the locally zipped raw .xpt files are.}
+\item{localpath}{Character string indicating where the locally zipped raw .xpt files are. If local=TRUE, then localpath must be a valid local directory.}
 
 \item{urls}{Character vector provides the website URLs where the NHANES accelerometry data can be downloaded. The default contains the URLs which will directly download the data frome
 the CDC's website. This argument, if specified, must be the same length as the names_accel_xpt argument. Downloading the data through R is often slower than downloading the data outside of R.
@@ -64,6 +64,8 @@ This function takes the long format of the NHANES 2003-2006 accelerometry data a
 on the NHANES 2003-2006 waves' accelerometry data. As future NHANES accelerometry data are released, we intend to verify that process_accel
 will correctly transform the newly released data into our 1440+ format.
 The function documentation, and, if necessary the function itself, will be updated as needed going forward.
+
+If the data are directly downloaded from the CDC website, the raw data will be downloaded to a temporary folder and then deleted once it's been read into R.
 }
 \examples{
 \dontrun{
@@ -72,7 +74,7 @@ library("rnhanesdata")
 ## the first element of accel_ls corresponds to PAXINTEN_C and
 ## the second element of accel_ls corresponds to PAXINTEN_D
 accel_ls <- process_accel(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
-                          local=FALSE, deletraw=TRUE,
+                          local=FALSE,
                           urls=urls=c("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAXRAW_C.ZIP",
                                       "https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/PAXRAW_D.ZIP")
                          )

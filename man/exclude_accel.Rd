@@ -23,7 +23,7 @@ at least 10 hours of weartime.}
 }
 \value{
 This function returns a numeric vector containing the indices of days which were identified as "good". These indices can be used to subset
-the accelerometry data as desired.
+the accelerometry data as desired. An illustration is provided in the examples.
 }
 \description{
 This function subsets accelerometry data by total wear/non-wear time criteria, as well as

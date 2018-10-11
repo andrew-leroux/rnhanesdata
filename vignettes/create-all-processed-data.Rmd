@@ -20,17 +20,29 @@ knitr::opts_chunk$set(
 ```
 
 
-In this vignette we walk through the creation of the 8 primary processed datasets contained in the *rnhanesdata* pacakge. These 
+In this vignette we walk through the creation of the 8 primary processed datasets contained in the *rnhanesdata* package. These 
 datasets can be organized into four categories: 
 
 - Activity count data (accelerometer)
-   + PAXINTEN_C
-   + PAXINTEN_D
+    + PAXINTEN_C
+    + PAXINTEN_D
 - Wear/non-wear flags associated (derived from the activity count data)
-- NHANES demographic, survey design, lifestyle, and comorbiditiy variables
+    + Flags_C
+    + Flags_D
 - Mortality data linked to NHANES
+    + Mortality_2011_C
+    + Mortality_2011_D
+- NHANES demographic, survey design, lifestyle, and comorbiditiy variables
+    + Covariate_C
+    + Covariate_D
 
-Below we show users how to process this data for themselves and then write out the data in a format of their preference. Before we do anything, we need to load the package
+The _C and _D naming convention indicates which NHANES wave the data is associated with. 
+More specifically, _C and _D correspond to the 2003-2004 and 2005-2006 waves, respectively. 
+This document assumes users have some familiarity with the contest of each of these datasets. 
+See the help files associated with each of these datasets for more information. 
+
+Below we show users how to process this data for themselves and then write out the data in a format of their preference. 
+The first step is to load the *rnhanesdata* package.
 
 
 ```{r loadpackage, message=FALSE}
@@ -40,7 +52,7 @@ library("rnhanesdata")
 
 
 
-## Processing the accelerometry data and creating wear/non-wear flags
+# Processing the accelerometry data and creating wear/non-wear flags
 
 Using the functions *process_accel()* and *process_flags()*, processing the accelerometry data and creating wear/non-wear flags is simple. 
 In the code below we show how to download the physical activity monitor data from the NHANES website and then calculate wear/non-wear flags. 
@@ -57,13 +69,14 @@ flags_ls <- process_flags(accel_ls)
 
 This whole process will take some time to finish (approximately 30 minutes on a standard laptop).
 Downloading the data directly through *R* and then unzipping the data in *R* is, in general, slower 
-than downloading and unzipping the data outside of *R* and then reading in the unzipped data locally. 
+than downloading  the data outside of *R* and then reading in the (un)zipped data locally. 
 See ?process_accel for details on how to process data that is stored locally. 
 However, in the interest for full reproducibility we allow for the entire data processing pipeline to be conducted within *R*. 
 
 Once this code has executed, the object accel_ls will be a list where the first element is a data frame corresponding to the 2003-2004 accelerometry data in the 1440+ format. Similarly, the second element of accel_ls will be a data frame containing the 2005-2006 accelerometry data in the 1440+ format. These data frames are 
-identical to the PAXINTEN_C (2003-2004) and PAXINTEN_D (2005-2006). Type ?PAXINTEN_C and ?PAXINTEN_D in your *R* console for additional details. 
-The flags_ls object will also be a list containing two elements: Flags_C and Flags_D, corresponding the estimated wear/non-wear flag matrices for the 2003-2004 and 2005-2006 accelerometry data, respectively. The format (i.e. column names, dimensions, etc) of Flags_C and Flags_D is identical to that of PAXINTEN_C and PAXINTEN_D, only the activity count data has been replaced by wear/non-wear flags. Type ?Flags_C and ?Flags_D  in your *R* console for additional details. 
+identical to the data objects PAXINTEN_C (2003-2004) and PAXINTEN_D (2005-2006) which are included in the *rnhanesdata* package. 
+Type ?PAXINTEN_C and ?PAXINTEN_D in your *R* console for additional details. 
+The flags_ls is object will also be a list containing two elements: Flags_C and Flags_D, corresponding the estimated wear/non-wear flag matrices for the 2003-2004 and 2005-2006 accelerometry data, respectively. The format (i.e. column names, dimensions, etc) of Flags_C and Flags_D is identical to that of PAXINTEN_C and PAXINTEN_D, only the activity count data has been replaced by wear/non-wear flags. Type ?Flags_C and ?Flags_D  in your *R* console for additional details. 
 
 
 Saving the data locally is then straightforward. For example, if we wanted to create .rda files which are identical to those included in the package, we would use the following code
@@ -83,8 +96,9 @@ save(Flags_C, file="Flags_C.rda", compress="xz")
 save(Flags_D, file="Flags_D.rda", compress="xz")
 ```
 
-Changing the argument to file will control where the data are saved. By default the syntax above will save to wherever the current working directory is, which can be viewed using the function *getwd()*. 
-Note that we use "xz"" compression here. Using this compression type takes longer to complete than the default compression type, but results in substantially smaller file sizes in this case.
+Changing the argument to file will control where the data are saved. 
+By default the syntax above will save to wherever the current working directory is, which can be viewed by typing  *getwd()* in the *R* console. 
+Note that we use "xz"" compression here. Saving the activity count data using this compression type takes longer to complete than the default compression type, but results in substantially smaller file sizes.
 
 If instead of a .rda file, you'd prefer to save the processed data as .csv, you can use the function *write.csv()* which uses similar syntax.
 
@@ -100,7 +114,7 @@ write.csv(Flags_D, file="Flags_D.csv", row.names=FALSE)
 
 
 
-## Processing the mortality data 
+# Processing the mortality data 
 
 Processing the NHANES 2003-2004 and 2005-2006 mortality data is similarly simple using the *process_mort()* function contained in the *rnhanesdata* package. 
 
@@ -108,8 +122,9 @@ Processing the NHANES 2003-2004 and 2005-2006 mortality data is similarly simple
 mort_ls <- process_mort()
 ```
 
-By default the *process_mort()* function looks for the raw mortality data within the *rnhanesdata* package. This can be changed by suppling a local directory to the 
-localpath argument. See ?process_mort for more deatils. 
+By default the *process_mort()* function looks for the raw mortality data within the *rnhanesdata* package.
+This can be changed by supplying a local directory to the 
+localpath argument. See ?process_mort for more details. 
 
 The mortality data can then be saved in the same way that the activity count and wear/non-wear flag data were saved in the previous section
 
@@ -125,18 +140,25 @@ save(Mortality_2011_D, file="Mortality_2011_D.rda", compress="xz")
 
 
 
-## Processing the demographic, survey design, lifestyle, and comorbiditiy variables
+# Processing the demographic, survey design, lifestyle, and comorbiditiy variables
 
-
-Processing the demographic, survey design, lifestly and comorbidity variables included in the **Covariate_C** and **Covariate_D** datasets is a bit more involved. 
-First, the raw data used to create these sets of processed data are spread across multiple SAS XPORT (.xpt) files. So there's a data merging step that needs to take place. 
-The *process_covar()* function is used for precisely this purpose. It will search a local directory for 
-all .xpt files associated with a specific NHANES wave. By default *process_covar()* searches the raw data stored within the *rnhanesdata* pacakge, 
+In this section we will reproduce the **Covariate_C** and **Covariate_D** datasets included in the *rnhanesdata* package. 
+Processing the demographic, survey design, lifestyle and comorbidity variables included in the **Covariate_C** and **Covariate_D** 
+datasets is a bit more involved than processing the activity count, wear/non-wear flags, and mortality data. First, 
+the raw data used to create these sets of processed data are spread across multiple SAS XPORT (.xpt) files.
+As a result, there's an initial  data merging step that needs to take place. 
+The *process_covar()* function was created to make this process as straightforward as possible. 
+It will search a local directory for 
+all .xpt files associated with a specific NHANES wave. By default *process_covar()* searches the raw data stored within the *rnhanesdata* package, 
 though the directory can be specified by users.
 Users can choose to extract all variables across all relevant .xpt files, or request a specific set of variables. 
 For example, creating the **Covariate_C** and **Covariate_D** datasets requires 33 variables. 
 
-Below, we show how to extract and merge these 33 variables using the raw NHANES data included in the *rnhanesdata* pacakge. 
+In addition to the issue of data merging, creating many common variables of interest requires careful consideration of questionnaire skip patterns and 
+coding for missing data, which can change from wave-to-wave. One of the variables we use to classify individual's alcohol consumption is an example of this 
+(ALQ130). Accordingly, we process this data separately for each wave. 
+
+Below, we show how to extract and merge these 33 variables required to create  **Covariate_C** and **Covariate_D** . 
 
 ```{r process_covar}
 covar_ls <- process_covar(waves=c("C","D"),
@@ -147,28 +169,29 @@ covar_ls <- process_covar(waves=c("C","D"),
                            "ALQ101", "ALQ110", "ALQ120Q","ALQ120U", "ALQ130", "SMQ020", "SMD030", "SMQ040",
                            "MCQ220","MCQ160F", "MCQ160B", "MCQ160C",
                            "PFQ049","PFQ054","PFQ057","PFQ059", "PFQ061B", "PFQ061C", "DIQ010"))
+
+Covariate_C <- covar_ls$Covariate_C
+Covariate_D <- covar_ls$Covariate_D
 ```
 
 
-The *process_covar* function will report how many variables were found for each of the NHANES waves considered. 
+The *process_covar* function will print to the console how many variables were found for each of the NHANES waves considered (see output above). 
 At this point all variables in each element of covar_ls are numeric, as can be seen by using the *str()* function
 
 ```{r process_covar_str}
-str(covar_ls$Covariate_C)
+str(Covariate_C)
 ```
 
 
 
-Many variables of interest are represented by a single NHANES question. We can transform these variables into form which are meaningful to users, we can use the *factor* function. 
-However, some variables (alcohol consumption, cigarette smoking, mobility problem, etc) require integrating the information from multiple variables (multiple questionairre items). 
-First, we show how to convert 
+Many variables of interest are represented by a single NHANES question. 
+For example, "Gender" can be derived entirely from the NHANES variable "RIAGENDR". 
+In order to create the "Gender" variable, we need to look at the NHANES demographic data codebook, available at https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/DEMO_C.htm.
+Below, we show how to create the variables included in **Covariate_C** and **Covariate_D** which can be derived from a single NHANES question. 
 
 
 
 ```{r process_covar_single_q}
-Covariate_C <- covar_ls[["Covariate_C"]]
-Covariate_D <- covar_ls[["Covariate_D"]]
-
 Covariate_C$Race <- factor(Covariate_C$RIDRETH1, levels=1:5, labels=c("Mexican American", "Other Hispanic", "White", "Black", "Other"), ordered=FALSE)
 Covariate_D$Race <- factor(Covariate_D$RIDRETH1, levels=1:5, labels=c("Mexican American", "Other Hispanic", "White", "Black", "Other"), ordered=FALSE)
 Covariate_C$Race <- relevel(Covariate_C$Race, ref="White")
@@ -223,15 +246,231 @@ Covariate_D$BMI_cat <- relevel(Covariate_D$BMI_cat, ref="Normal")
 ```
 
 
+Observe that there are some variables which we applied the *relevel()* function to. The *relevel()* function allows us to set the level of the factor variable which is 
+considered as the "baseline". This is particularly useful when you intend to use factor variables in a regression. 
+
+Unlike the variables derived above, some variables (alcohol consumption, cigarette smoking, mobility problem, etc) 
+require integrating the information from multiple variables (multiple questionnaire items). 
+Often, creating variables derived from more than one questionnaire item require choices involving how the definition of said variables. 
+Moreover, creating these variables requires careful attention to "skip patterns" in the relevant questionnaires in order to not accidentally mark data as "missing" when 
+there is really an implied value based on their responses to other questions. 
+
+
+### Creating a variable for cigarette smoking
+
+The NHANES 2003-2004 and 2005-2006 waves ask a number of questions about smoking. 
+A very simple way to classify individuals based on their smoking history is: 
+
+* Never smoker
+* Former smoker
+* Current smoker
+
+However, NHANES does not ask a question that corresponds exactly to this classification. 
+Instead, the first question on the smoking questionnaire for these two waves is: "Have you smoked at least 100 cigarettes in your entire life"? 
+If the answer to this question is "no", "refused", or "don't know", then the participant is asked no more questions about their cigarette smoking history. 
+If the answer to this question is "yes" then they're asked at least 2 more questions on smoking history. 
+
+There are many possible ways to categorize individuals into never, former, or current smokers using the smoking questionnaire from NHANES 2003-2004/2005-2006. 
+In the **Covariate_C** and **Covariate_D** data sets, we only consider individuals' responses to the questions:
+
+1. SMQ020: "Have you smoked at least 100 cigarettes in your entire life"
+2. SMQ040: "Do you now smoke cigarettes"
+
+If an individual responded "No" to question 1 above, we classify them as Never smokers. 
+If an individual responds "Yes" to question 1 and "Not at all" to question 2, we classify them as former smokers. 
+If an individual response "Yes" to question 1 and either "Every day" or "Some days". Any other combination of responses is considered missing data.
+
+The code to create our cigarette smoking variable is then
+
+```{r cigarette_smoking}
+## temporarily assign the SmokeCigs variable as individuals' 
+## response to SMQ040
+Covariate_C$SmokeCigs <-Covariate_C$SMQ040
+Covariate_D$SmokeCigs <-Covariate_D$SMQ040
+
+## re-codes individuals who responded "No" to "Ever smoked 100 cigarettes in your life" (SMQ020) 
+## as -999 instead of missing (since these individuals were never asked question SMQ040)
+Covariate_C$SmokeCigs[Covariate_C$SMQ020 == 2] <- -999
+Covariate_D$SmokeCigs[Covariate_D$SMQ020 == 2] <- -999
+
+## re-code individuals who answered "some days" to SMQ040 ("do you now smoke cigarettes")
+## as "1". These individuals are considered current smokers by our definition
+Covariate_C$SmokeCigs[Covariate_C$SmokeCigs == 2] <- 1
+Covariate_D$SmokeCigs[Covariate_D$SmokeCigs == 2] <- 1
+
+## finally, create the factor variable based on our re-coding 
+Covariate_C$SmokeCigs <- factor(Covariate_C$SmokeCigs, levels=c(-999, 3, 1), labels=c("Never", "Former", "Current"), ordered=FALSE)
+Covariate_D$SmokeCigs <- factor(Covariate_D$SmokeCigs, levels=c(-999, 3, 1), labels=c("Never", "Former", "Current"), ordered=FALSE)
+```
 
 
 
-Finally, we save these data files 
 
-```{r process_covar_save}
+### Creating a variable for alcohol consumption
+
+
+The NHANES 2003-2004 and 2005-2006 waves ask a number of questions about alcohol consumption. 
+Similar to how we classified individuals into smoking categories, it's common to classify individuals as being one of
+
+* Non drinker
+* Moderate drinker
+* Heavy drinker
+
+The CDC provides a (gender specific) definition for moderate drinker versus heavy drinker based on the amount of alcohol consumed, on average, per day AND whether 
+or not an individual engages in binge drinking. However, as of writing, the NHANES 2003-2006 data do not contain data on binge drinking as used in 
+the CDC's definition of heavy drinker. As such, we use individuals' self-reported number of drinks per week to classify individuals. 
+
+We define non drinkers as anyone who reported never drinking 12 or more drinks over the course of their entire life (ALQ101), or over the course of any year (ALQ110). 
+We defined former drinkers as anyone who indicated that they had at least 12 drinks over the course of any one year, but report drinking no alcohol in the past 12 months.
+Moderate drinkers are women and men who report drinking, on average, 7 and 14 fewer drinks per week, respectively. Anyone who does not have sufficient 
+data to identify them as belonging to one of these groups was considered to have missing data. 
+
+There is a slight complication in that the questionnaire is structured such that individuals report how often they drank alcohol over the past year (ALQ120Q)
+among individuals who reported drinking alcohol, the number of days they drank per unit time (ALQ120U: week, month, year), and then how many drinks 
+they did drink on those days where they consumed alcohol (ALQ130). The answers to these three questions need to be considered jointly in order to calculate a variable 
+corresponding to the "average number of alcoholic drinks drank per week over the last 12 months" variable. An additional complication is that 
+NHANES changed how refused/missing data were coded for the variable ALQ130 (# of drinks on those days that alcohol was drunk) this is addressed in the code below. 
+
+
+
+```{r alcohol}
+## classifies don't know/refused as missing
+Covariate_C$ALQ101[Covariate_C$ALQ101 %in% c(7,9)] <- NA
+Covariate_D$ALQ101[Covariate_D$ALQ101 %in% c(7,9)] <- NA
+
+Covariate_C$ALQ110[Covariate_C$ALQ110 %in% c(7,9)] <- NA
+Covariate_D$ALQ110[Covariate_D$ALQ110 %in% c(7,9)] <- NA
+
+## get a factor variable which corresponds to "have you ever in your life had 12 drinks total over the course of a year?"
+Covariate_C$Alcohol_Ever <- factor(as.numeric(Covariate_C$ALQ101 == 1 | Covariate_C$ALQ110 == 1), levels=c(1,0), labels=c("Yes","No"), ordered=FALSE)
+Covariate_D$Alcohol_Ever <- factor(as.numeric(Covariate_D$ALQ101 == 1 | Covariate_D$ALQ110 == 1), levels=c(1,0), labels=c("Yes","No"), ordered=FALSE)
+
+## re-code "how often drink alcohol over past 12 mos" = refused (777) and don't know (999) as missing
+Covariate_C$ALQ120Q[Covariate_C$ALQ120Q %in% c(777,999)] <- NA
+Covariate_D$ALQ120Q[Covariate_D$ALQ120Q %in% c(777,999)] <- NA
+
+## re code # days drank alcohol units of refused/don't know as missing ()
+## note: there are no observed values of 7/9 in these variables, but they are options in the survey
+Covariate_C$ALQ120U[Covariate_C$ALQ120U %in% c(7,9)] <- NA
+Covariate_D$ALQ120U[Covariate_D$ALQ120U %in% c(7,9)] <- NA
+
+## re code # of drinks on those days that alcohol was drunk
+## to be NA where the answer was "refused" or "dont know"
+## note they changed the coding between 2003-2004 and 2005 and 2006 waves from 77/99 to 777/999
+Covariate_C$ALQ130[Covariate_C$ALQ130 %in% c(77,99)] <- NA
+Covariate_D$ALQ130[Covariate_D$ALQ130 %in% c(777,999)] <- NA
+
+
+## get number of drinks per week for all individuals
+multiplier <- 7*c(1/7, 1/30, 1/365)
+
+##                           (#days drank alcohol / unit time) * (unit time / week)                *  (drinks / day)     = drinks/week
+Covariate_C$DrinksPerWeek <-        Covariate_C$ALQ120Q        * (multiplier[Covariate_C$ALQ120U]) * Covariate_C$ALQ130
+Covariate_D$DrinksPerWeek <-        Covariate_D$ALQ120Q        * (multiplier[Covariate_D$ALQ120U]) * Covariate_D$ALQ130
+
+## recode individuals who are never drinkers OR non-drinkers  as drinking 0 drinks per week
+Covariate_C$DrinksPerWeek[Covariate_C$Alcohol_Ever == "No"] <- 0
+Covariate_D$DrinksPerWeek[Covariate_D$Alcohol_Ever == "No"] <- 0
+
+Covariate_C$DrinksPerWeek[Covariate_C$ALQ120Q == 0] <- 0
+Covariate_D$DrinksPerWeek[Covariate_D$ALQ120Q == 0] <- 0
+
+
+## classify individuals as "non-drinker","moderate","heavy" using gender specific CDC thresholds of
+##  no more than 7 drinks/week for women, and no more than  14 drinks per week for men.
+##  note we do not have
+cutoff <- c(14,7)
+Covariate_C$DrinkStatus <- cut(Covariate_C$DrinksPerWeek / cutoff[Covariate_C$RIAGENDR], breaks=c(-1, 0, 1, Inf), 
+                               labels=c("Non-Drinker","Moderate Drinker", "Heavy Drinker"))
+Covariate_D$DrinkStatus <- cut(Covariate_D$DrinksPerWeek / cutoff[Covariate_D$RIAGENDR], breaks=c(-1, 0, 1, Inf), 
+                               labels=c("Non-Drinker","Moderate Drinker", "Heavy Drinker"))
+
+## re-level the factor variable to have the baseline be moderate drinkers
+Covariate_C$DrinkStatus <- relevel(Covariate_C$DrinkStatus, ref="Moderate Drinker")
+Covariate_D$DrinkStatus <- relevel(Covariate_D$DrinkStatus, ref="Moderate Drinker")
+
+```
+
+
+
+
+
+
+
+### Creating a variable for mobility problem
+
+
+We define participants as reporting a mobility problem if they report any of:
+
+1. Difficulty walking a quarter mile (PFQ061B)
+2. Difficulty climbing 10 stairs (PFQ061C)
+3. Use of any special equipment to walk (PFQ054)
+
+The skip pattern of the physical function questionnaire is crucial to  correctly creating this variable. 
+That is, if individuals report needing special equipment to walk, they are not asked about their difficulty climbing stairs or walking a quarter mile. 
+In addition, individuals are not asked about difficulty walking or climbing stairs if they 
+are 59 or younger according the variable RIDAGEYR (**not** RIDAGEMN which measures age at interview) and indicate they have no limitations that keep them 
+from working (PFQ049), no memory problems (PFQ057), and no limitations arising from a mental, emotional, or physical problem (PFQ059). 
+We consider these individuals to have no mobility problem.
+
+
+
+
+```{r mobility_problem}
+Covariate_C$Difficulty_Walking <- factor(as.numeric(Covariate_C$PFQ061B==1), levels=c(1,0), labels=c("No Difficulty","Any Difficulty"), ordered=FALSE)
+Covariate_D$Difficulty_Walking <- factor(as.numeric(Covariate_D$PFQ061B==1), levels=c(1,0), labels=c("No Difficulty","Any Difficulty"), ordered=FALSE)
+
+Covariate_C$Difficulty_Stairs <- factor(as.numeric(Covariate_C$PFQ061C==1), levels=c(1,0), labels=c("No Difficulty","Any Difficulty"), ordered=FALSE)
+Covariate_D$Difficulty_Stairs <- factor(as.numeric(Covariate_D$PFQ061C==1), levels=c(1,0), labels=c("No Difficulty","Any Difficulty"), ordered=FALSE)
+
+## label anyone who requires special equipment to walk as "any difficulty"
+inx_sp_equip_C <- which(Covariate_C$PFQ054 == 1)
+inx_sp_equip_D <- which(Covariate_D$PFQ054 == 1)
+
+Covariate_C$Difficulty_Walking[inx_sp_equip_C] <- "Any Difficulty"
+Covariate_D$Difficulty_Walking[inx_sp_equip_D] <- "Any Difficulty"
+
+Covariate_C$Difficulty_Stairs[inx_sp_equip_C] <- "Any Difficulty"
+Covariate_D$Difficulty_Stairs[inx_sp_equip_D] <- "Any Difficulty"
+rm(list=c("inx_sp_equip_C","inx_sp_equip_D"))
+
+
+# label anyone 59 and younger at interview who responds no to PFQ049, PFQ057, PFQ059 as "No difficulty"
+inx_good_fn_C <- which(Covariate_C$PFQ049 == 2 & Covariate_C$PFQ057 == 2 & Covariate_C$PFQ059 == 2 & Covariate_C$RIDAGEYR <= 59)
+inx_good_fn_D <- which(Covariate_D$PFQ049 == 2 & Covariate_D$PFQ057 == 2 & Covariate_D$PFQ059 == 2 & Covariate_D$RIDAGEYR <= 59)
+
+Covariate_C$Difficulty_Walking[inx_good_fn_C] <- "No Difficulty"
+Covariate_D$Difficulty_Walking[inx_good_fn_D] <- "No Difficulty"
+
+Covariate_C$Difficulty_Stairs[inx_good_fn_C] <- "No Difficulty"
+Covariate_D$Difficulty_Stairs[inx_good_fn_D] <- "No Difficulty"
+
+Covariate_C$MobilityProblem <- factor(as.numeric(Covariate_C$Difficulty_Stairs == "Any Difficulty" | Covariate_C$Difficulty_Walking == "Any Difficulty"),
+                                      levels=c(0,1), labels=c("No Difficulty","Any Difficulty"),ordered=FALSE)
+Covariate_D$MobilityProblem <- factor(as.numeric(Covariate_D$Difficulty_Stairs == "Any Difficulty" | Covariate_D$Difficulty_Walking == "Any Difficulty"),
+                                      levels=c(0,1), labels=c("No Difficulty","Any Difficulty"),ordered=FALSE)
+```
+
+
+
+
+
+### Saving the demographic, lifestyle, and comorbidity data
+
+Finally, we save the columns of interest from these data files 
+
+```{r process_covar_save, eval=FALSE}
+vars_inc <- c("SEQN","SDDSRVYR",
+              "SDMVPSU","SDMVSTRA","WTINT2YR","WTMEC2YR",
+              "RIDAGEMN","RIDAGEEX","RIDAGEYR","BMI","BMI_cat","Race","Gender",
+              "Diabetes","CHF","CHD","Cancer","Stroke",
+              "EducationAdult","MobilityProblem",
+              "DrinkStatus","DrinksPerWeek","SmokeCigs")
+Covariate_C <- Covariate_C[,vars_inc]
+Covariate_D <- Covariate_D[,vars_inc]
+
 save(Covariate_C, file="Covariate_C.rda", compress="xz")
 save(Covariate_D, file="Covariate_D.rda", compress="xz")
-
 ```
 
 

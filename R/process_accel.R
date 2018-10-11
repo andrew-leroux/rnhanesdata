@@ -15,7 +15,7 @@
 #' If FALSE, will download the data into a temporary file from the CDC website and process the data. If TRUE, localpath must be specified and
 #' the zipped data will be sourced locally. Defaults to FALSE.
 #'
-#' @param localpath Character string indicating where the locally zipped raw .xpt files are.
+#' @param localpath Character string indicating where the locally zipped raw .xpt files are. If local=TRUE, then localpath must be a valid local directory.
 #'
 #' @param urls Character vector provides the website URLs where the NHANES accelerometry data can be downloaded. The default contains the URLs which will directly download the data frome
 #' the CDC's website. This argument, if specified, must be the same length as the names_accel_xpt argument. Downloading the data through R is often slower than downloading the data outside of R.
@@ -36,6 +36,7 @@
 #' will correctly transform the newly released data into our 1440+ format.
 #' The function documentation, and, if necessary the function itself, will be updated as needed going forward.
 #'
+#' If the data are directly downloaded from the CDC website, the raw data will be downloaded to a temporary folder and then deleted once it's been read into R.
 #'
 #' @return
 #'
@@ -67,7 +68,7 @@
 #' ## the first element of accel_ls corresponds to PAXINTEN_C and
 #' ## the second element of accel_ls corresponds to PAXINTEN_D
 #' accel_ls <- process_accel(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
-#'                           local=FALSE, deletraw=TRUE,
+#'                           local=FALSE,
 #'                           urls=urls=c("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAXRAW_C.ZIP",
 #'                                       "https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/PAXRAW_D.ZIP")
 #'                          )
@@ -112,10 +113,6 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
         }
 
 
-
-
-        stopifnot(compress %in% c("xz","gzip","bzip2"))
-
         out.name <- gsub("PAXRAW", "PAXINTEN", names_accel_xpt)
         ret <- c()
 
@@ -127,10 +124,16 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
                 # if local=FALSE, download the data directly from the link provided in URLS
                 if(!local){
                         datapath <- system.file("extdat",package="rnhanesdata")
-                        temp <- tempfile()
+                        temp     <- tempfile()
+                        temp_xpt <- tempfile()
+
                         download.file(urls[i], temp)
-                        sim.data <- read_xpt(unzip(temp, xpt_nm, exdir=datapath))
-                        unlink(temp)
+                        unzip(temp, xpt_nm, exdir=temp_xpt)
+
+                        sim.data <- read_xpt(file.path(temp_xpt, xpt_nm))
+
+                        unlink(c(temp,temp_xpt), recursive=TRUE)
+
                 }
                 if(local){
                         datapath <- localpath
@@ -361,7 +364,6 @@ process_flags <- function(x, days_distinct=FALSE, window=90L, tol=2L, tol_upper=
         if(any(!grepl("^PAXINTEN_[A-Z]$", names_accel_xpt)) | is.null(names_accel_xpt)){
                 stop("x must be a list with each element corresponding to PAXINTEN_* where * denotes the letter corresponding the NHANES wave")
         }
-        stopifnot(compress %in% c("xz","gzip","bzip2"))
         out.name <- paste0("Flags_", substr(names_accel_xpt, nchar(names_accel_xpt), nchar(names_accel_xpt)))
 
         ret <- c()
@@ -913,7 +915,7 @@ process_covar <- function(waves=c("C","D"),
 #' @return
 #'
 #' This function returns a numeric vector containing the indices of days which were identified as "good". These indices can be used to subset
-#' the accelerometry data as desired.
+#' the accelerometry data as desired. An illustration is provided in the examples.
 #'
 #'
 #' @examples
@@ -1019,38 +1021,35 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #' The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" argument with either 8 or 16 additional columns.
 #' If the data supplied to the reweight_accel function only comes from one NHANES wave, then only the 2-year survey weights will be returned.
 #' If there are data from both the 2003-2004 and 2005-2006 waves supplied to the reweight_accel function, then both the 2-year and 4-year survey weights will be
-#' returned.
+#' returned. Any time an analysis is done using the combined data, the appropriate 4-year survey weight should be used.
 #'
 #' These survey weights are described below.
+#'
 #'
 #'
 #' \itemize{
 #'      \item{Examination survey weights}
 #'      \itemize{
-#'           \item{wtmec2yr_adj: }{This variable is the re-weighted 2-year survey weight}
-#'           \item{wtmec2yr_adj_norm: }{}
-#'           \item{wtmec4yr_adj: }{}
-#'           \item{wtmec4yr_adj_norm: }{}
-#'           \item{wtmec2yr_unadj: }{This variable is a copy of the WTMEC2YR variable.}
-#'           \item{wtmec2yr_unadj_norm: }{This variable is calculated as wtmec2yr_unadj/mean(wtmec2yr_unadj). That is, these weights are the
-#'                                        2-year unadjusted precision weights. Here, precision weights means that the sum of the weights is equal
-#'                                        to the number of participants.}
-#'           \item{wtmec4yr_unadj: }{This variable is calculated as WTMEC2YR/2}
-#'           \item{wtmec4yr_unadj_norm: }{This variable is calculated as wtmec4yr_unadj/mean(wtmec4yr_unadj). That is, these weights are the
-#'                                        4-year unadjusted precision weights. Here, precision weights means that the sum of the weights is equal
-#'                                        to the number of participants.}
+#'           \item{wtmec2yr_adj: }{The age, gender, and ethnicity re-weighted 2-year survey weight}
+#'           \item{wtmec2yr_adj_norm: }{Normalized version of wtmec2yr_adj. This is calculated as wtmec2yr_adj/mean(wtmec2yr_adj)}
+#'           \item{wtmec4yr_adj: }{The age, gender, and the ethnicity re-weighted 4-year survey weight. This is calculated as wtmec2yr_adj/2.}
+#'           \item{wtmec4yr_adj_norm: }{Normalized version of wtmec4yr_adj. This is calculated as wtmec4yr_adj/mean(wtmec4yr_adj)}
+#'           \item{wtmec2yr_unadj: }{Unadjusted 2-year examination weight. This is just a copy of the WTMEC2YR variable.}
+#'           \item{wtmec2yr_unadj_norm: }{Normalized version of wtmec2yr_adj. This is calculated as wtmec2yr_unadj/mean(wtmec2yr_unadj)}
+#'           \item{wtmec4yr_unadj: }{Unadjusted 4-year examination weight. This is calculated as wtmec2yr_unadj/2.}
+#'           \item{wtmec4yr_unadj_norm: }{Normalized version of wtmec4yr_unadj. This is calculated as wtmec4yr_unadj/mean(wtmec4yr_unadj)}
 #'      }
 #'
 #'      \item{Interview survey weights}
 #'      \itemize{
-#'           \item{wtint2yr_adj: }{}
-#'           \item{wtint2yr_adj_norm: }{}
-#'           \item{wtint4yr_adj: }{}
-#'           \item{wtint4yr_adj_norm: }{}
-#'           \item{wtint2yr_unadj: }{}
-#'           \item{wtint2yr_unadj_norm: }{}
-#'           \item{wtint4yr_unadj: }{}
-#'           \item{wtint4yr_unadj_norm: }{}
+#'           \item{wtint2yr_adj: }{The age, gender, and ethnicity re-weighted 2-year survey weight}
+#'           \item{wtint2yr_adj_norm: }{Normalized version of wtint2yr_adj. This is calculated as wtint2yr_adj/mean(wtint2yr_adj)}
+#'           \item{wtint4yr_adj: }{The age, gender, and the ethnicity re-weighted 4-year survey weight. This is calculated as wtint2yr_adj/2.}
+#'           \item{wtint4yr_adj_norm: }{Normalized version of wtint4yr_adj. This is calculated as wtint4yr_adj/mean(wtint4yr_adj)}
+#'           \item{wtint2yr_unadj: }{Unadjusted 2-year examination weight. This is just a copy of the wtint2YR variable.}
+#'           \item{wtint2yr_unadj_norm: }{Normalized version of wtint2yr_adj. This is calculated as wtint2yr_unadj/mean(wtint2yr_unadj)}
+#'           \item{wtint4yr_unadj: }{Unadjusted 4-year examination weight. This is calculated as wtint2yr_unadj/2.}
+#'           \item{wtint4yr_unadj_norm: }{Normalized version of wtint4yr_unadj. This is calculated as wtint4yr_unadj/mean(wtint4yr_unadj)}
 #'      }
 #'
 #'
@@ -1085,11 +1084,7 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #' ## "represent" all individuals [50,60) during the interview, which clearly doesn't make sense.
 #' summary(df50_rw$wtint2yr_adj)
 #'
-#'
-#' ## fit a linear regression of age on ethnicity categorized using
-#' ## the unadjusted 2 year survey weights (incorrect) and the
-#'
-#'
+#' ## Subsetting the reweighted dataset
 #'
 #'
 #'

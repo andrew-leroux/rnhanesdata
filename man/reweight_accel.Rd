@@ -24,38 +24,35 @@ See \code{\link{cut}} for additional details and examples. Defaults to TRUE.}
 The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" argument with either 8 or 16 additional columns.
 If the data supplied to the reweight_accel function only comes from one NHANES wave, then only the 2-year survey weights will be returned.
 If there are data from both the 2003-2004 and 2005-2006 waves supplied to the reweight_accel function, then both the 2-year and 4-year survey weights will be
-returned.
+returned. Any time an analysis is done using the combined data, the appropriate 4-year survey weight should be used.
 
 These survey weights are described below.
+
 
 
 \itemize{
      \item{Examination survey weights}
      \itemize{
-          \item{wtmec2yr_adj: }{This variable is the re-weighted 2-year survey weight}
-          \item{wtmec2yr_adj_norm: }{}
-          \item{wtmec4yr_adj: }{}
-          \item{wtmec4yr_adj_norm: }{}
-          \item{wtmec2yr_unadj: }{This variable is a copy of the WTMEC2YR variable.}
-          \item{wtmec2yr_unadj_norm: }{This variable is calculated as wtmec2yr_unadj/mean(wtmec2yr_unadj). That is, these weights are the
-                                       2-year unadjusted precision weights. Here, precision weights means that the sum of the weights is equal
-                                       to the number of participants.}
-          \item{wtmec4yr_unadj: }{This variable is calculated as WTMEC2YR/2}
-          \item{wtmec4yr_unadj_norm: }{This variable is calculated as wtmec4yr_unadj/mean(wtmec4yr_unadj). That is, these weights are the
-                                       4-year unadjusted precision weights. Here, precision weights means that the sum of the weights is equal
-                                       to the number of participants.}
+          \item{wtmec2yr_adj: }{The age, gender, and ethnicity re-weighted 2-year survey weight}
+          \item{wtmec2yr_adj_norm: }{Normalized version of wtmec2yr_adj. This is calculated as wtmec2yr_adj/mean(wtmec2yr_adj)}
+          \item{wtmec4yr_adj: }{The age, gender, and the ethnicity re-weighted 4-year survey weight. This is calculated as wtmec2yr_adj/2.}
+          \item{wtmec4yr_adj_norm: }{Normalized version of wtmec4yr_adj. This is calculated as wtmec4yr_adj/mean(wtmec4yr_adj)}
+          \item{wtmec2yr_unadj: }{Unadjusted 2-year examination weight. This is just a copy of the WTMEC2YR variable.}
+          \item{wtmec2yr_unadj_norm: }{Normalized version of wtmec2yr_adj. This is calculated as wtmec2yr_unadj/mean(wtmec2yr_unadj)}
+          \item{wtmec4yr_unadj: }{Unadjusted 4-year examination weight. This is calculated as wtmec2yr_unadj/2.}
+          \item{wtmec4yr_unadj_norm: }{Normalized version of wtmec4yr_unadj. This is calculated as wtmec4yr_unadj/mean(wtmec4yr_unadj)}
      }
 
      \item{Interview survey weights}
      \itemize{
-          \item{wtint2yr_adj: }{}
-          \item{wtint2yr_adj_norm: }{}
-          \item{wtint4yr_adj: }{}
-          \item{wtint4yr_adj_norm: }{}
-          \item{wtint2yr_unadj: }{}
-          \item{wtint2yr_unadj_norm: }{}
-          \item{wtint4yr_unadj: }{}
-          \item{wtint4yr_unadj_norm: }{}
+          \item{wtint2yr_adj: }{The age, gender, and ethnicity re-weighted 2-year survey weight}
+          \item{wtint2yr_adj_norm: }{Normalized version of wtint2yr_adj. This is calculated as wtint2yr_adj/mean(wtint2yr_adj)}
+          \item{wtint4yr_adj: }{The age, gender, and the ethnicity re-weighted 4-year survey weight. This is calculated as wtint2yr_adj/2.}
+          \item{wtint4yr_adj_norm: }{Normalized version of wtint4yr_adj. This is calculated as wtint4yr_adj/mean(wtint4yr_adj)}
+          \item{wtint2yr_unadj: }{Unadjusted 2-year examination weight. This is just a copy of the wtint2YR variable.}
+          \item{wtint2yr_unadj_norm: }{Normalized version of wtint2yr_adj. This is calculated as wtint2yr_unadj/mean(wtint2yr_unadj)}
+          \item{wtint4yr_unadj: }{Unadjusted 4-year examination weight. This is calculated as wtint2yr_unadj/2.}
+          \item{wtint4yr_unadj_norm: }{Normalized version of wtint4yr_unadj. This is calculated as wtint4yr_unadj/mean(wtint4yr_unadj)}
      }
 
 
@@ -112,11 +109,7 @@ sum(df50_rw$WTMEC2YR != df50_rw$wtmec2yr_unadj)
 ## "represent" all individuals [50,60) during the interview, which clearly doesn't make sense.
 summary(df50_rw$wtint2yr_adj)
 
-
-## fit a linear regression of age on ethnicity categorized using
-## the unadjusted 2 year survey weights (incorrect) and the
-
-
+## Subsetting the reweighted dataset
 
 
 
