@@ -6,7 +6,7 @@
 \usage{
 process_accel(names_accel_xpt = c("PAXRAW_C", "PAXRAW_D"),
   local = FALSE, localpath = NULL, urls = NULL, zipped = TRUE,
-  compress = "xz", check_data = FALSE)
+  check_data = FALSE)
 }
 \arguments{
 \item{names_accel_xpt}{A character vector of names for the zipped raw files. These should be of the form PAXRAW_\* where \* corresponds to the
@@ -26,9 +26,6 @@ See the examples section below for how to download and process the data directly
 \item{zipped}{Logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
 If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored. Note that if the data are saved locally, processing speed is
 substantially increased by unzipping before calling the process_accel function.}
-
-\item{compress}{Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
-but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.}
 
 \item{check_data}{logical value indicating whether to perform some checks of the data. If TRUE, the function will incur additional processing time.
 The NHANES 2003-2006 data have been tested and already passed these checks. Defaults to FALSE.}

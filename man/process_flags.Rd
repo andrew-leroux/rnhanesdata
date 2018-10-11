@@ -4,8 +4,8 @@
 \alias{process_flags}
 \title{Process wear/non-wear flags for NHANES 2003-2004 and 2005-2006 accelerometry data}
 \usage{
-process_flags(x, localpath = NULL, days_distinct = FALSE,
-  window = 90L, tol = 2L, tol_upper = 99L, compress = "xz", ...)
+process_flags(x, days_distinct = FALSE, window = 90L, tol = 2L,
+  tol_upper = 99L, ...)
 }
 \arguments{
 \item{x}{A list with each element corresponding to a data matrix of activity counts in the 1440+ format with 7 rows per individual. Each element of x should be named, and each
@@ -14,8 +14,6 @@ For example, the processed accelerometry data corresponding to the 2003-2004 wav
 The data should be sorted by participant (SEQN) and then in descending order chronologically. If days are not ordered chronologically and distinct_days=FALSE,
 then the resulting wear/non-wear flag output may not be accurate.
 The output of \code{\link{process_accel}} can be fed directly to this argument. See examples.}
-
-\item{localpath}{character string indicating where the locally processed .rda files should be saved if write = TRUE.}
 
 \item{days_distinct}{Logical value indicating whether days should be treated as distinct time series within participants. If TRUE, then
 subjects' wear status at 11:59PM does not affect their wear status at 00:01AM the next morning. Defaults to FALSE, this is generally recommended.}
@@ -30,9 +28,6 @@ See \code{\link{weartime}} for more details.}
 Defaults to 99. That is, for a given minute, if the window contains any minutes with
 activity counts greater than tol.upper, this minute is considered "wear".
 See \code{\link{weartime}} for more details.}
-
-\item{compress}{Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
-but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.}
 
 \item{...}{aditional arguments to be passed to \code{\link{weartime}}.}
 }

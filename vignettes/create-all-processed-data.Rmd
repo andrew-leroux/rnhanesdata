@@ -226,6 +226,13 @@ Covariate_D$BMI_cat <- relevel(Covariate_D$BMI_cat, ref="Normal")
 
 
 
+Finally, we save these data files 
+
+```{r process_covar_save}
+save(Covariate_C, file="Covariate_C.rda", compress="xz")
+save(Covariate_D, file="Covariate_D.rda", compress="xz")
+
+```
 
 
 
