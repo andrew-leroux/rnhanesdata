@@ -289,14 +289,12 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' There are many way to estimate non-wear periods in accelerometry data. Fundamentally, they all involve finding extended periods of implausibly low activity.
 #' However, there is no one perfect algorithm, and what qualifies as "implausible" is device-, placement-, and population-dependent. Here, we use the algorithm
 #' implemented by default in the \code{\link{accelerometry}} package via the \code{\link{weartime}} function. This algorithm is
-#'  similar to the algorithm used in Troiano et. al (...).
+#'  similar to the algorithm used in Troiano et. al (2008).
 #'
 #' There are a number of parameters the algirothm implemented in \code{\link{weartime}} uses to control how aggressive non-wear time identification is.
 #' By making the algorithm more agressive (decreasing window size, increasing tolerance for non-zero activity counts), one increases the likelihood of false positives.
-#' Conversely, making the algorithm less agressive increases the likelihood of false negatives. By default we use a semi-conservative window size of 90 minutes, and
-#' ... these values have been validated using the ... Algorithm in Choi et. al (...).
+#' Conversely, making the algorithm less agressive increases the likelihood of false negatives. By default we use a fairly conservative window size of 90 minutes.
 #'
-#' The main idea of this particular algorithm is to look at moving windows of a certain size and determine whether .
 #'
 #'
 #' @return
@@ -377,6 +375,9 @@ process_flags <- function(x, days_distinct=FALSE, window=90L, tol=2L, tol_upper=
                         stop(paste0("Activity data ", names_accel_xpt[i], " does not have 7 rows of data per subject. Please double check Activitiy count data."))
                 }
 
+                if(any(!paste0("MIN",1:1440) %in% colnames(full_data))){
+                        stop(paste0("Activity data ", names_accel_xpt[i], " does not have 1440 minutes of data. Please double check Activitiy count data."))
+                }
                 activity_data <- as.matrix(full_data[,paste0("MIN",1:1440)])
                 activity_data[is.na(activity_data)] = 0
 
@@ -444,11 +445,10 @@ process_flags <- function(x, days_distinct=FALSE, window=90L, tol=2L, tol_upper=
 #'
 #' As of writing, this function has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.
 #' The raw data comes in the form of a vector of strings, with each string associated with on participant.
-#' This function extracts variables using the substring locations described in the document .... (see references).
-#' Assuming mortality releases for other waves use the same format, this function . However we can not guarantee at this time.
+#' Assuming mortality releases for other waves use the same format, this function.
 #' As future mortality data are released, we will update the package with both the processed and raw mortality data for the NHANES 2003-2006 waves.
 #' If necessary, we will modify the code to be able to process all releases of the mortality data for 2011 and beyond.
-#'
+#' The documentation here will be updated as we confirm future mortality data releases are processed correctly using this function.
 #'
 #' @return
 #'
@@ -664,7 +664,7 @@ process_mort <- function(waves=c("C","D"),
 #'
 #' @details
 #'
-#' This function will search all .XPT files which matche the NHANES naming convention associated with the
+#' This function will search all .XPT files which match the NHANES naming convention associated with the
 #' character vector supplied to the "waves" argument in the specified data directory
 #' (either the "localpath" argument, or the raw NHANES data included in the \code{\link{rnhanesdata}} package).
 #' Any file which matches the relevant naming convention AND has "SEQN" as their first column name will be searched for the variables requested in the
