@@ -8,7 +8,9 @@ reweight_accel(data, return_unadjusted_wts = TRUE, age_bks = c(0, 1, 3,
   6, 12, 16, 20, 30, 40, 50, 60, 70, 80, 85, Inf), right = FALSE)
 }
 \arguments{
-\item{data}{Data frame to with survey weights to be re-weighted. Should only contain one participant.}
+\item{data}{Data frame to with survey weights to be re-weighted. Should not contain any duplicated participants. That is, each row
+of this dataframe should correspond to a unique value of SEQN.
+The data frame supplied to data must have the columns: SEQN", SDDSRVYR,WTMEC2YR, and WTINT2YR.}
 
 \item{return_unadjusted_wts}{Logical value indicating whether to return the unadjusted 2-year and, if applicable, 4-year survey weights for all participants.}
 
@@ -19,42 +21,106 @@ used to re-weight participants. The argument "right" determines whether these in
 See \code{\link{cut}} for additional details and examples. Defaults to TRUE.}
 }
 \value{
-The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" argument with up to 14 additional columns
+The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" argument with either 8 or 16 additional columns.
+If the data supplied to the reweight_accel function only comes from one NHANES wave, then only the 2-year survey weights will be returned.
+If there are data from both the 2003-2004 and 2005-2006 waves supplied to the reweight_accel function, then both the 2-year and 4-year survey weights will be
+returned.
 
+These survey weights are described below.
 
-If any of these columns are already in the dataframe supplied to the data argument, they will be overwritten and a warning will be printed.
-This may occur when an individual subsets their data multiple times and re-weights at each step.
 
 \itemize{
      \item{Examination survey weights}
      \itemize{
-          \item{wtmec2yr_unadj_norm: }{}
-          \item{wtmec4yr_unadj_norm: }{}
+          \item{wtmec2yr_adj: }{This variable is the re-weighted 2-year survey weight}
+          \item{wtmec2yr_adj_norm: }{}
+          \item{wtmec4yr_adj: }{}
+          \item{wtmec4yr_adj_norm: }{}
+          \item{wtmec2yr_unadj: }{This variable is a copy of the WTMEC2YR variable.}
+          \item{wtmec2yr_unadj_norm: }{This variable is calculated as wtmec2yr_unadj/mean(wtmec2yr_unadj). That is, these weights are the
+                                       2-year unadjusted precision weights. Here, precision weights means that the sum of the weights is equal
+                                       to the number of participants.}
+          \item{wtmec4yr_unadj: }{This variable is calculated as WTMEC2YR/2}
+          \item{wtmec4yr_unadj_norm: }{This variable is calculated as wtmec4yr_unadj/mean(wtmec4yr_unadj). That is, these weights are the
+                                       4-year unadjusted precision weights. Here, precision weights means that the sum of the weights is equal
+                                       to the number of participants.}
      }
 
      \item{Interview survey weights}
      \itemize{
+          \item{wtint2yr_adj: }{}
+          \item{wtint2yr_adj_norm: }{}
+          \item{wtint4yr_adj: }{}
+          \item{wtint4yr_adj_norm: }{}
+          \item{wtint2yr_unadj: }{}
           \item{wtint2yr_unadj_norm: }{}
+          \item{wtint4yr_unadj: }{}
+          \item{wtint4yr_unadj_norm: }{}
      }
 
 
 }
+
+If any of the 14 columns described above are already in the dataframe supplied to the data argument, they will be overwritten and a
+warning will be printed to the console. This may occur when an individual subsets their data multiple times and re-weights at each step.
 }
 \description{
 This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves.
 }
 \details{
 The reweight_accel function is designed to re-weight only the 2003-2004 and 2005-2006 waves in the context of missing data.
-That is, this function will re-weight individuals in the data supplied to the funciton
-The re-weighting is performed using age, sex, and ehtnicity strata.
-The underlying assumption
+This function calculates 2- and 4- year adjusted and unadjusted survey weights.
+The re-weighting is performed using age, sex, and ehtnicity strata applied to each wave separately.
+More specifically, individuals in the data frame supplied to the function via the
+"data" argument are upweighted by a factor such that the sum of their weights is equal to the total survey weight in the
+population strata. If data are missing completely at random within each of these strata, then these re-weighted strata are
+representative of the corresponding strata in the larger study.
+
+Users should ensure that if they intend to use the adjusted weights calculated by this function, that the data they reweight aligns with
+the re-weighted strategy, particularly with regard to age. That is, it does make sense to reweight all individuals 58-60 to be representative of
+all individuals ages 50-60. The age categories used in re-weighting are controlled by the "age_bks" argument. In illustrate the problems of misalignment of ages
+in the examples below. Moreover, the re-weighting is done separately for the interview and examination weights. Because there is a time lag between the interview and the exam, individuals
+may belong to different age strata for the purposes of re-weighting the interview and examination survey weights. Therefore, users need to make sure the
+ages in their data align with the survey weight they intend to use.
+
+It is possible that if there are one or more strata that are sparse, the survey weights. Users should always inspect the adjusted survey weights
+for outliers.
 }
 \examples{
+
+
 \dontrun{
-process_accel(write=FALSE)
-}
+library("rnhanesdata")
+set.seed(1241)
+## load the 2003-2004 demographic data
+data("Covariate_C")
+
+## consider just those individuals between the ages in the interval [50,80)
+## at the exam portion of the study
+df50 <- subset(Covariate_C, RIDAGEEX/12 >= 50 & RIDAGEEX/12 <80)
+
+## subsample 75\% of these individuals, then re-weight the data
+df50_sub <- df50[sample(1:nrow(df50), replace=FALSE, size=floor(nrow(df50)*0.75)),]
+df50_rw  <- reweight_accel(df50)
+
+## check the unadjusted weights 2-year weights match the WTMEC2YR variable
+sum(df50_rw$WTMEC2YR != df50_rw$wtmec2yr_unadj)
+
+## See that the adjusted interview weights are massively inflated
+## This is because there are individuals who are in the [40,50) strata during the interview
+## by are in the [50,60) strata for the exam. These few individuals are upweighted to
+## "represent" all individuals [50,60) during the interview, which clearly doesn't make sense.
+summary(df50_rw$wtint2yr_adj)
+
+
+## fit a linear regression of age on ethnicity categorized using
+## the unadjusted 2 year survey weights (incorrect) and the
+
+
+
+
+
 
 }
-\references{
 
 }

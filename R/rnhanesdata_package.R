@@ -124,6 +124,33 @@
 #'
 #' @references
 #'
+#' \itemize{Data used to create this package
+#'    \item{National Center for Health Statistics. Office of Analysis and Epidemiology, Public-use Linked Mortality File, 2015.
+#'    Hyattsville, Maryland. (Available at the following address: http://www.cdc.gov/nchs/data_access/data_linkage/mortality.htm}
+#'    \item{Centers for Disease Control and Prevention (CDC). National Center for Health Statistics (NCHS).
+#'          National Health and Nutrition Examination Survey Data. Hyattsville, MD: U.S.
+#'          Department of Health and Human Services, Centers for Disease Control and Prevention.
+#'          Available at: https://wwwn.cdc.gov/nchs/nhanes/default.aspx.
+#'          Accessed Oct. 10, 2018.}
+#'
+#'
+#'
+#'
+#' }
+#'
+#' \itemize{Estimating wear/non-wear time:
+#'    \item{Choi, Leena et al. “Validation of Accelerometer Wear and Nonwear Time Classification Algorithm.”
+#'          Medicine and science in sports and exercise 43.2 (2011): 357–364. PMC. Web. 10 Oct. 2018.}
+#'    \item{National Cancer Institute. Risk factor monitoring and methods: SAS programs for analyzing NHANES 2003-2004 accelerometer data.
+#'          Available at: http://riskfactor.cancer.gov/tools/nhanes_pam. Accessed Oct. 10, 2018.}
+#'    \item{Troiano RP, Berrigan D, Dodd KW, Masse LC, Tilert T, Mcdowell M: Physical activity in the United States measured by accelerometer.
+#'          Med Sci Sports Exerc 2008; 40: 181-188.}
+#'
+#' }
+#'
+#'
+#'
+#'
 #'
 NULL
 

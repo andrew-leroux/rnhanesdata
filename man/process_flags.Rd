@@ -4,9 +4,8 @@
 \alias{process_flags}
 \title{Process wear/non-wear flags for NHANES 2003-2004 and 2005-2006 accelerometry data}
 \usage{
-process_flags(x, write = FALSE, localpath = NULL,
-  days_distinct = FALSE, window = 90L, tol = 2L, tol_upper = 99L,
-  compress = "xz", ...)
+process_flags(x, localpath = NULL, days_distinct = FALSE,
+  window = 90L, tol = 2L, tol_upper = 99L, compress = "xz", ...)
 }
 \arguments{
 \item{x}{A list with each element corresponding to a data matrix of activity counts in the 1440+ format with 7 rows per individual. Each element of x should be named, and each
@@ -15,11 +14,6 @@ For example, the processed accelerometry data corresponding to the 2003-2004 wav
 The data should be sorted by participant (SEQN) and then in descending order chronologically. If days are not ordered chronologically and distinct_days=FALSE,
 then the resulting wear/non-wear flag output may not be accurate.
 The output of \code{\link{process_accel}} can be fed directly to this argument. See examples.}
-
-\item{write}{Logical value indicating whether a .rda file should be created for each wave of processed data.
-Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
-wave will be saved as an .rda file named Flags_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.
-If write=TRUE and localpath=NULL, then the data will be written to the current working directory.}
 
 \item{localpath}{character string indicating where the locally processed .rda files should be saved if write = TRUE.}
 
@@ -103,5 +97,12 @@ identical(flags_ls$Flags_D, Flags_D)
 
 }
 \references{
-National Cancer Institute. Risk factor monitoring and methods: SAS programs for analyzing NHANES 2003-2004 accelerometer data. Available at: http://riskfactor.cancer.gov/tools/nhanes_pam. Accessed Aug. 19, 2018.
+\itemize{
+   \item{Choi, Leena et al. “Validation of Accelerometer Wear and Nonwear Time Classification Algorithm.”
+         Medicine and science in sports and exercise 43.2 (2011): 357–364. PMC. Web. 10 Oct. 2018.}
+   \item{National Cancer Institute. Risk factor monitoring and methods: SAS programs for analyzing NHANES 2003-2004 accelerometer data.
+         Available at: http://riskfactor.cancer.gov/tools/nhanes_pam. Accessed Oct. 10, 2018.}
+   \item{Troiano RP, Berrigan D, Dodd KW, Masse LC, Tilert T, Mcdowell M: Physical activity in the United States measured by accelerometer.
+         Med Sci Sports Exerc 2008; 40: 181-188.}
+}
 }

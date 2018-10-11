@@ -20,81 +20,213 @@ knitr::opts_chunk$set(
 ```
 
 
-In this vignette we walk through the creation of the 8 primary processed datasets contained in the **rnhanesdata** pacakge. These 
+In this vignette we walk through the creation of the 8 primary processed datasets contained in the *rnhanesdata* pacakge. These 
 datasets can be organized into four categories: 
 
 - Activity count data (accelerometer)
+   + PAXINTEN_C
+   + PAXINTEN_D
 - Wear/non-wear flags associated (derived from the activity count data)
 - NHANES demographic, survey design, lifestyle, and comorbiditiy variables
 - Mortality data linked to NHANES
 
+Below we show users how to process this data for themselves and then write out the data in a format of their preference. Before we do anything, we need to load the package
+
+
+```{r loadpackage, message=FALSE}
+library("rnhanesdata")
+```
+
+
+
 
 ## Processing the accelerometry data and creating wear/non-wear flags
 
+Using the functions *process_accel()* and *process_flags()*, processing the accelerometry data and creating wear/non-wear flags is simple. 
+In the code below we show how to download the physical activity monitor data from the NHANES website and then calculate wear/non-wear flags. 
+
 
 ```{r, process_accel_flags, eval=FALSE}
-accel_ls <- process_accel(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
-                          local=FALSE, deleteraw=TRUE, write=TRUE,
+accel_ls <- process_accel(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"), local=FALSE, 
                           urls=c("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAXRAW_C.ZIP",
                                  "https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/PAXRAW_D.ZIP")
                           )
-flags_ls <- process_flags(accel_ls,write=TRUE,localpath="~/Downloads/")
+flags_ls <- process_flags(accel_ls)
 ```
 
+
+This whole process will take some time to finish (approximately 30 minutes on a standard laptop).
+Downloading the data directly through *R* and then unzipping the data in *R* is, in general, slower 
+than downloading and unzipping the data outside of *R* and then reading in the unzipped data locally. 
+See ?process_accel for details on how to process data that is stored locally. 
+However, in the interest for full reproducibility we allow for the entire data processing pipeline to be conducted within *R*. 
+
+Once this code has executed, the object accel_ls will be a list where the first element is a data frame corresponding to the 2003-2004 accelerometry data in the 1440+ format. Similarly, the second element of accel_ls will be a data frame containing the 2005-2006 accelerometry data in the 1440+ format. These data frames are 
+identical to the PAXINTEN_C (2003-2004) and PAXINTEN_D (2005-2006). Type ?PAXINTEN_C and ?PAXINTEN_D in your *R* console for additional details. 
+The flags_ls object will also be a list containing two elements: Flags_C and Flags_D, corresponding the estimated wear/non-wear flag matrices for the 2003-2004 and 2005-2006 accelerometry data, respectively. The format (i.e. column names, dimensions, etc) of Flags_C and Flags_D is identical to that of PAXINTEN_C and PAXINTEN_D, only the activity count data has been replaced by wear/non-wear flags. Type ?Flags_C and ?Flags_D  in your *R* console for additional details. 
+
+
+Saving the data locally is then straightforward. For example, if we wanted to create .rda files which are identical to those included in the package, we would use the following code
+
+```{r, save_accel_flags_rda, eval=FALSE}
+PAXINTEN_C <- accel_ls$PAXINTEN_C
+PAXINTEN_D <- accel_ls$PAXINTEN_D
+
+Flags_C <- flags_ls$FLags_C
+Flags_D <- flags_ls$FLags_D
+
+
+save(PAXINTEN_C, file="PAXINTEN_C.rda", compress="xz")
+save(PAXINTEN_D, file="PAXINTEN_D.rda", compress="xz")
+
+save(Flags_C, file="Flags_C.rda", compress="xz")
+save(Flags_D, file="Flags_D.rda", compress="xz")
+```
+
+Changing the argument to file will control where the data are saved. By default the syntax above will save to wherever the current working directory is, which can be viewed using the function *getwd()*. 
+Note that we use "xz"" compression here. Using this compression type takes longer to complete than the default compression type, but results in substantially smaller file sizes in this case.
+
+If instead of a .rda file, you'd prefer to save the processed data as .csv, you can use the function *write.csv()* which uses similar syntax.
+
+```{r, save_accel_flags_csv, eval=FALSE}
+write.csv(PAXINTEN_C, file="PAXINTEN_C.csv", row.names=FALSE)
+write.csv(PAXINTEN_D, file="PAXINTEN_D.csv", row.names=FALSE)
+
+write.csv(Flags_C, file="Flags_C.csv", row.names=FALSE)
+write.csv(Flags_D, file="Flags_D.csv", row.names=FALSE)
+```
+
+
+
+
+
 ## Processing the mortality data 
+
+Processing the NHANES 2003-2004 and 2005-2006 mortality data is similarly simple using the *process_mort()* function contained in the *rnhanesdata* package. 
+
+```{r, process_mort, message=FALSE}
+mort_ls <- process_mort()
+```
+
+By default the *process_mort()* function looks for the raw mortality data within the *rnhanesdata* package. This can be changed by suppling a local directory to the 
+localpath argument. See ?process_mort for more deatils. 
+
+The mortality data can then be saved in the same way that the activity count and wear/non-wear flag data were saved in the previous section
+
+```{r, process_mort_save, message=FALSE, eval=FALSE}
+Mortality_2011_C <- mort_ls$Mortality_2011_C
+Mortality_2011_D <- mort_ls$Mortality_2011_D
+
+save(Mortality_2011_C, file="Mortality_2011_C.rda", compress="xz")
+save(Mortality_2011_D, file="Mortality_2011_D.rda", compress="xz")
+```
+
+
+
 
 
 ## Processing the demographic, survey design, lifestyle, and comorbiditiy variables
 
 
+Processing the demographic, survey design, lifestly and comorbidity variables included in the **Covariate_C** and **Covariate_D** datasets is a bit more involved. 
+First, the raw data used to create these sets of processed data are spread across multiple SAS XPORT (.xpt) files. So there's a data merging step that needs to take place. 
+The *process_covar()* function is used for precisely this purpose. It will search a local directory for 
+all .xpt files associated with a specific NHANES wave. By default *process_covar()* searches the raw data stored within the *rnhanesdata* pacakge, 
+though the directory can be specified by users.
+Users can choose to extract all variables across all relevant .xpt files, or request a specific set of variables. 
+For example, creating the **Covariate_C** and **Covariate_D** datasets requires 33 variables. 
+
+Below, we show how to extract and merge these 33 variables using the raw NHANES data included in the *rnhanesdata* pacakge. 
+
+```{r process_covar}
+covar_ls <- process_covar(waves=c("C","D"),
+                          varnames = c("SDDSRVYR","WTMEC2YR", "WTINT2YR",
+                           "SDMVPSU", "SDMVSTRA",
+                           "RIDAGEMN", "RIDAGEEX", "RIDAGEYR", "RIDRETH1", "RIAGENDR",
+                           "BMXWT", "BMXHT", "BMXBMI", "DMDEDUC2",
+                           "ALQ101", "ALQ110", "ALQ120Q","ALQ120U", "ALQ130", "SMQ020", "SMD030", "SMQ040",
+                           "MCQ220","MCQ160F", "MCQ160B", "MCQ160C",
+                           "PFQ049","PFQ054","PFQ057","PFQ059", "PFQ061B", "PFQ061C", "DIQ010"))
+```
+
+
+The *process_covar* function will report how many variables were found for each of the NHANES waves considered. 
+At this point all variables in each element of covar_ls are numeric, as can be seen by using the *str()* function
+
+```{r process_covar_str}
+str(covar_ls$Covariate_C)
+```
+
+
+
+Many variables of interest are represented by a single NHANES question. We can transform these variables into form which are meaningful to users, we can use the *factor* function. 
+However, some variables (alcohol consumption, cigarette smoking, mobility problem, etc) require integrating the information from multiple variables (multiple questionairre items). 
+First, we show how to convert 
+
+
+
+```{r process_covar_single_q}
+Covariate_C <- covar_ls[["Covariate_C"]]
+Covariate_D <- covar_ls[["Covariate_D"]]
+
+Covariate_C$Race <- factor(Covariate_C$RIDRETH1, levels=1:5, labels=c("Mexican American", "Other Hispanic", "White", "Black", "Other"), ordered=FALSE)
+Covariate_D$Race <- factor(Covariate_D$RIDRETH1, levels=1:5, labels=c("Mexican American", "Other Hispanic", "White", "Black", "Other"), ordered=FALSE)
+Covariate_C$Race <- relevel(Covariate_C$Race, ref="White")
+Covariate_D$Race <- relevel(Covariate_D$Race, ref="White")
+
+
+Covariate_C$Gender <- factor(Covariate_C$RIAGENDR, levels=1:2, labels=c("Male","Female"), ordered=FALSE)
+Covariate_D$Gender <- factor(Covariate_D$RIAGENDR, levels=1:2, labels=c("Male","Female"), ordered=FALSE)
+
+Covariate_C$Diabetes <- factor(Covariate_C$DIQ010, levels=c(1,2,3,7,9), labels=c("Yes","No","Borderline","Refused","Don't know"), ordered=FALSE)
+Covariate_D$Diabetes <- factor(Covariate_D$DIQ010, levels=c(1,2,3,7,9), labels=c("Yes","No","Borderline","Refused","Don't know"), ordered=FALSE)
+Covariate_C$Diabetes <- relevel(Covariate_C$Diabetes, ref="No")
+Covariate_D$Diabetes <- relevel(Covariate_D$Diabetes, ref="No")
+
+
+Covariate_C$CHF <- factor(Covariate_C$MCQ160B, levels=c(1,2,7,9), labels=c("Yes","No","Refused","Don't know"), ordered=FALSE)
+Covariate_D$CHF <- factor(Covariate_D$MCQ160B, levels=c(1,2,7,9), labels=c("Yes","No","Refused","Don't know"), ordered=FALSE)
+Covariate_C$CHF <- relevel(Covariate_C$CHF, ref="No")
+Covariate_D$CHF <- relevel(Covariate_D$CHF, ref="No")
+
+
+Covariate_C$CHD <- factor(Covariate_C$MCQ160C, levels=c(1,2,7,9), labels=c("Yes","No","Refused","Don't know"), ordered=FALSE)
+Covariate_D$CHD <- factor(Covariate_D$MCQ160C, levels=c(1,2,7,9), labels=c("Yes","No","Refused","Don't know"), ordered=FALSE)
+Covariate_C$CHD <- relevel(Covariate_C$CHD, ref="No")
+Covariate_D$CHD <- relevel(Covariate_D$CHD, ref="No")
+
+Covariate_C$Cancer <- factor(Covariate_C$MCQ220, levels=c(1,2,7,9), labels=c("Yes","No","Refused","Don't know"), ordered=FALSE)
+Covariate_D$Cancer <- factor(Covariate_D$MCQ220, levels=c(1,2,7,9), labels=c("Yes","No","Refused","Don't know"), ordered=FALSE)
+Covariate_C$Cancer <- relevel(Covariate_C$Cancer, ref="No")
+Covariate_D$Cancer <- relevel(Covariate_D$Cancer, ref="No")
+
+
+Covariate_C$Stroke <- factor(Covariate_C$MCQ160F, levels=c(1,2,7,9), labels=c("Yes","No","Refused","Don't know"), ordered=FALSE)
+Covariate_D$Stroke <- factor(Covariate_D$MCQ160F, levels=c(1,2,7,9), labels=c("Yes","No","Refused","Don't know"), ordered=FALSE)
+Covariate_C$Cancer <- relevel(Covariate_C$Cancer, ref="No")
+Covariate_D$Cancer <- relevel(Covariate_D$Cancer, ref="No")
+
+
+Covariate_C$EducationAdult <- factor(Covariate_C$DMDEDUC2, levels=c(1,2,3,4,5,7,9),
+                                     labels=c("Less than 9th grade","9-11th grade","High school grad/GED or equivalent",
+                                              "Some College or AA degree", "College graduate or above","Refused","Don't know"), ordered=FALSE)
+Covariate_D$EducationAdult <- factor(Covariate_D$DMDEDUC2, levels=c(1,2,3,4,5,7,9),
+                                     labels=c("Less than 9th grade","9-11th grade","High school grad/GED or equivalent",
+                                              "Some College or AA degree", "College graduate or above","Refused","Don't know"), ordered=FALSE)
+Covariate_C$BMI <- Covariate_C$BMXBMI
+Covariate_D$BMI <- Covariate_D$BMXBMI
+
+Covariate_C$BMI_cat <-cut(Covariate_C$BMI, breaks=c(0, 18.5, 25, 30, Inf), labels=c("Underweight","Normal","Overweight","Obese"))
+Covariate_D$BMI_cat <-cut(Covariate_D$BMI, breaks=c(0, 18.5, 25, 30, Inf), labels=c("Underweight","Normal","Overweight","Obese"))
+Covariate_C$BMI_cat <- relevel(Covariate_C$BMI_cat, ref="Normal")
+Covariate_D$BMI_cat <- relevel(Covariate_D$BMI_cat, ref="Normal")
+```
 
 
 
 
-<!-- Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format: -->
 
-<!-- - Never uses retina figures -->
-<!-- - Has a smaller default figure size -->
-<!-- - Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style -->
 
-<!-- ## Vignette Info -->
 
-<!-- Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette. -->
 
-<!-- ## Styles -->
 
-<!-- The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows: -->
-
-<!--     output: -->
-<!--       rmarkdown::html_vignette: -->
-<!--         css: mystyles.css -->
-
-<!-- ## Figures -->
-
-<!-- The figure sizes have been customised so that you can easily put two images side-by-side. -->
-
-<!-- ```{r, fig.show='hold'} -->
-<!-- plot(1:10) -->
-<!-- plot(10:1) -->
-<!-- ``` -->
-
-<!-- You can enable figure captions by `fig_caption: yes` in YAML: -->
-
-<!--     output: -->
-<!--       rmarkdown::html_vignette: -->
-<!--         fig_caption: yes -->
-
-<!-- Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**. -->
-
-<!-- ## More Examples -->
-
-<!-- You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`. -->
-
-<!-- ```{r, echo=FALSE, results='asis'} -->
-<!-- knitr::kable(head(mtcars, 10)) -->
-<!-- ``` -->
-
-<!-- Also a quote using `>`: -->
-
-<!-- > "He who gives up [code] safety for [code] speed deserves neither." -->
-<!-- ([via](https://twitter.com/hadleywickham/status/504368538874703872)) -->

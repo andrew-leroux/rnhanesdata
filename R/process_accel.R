@@ -21,19 +21,9 @@
 #' the CDC's website. This argument, if specified, must be the same length as the names_accel_xpt argument. Downloading the data through R is often slower than downloading the data outside of R.
 #' See the examples section below for how to download and process the data directly from the CDC.
 #'
-#' @param write Logical value indicating whether a .rda file should be created for each wave of processed data.
-#'   Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
-#'   wave will be saved as an .rda file named PAXINTEN_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.
-#'
-#' @param deleteraw Logical value indicating whether to delete the (un)zipped .xpt files after reading them into R. If deleteraw=TRUE and zipped=TRUE,
-#' both the .xpt and .ZIP files are deleted locally. Defaults to FALSE.
-#'
 #' @param zipped Logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
 #' If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored. Note that if the data are saved locally, processing speed is
 #' substantially increased by unzipping before calling the process_accel function.
-#'
-#' @param compress Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
-#' but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.
 #'
 #' @param check_data logical value indicating whether to perform some checks of the data. If TRUE, the function will incur additional processing time.
 #' The NHANES 2003-2006 data have been tested and already passed these checks. Defaults to FALSE.
@@ -95,29 +85,35 @@
 #'
 #' @export
 process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
-                          write=FALSE, local=FALSE,
-                          localpath=NULL, urls=NULL,
-                          deleteraw=FALSE, zipped=TRUE, compress="xz",
-                          check_data=FALSE){
+                          local=FALSE,localpath=NULL, urls=NULL,
+                          zipped=TRUE, check_data=FALSE){
 
         if(local & is.null(localpath)){
-                stop("If specifying local = TRUE, must specify localpath as a local directory where the zipped data files are saved.")
+                stop("If specifying local = TRUE, must specify localpath as a local directory where the (un)zipped data files are saved.")
         }
-        if(!dir.exists(localpath)){
-                stop("localpath must be a valid local directory path.")
+        if(local){
+                if(!dir.exists(localpath)){
+                    stop("localpath must be a valid local directory path.")
+                }
+                if(any(!paste0(names_accel_xpt,".xpt") %in% list.files(localpath))  & !zipped){
+                    stop(paste0("One or more of ", paste0(names_accel_xpt,".xpt"), " not found in localpath directory."))
+                }
+                if(any(!paste0(names_accel_xpt,".ZIP") %in% list.files(localpath))  & zipped){
+                    stop(paste0("One or more of ", paste0(names_accel_xpt,".ZIP"), " not found in localpath directory."))
+                }
         }
         if(any(!grepl("^PAXRAW_[A-Z]$", names_accel_xpt))){
                 stop("Raw accelerometer data must follow the NHANES naming convention of PAXRAW_* where * denotes the letter corresponding the NHANES wave")
         }
-        if(any(!local & is.null(urls), !local & length(urls) != length(names_accel_xpt)) ){
-                stop("If the data is not locally stored urls must be a vector of the same length as names_accel_xpt.")
+        if(!local){
+                if(any(is.null(urls), length(urls) != length(names_accel_xpt))){
+                        stop("If the data is not locally stored urls must be a vector of the same length as names_accel_xpt.")
+                }
         }
-        if(any(!paste0(names_accel_xpt,".ZIP") %in% list.files(localpath)) & local & zipped){
-                stop(paste0("One or more of ", paste0(names_accel_xpt,".ZIP"), " not found in localpath directory."))
-        }
-        if(any(!paste0(names_accel_xpt,".xpt") %in% list.files(localpath)) & local & !zipped){
-            stop(paste0("One or more of ", paste0(names_accel_xpt,".xpt"), " not found in localpath directory."))
-        }
+
+
+
+
         stopifnot(compress %in% c("xz","gzip","bzip2"))
 
         out.name <- gsub("PAXRAW", "PAXINTEN", names_accel_xpt)
@@ -130,29 +126,19 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
                 xpt_nm <- tolower(paste0(names_accel_xpt[i],".xpt"))
                 # if local=FALSE, download the data directly from the link provided in URLS
                 if(!local){
-                        datapath <- system.file("extdat",package="nhanesdata")
+                        datapath <- system.file("extdat",package="rnhanesdata")
                         temp <- tempfile()
                         download.file(urls[i], temp)
-                        sim.data <- read_xpt(unzip(temp, xpt_nm))
+                        sim.data <- read_xpt(unzip(temp, xpt_nm, exdir=datapath))
                         unlink(temp)
                 }
                 if(local){
                         datapath <- localpath
                         if(zipped){
-                            sim.data <- read_xpt(unzip(file.path(datapath, paste0(names_accel_xpt[i],".ZIP")),
-                                                       xpt_nm,
-                                                       exdir=datapath)
-                                                )
+                            sim.data <- read_xpt(unzip(file.path(datapath, paste0(names_accel_xpt[i],".ZIP")), xpt_nm, exdir=datapath))
                         } else {
                             sim.data <- read_xpt(file.path(datapath, xpt_nm))
                         }
-                }
-                if(deleteraw){
-                    ext_tmp <- c(".xpt")
-                    if(zipped) ext_tmp <- c(ext_tmp, ".ZIP")
-
-                    file.remove(paste0(datapath, names_accel_xpt[i],ext_tmp))
-                    rm(list=c("ext_tmp"))
                 }
 
 
@@ -239,14 +225,6 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 
                 ret[[out.name[i]]] <- data.frame(idweekday,pax.wide,stringsAsFactors = FALSE)
 
-                if(write){
-                        eval(parse(text=paste0("assign(\"",out.name[i], "\", value=ret[[out.name[i]]])")))
-                        # eval(parse(text=paste0("save(", out.name[i],",file=\"", datapath, out.name[i], ".rda\", compress=\"", compress,"\")")))
-                        eval(parse(text=paste0("save(", out.name[i],",file=file.path(datapath, paste0(out.name[i], \".rda\")), compress=\"", compress,"\")")))
-                        # message(paste0("Wave ", i, " Saved as: ", datapath, out.name[i], ".rda"))
-                        rm(list=c(out.name[i]))
-                }
-
                 rm(list=c("pax","pax.wide","col.name","idweekday"))
 
                 setTxtProgressBar(pb, i)
@@ -285,13 +263,6 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' then the resulting wear/non-wear flag output may not be accurate.
 #' The output of \code{\link{process_accel}} can be fed directly to this argument. See examples.
 #'
-#' @param write Logical value indicating whether a .rda file should be created for each wave of processed data.
-#'   Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
-#'   wave will be saved as an .rda file named Flags_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.
-#'   If write=TRUE and localpath=NULL, then the data will be written to the current working directory.
-#'
-#' @param localpath character string indicating where the locally processed .rda files should be saved if write = TRUE.
-#'
 #' @param days_distinct Logical value indicating whether days should be treated as distinct time series within participants. If TRUE, then
 #' subjects' wear status at 11:59PM does not affect their wear status at 00:01AM the next morning. Defaults to FALSE, this is generally recommended.
 #'
@@ -306,8 +277,6 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #' activity counts greater than tol.upper, this minute is considered "wear".
 #' See \code{\link{weartime}} for more details.
 #'
-#' @param compress Character scalar indicating the type of compression to use when write=TRUE. The default, "xz" results in small file sizes,
-#' but is not compatable with some old versions of R. Must be one of: "xz", "gzip", or "bzip2". See \code{\link{save}} for more details.
 #'
 #' @param ... aditional arguments to be passed to \code{\link{weartime}}.
 #'
@@ -373,19 +342,21 @@ process_accel <- function(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
 #'
 #' @references
 #'
-#'
-#' National Cancer Institute. Risk factor monitoring and methods: SAS programs for analyzing NHANES 2003-2004 accelerometer data. Available at: http://riskfactor.cancer.gov/tools/nhanes_pam. Accessed Aug. 19, 2018.
-#'
+#' \itemize{
+#'    \item{Choi, Leena et al. “Validation of Accelerometer Wear and Nonwear Time Classification Algorithm.”
+#'          Medicine and science in sports and exercise 43.2 (2011): 357–364. PMC. Web. 10 Oct. 2018.}
+#'    \item{National Cancer Institute. Risk factor monitoring and methods: SAS programs for analyzing NHANES 2003-2004 accelerometer data.
+#'          Available at: http://riskfactor.cancer.gov/tools/nhanes_pam. Accessed Oct. 10, 2018.}
+#'    \item{Troiano RP, Berrigan D, Dodd KW, Masse LC, Tilert T, Mcdowell M: Physical activity in the United States measured by accelerometer.
+#'          Med Sci Sports Exerc 2008; 40: 181-188.}
+#' }
 #'
 #' @importFrom accelerometry weartime
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 #' @export
-process_flags <- function(x,
-                          write=FALSE, localpath=NULL, days_distinct=FALSE,
-                          window=90L, tol=2L, tol_upper=99L,
-                          compress="xz", ...){
+process_flags <- function(x, days_distinct=FALSE, window=90L, tol=2L, tol_upper=99L, ...){
         names_accel_xpt <- names(x)
         if(any(!grepl("^PAXINTEN_[A-Z]$", names_accel_xpt)) | is.null(names_accel_xpt)){
                 stop("x must be a list with each element corresponding to PAXINTEN_* where * denotes the letter corresponding the NHANES wave")
@@ -432,13 +403,6 @@ process_flags <- function(x,
 
                 ret[[out.name[i]]] <- out
 
-                if(write){
-                        if(is.null(localpath)){
-                                localpath <- paste0(getwd(), .Platform$file.sep, out.name[i])
-                        }
-                        eval(parse(text=paste0(out.name[i], "<- out")))
-                        eval(parse(text=paste0("save(", out.name[i], ", file=file.path(localpath, paste0(out.name[i], \".rda\")), compress=\"",compress,"\")")))
-                }
                 rm(list=c("out","full_data","WMX","uid","activity_data"))
 
                 setTxtProgressBar(pb, i)
@@ -468,9 +432,6 @@ process_flags <- function(x,
 #'
 #' @param mort_release_yr Nuemric value indicating the year associated with the raw mortality data to be processed. The default, 2011, corresponds to the
 #' most recent raw mortality data included in the data package.
-#'
-#' @param write logical argument indicating whether a .rda file of wear/non-wear flags
-#' should be created for each wave of processed data. Defaults to FALSE.
 #'
 #' @param localpath Character scalar describing the location where the raw data are stored.
 #' If NULL, the funciton will look in pacakge data directory for the requested raw mortality data.
@@ -553,7 +514,8 @@ process_flags <- function(x,
 #'
 #' @references
 #'
-#' NHANES linked public mortality files are described at the following link: \url{https://www.cdc.gov/nchs/data-linkage/mortality-public.htm}.
+#'    National Center for Health Statistics. Office of Analysis and Epidemiology, Public-use Linked Mortality File, 2015.
+#'    Hyattsville, Maryland. (Available at the following address: http://www.cdc.gov/nchs/data_access/data_linkage/mortality.htm
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #'
@@ -561,7 +523,6 @@ process_flags <- function(x,
 #' @export
 process_mort <- function(waves=c("C","D"),
                          mort_release_yr=2011,
-                         write=FALSE,
                          localpath=NULL){
 
         if(!all(waves %in% LETTERS)) stop("One or more waves invalid. waves must be identified as a captial letter A-Z.")
@@ -574,7 +535,7 @@ process_mort <- function(waves=c("C","D"),
         waves_mort <- paste0("NHANES_",waves_num,"_",waves_num+1,"_MORT_",mort_release_yr,"_PUBLIC.dat")
 
         if(is.null(localpath)) {
-                filepath <- file.path(system.file("extdat","mort",package="nhanesdata"), waves_mort)
+                filepath <- file.path(system.file("extdat","mort",package="rnhanesdata"), waves_mort)
         } else {
                 filepath <- file.path(localpath, waves_mort)
         }
@@ -654,16 +615,6 @@ process_mort <- function(waves=c("C","D"),
 
                 ret[[out.name]] <- out
 
-
-
-                if(write){
-                        if(is.null(localpath)){
-                                writepath <- paste0(getwd(), .Platform$file.sep)
-                        }
-                        eval(parse(text=paste0(out.name, "<- out")))
-                        eval(parse(text=paste0("save(", out.name, ", file=file.path(writepath, paste0(out.name, \".rda\")))")))
-                        rm(list=c("writepath"))
-                }
                 rm(list=c("out","out.name","seqn","eligstat","mortstat","causeavl","permth_exm","permth_int",
                           "ucod_leading","diabetes","hyperten","j","raw.data",
                           paste0("mortsrce_",c("ndi","cms","ssa","dc","dcl")))
@@ -703,7 +654,6 @@ process_mort <- function(waves=c("C","D"),
 #' and should be in their own folder. For example, PAXRAW_C.XPT should not be located in the folder with
 #' your covariate files. This will not cause an error, but the code will take much longer to run.
 #'
-#' @param write logical argument indicating whether a .rda file of covariate data. Defaults to FALSE.
 #'
 #' @param extractAll logical argument indicating whether all columns of all .XPT files in the search path should be returned.
 #' If extractALL = TRUE, all variables from all .XPT files with
@@ -718,9 +668,10 @@ process_mort <- function(waves=c("C","D"),
 #' Any file which matches the relevant naming convention AND has "SEQN" as their first column name will be searched for the variables requested in the
 #' "varnames" argument.
 #'
-#' It is recommended that if using the process_covar function to merge variables locally, that the local directory include the demographic dataset for each wave.
+#' It is recommended that if using the process_covar function to merge variables locally, that the local directory include the demographic dataset for each wave
+#' (DEMO_C.XPT and DEMO_D.XPT for the 2003-2004 and 2005-2006 waves, respectively).
 #' The reason for this is that without the demographic dataset, there is no guarantee that all
-#' participants in a wave will be included in the retunred results.
+#' participants in a wave will be included in the returned results.
 #' If the demographic datasets are not in the directory specified by localpath a warnining will be produced.
 #' In addition, it is recommended that the local directory contain only .XPT files associated with NHANES.
 #'
@@ -731,13 +682,13 @@ process_mort <- function(waves=c("C","D"),
 #' The name of each element is Covariate_\* where  \* corresponds to each element of the "waves" argument.
 #' If none of the variables listed in the "varnames" arguemnt (and/or SEQN if SEQN was not supplied to the  "varnames" argument)
 #' for a particular wave are found, then the element of the returned object will be NULL.
-#' If none of the user specified variables are found, but subject identifiers (SEQN) are found, then the SEQN variable will be returned.
+#' If none of the user specified variables are found, but subject identifiers (SEQN) are found, the corresponding elements will still be NULL.
 #' See the examples below for illustrations of these scenarios.
-#'
 #'
 #' Most variables in NHANES are measured once per individual. In the event that a user requests a variable which has multiple records for a subject,
 #' this function will return the variable in matrix format, with one row per participant and number of columns equal to the number of observations per participant.
-#' This matrix is returned within each dataframe using an object with class "AsIs" (See \code{\link{I}} for details). For a concerte example, see the examples below.
+#' This matrix is returned within each dataframe using an object with class "AsIs" (See \code{\link{I}} for details).
+#' For a concrete example, see the examples below.
 #'
 #'
 #'
@@ -780,10 +731,6 @@ process_mort <- function(waves=c("C","D"),
 #'
 #'
 #'
-#' @references
-#'
-#'
-#'
 #'
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar
@@ -798,7 +745,6 @@ process_covar <- function(waves=c("C","D"),
                                        "MCQ220","MCQ160F", "MCQ160B", "MCQ160C",
                                        "PFQ049","PFQ054","PFQ057","PFQ059", "PFQ061B", "PFQ061C", "DIQ010"),
                           localpath=NULL,
-                          write=FALSE,
                           extractAll=FALSE){
 
         if(!all(waves %in% LETTERS)) stop("One or more waves invalid. waves must be identified as a captial letter A-Z.")
@@ -812,7 +758,7 @@ process_covar <- function(waves=c("C","D"),
         varnames <- unique(c('SEQN',varnames))
         ## find all files of .xpt structure that correspond to the year specified in the data
         if(is.null(localpath)){
-                localpath <- system.file("extdat/covar/",package="nhanesdata")
+                localpath <- system.file(file.path("extdat","covar"),package="rnhanesdata")
         }
         files_full   <- list.files(localpath)
 
@@ -833,35 +779,38 @@ process_covar <- function(waves=c("C","D"),
                 files   <- files_full[substr(files_full, (nchar(files_full) - 5), nchar(files_full)) == pathExt]
 
                 if(length(files) == 0){
-                        message("No data associated with wave: ", waves[i], " was found.")
+                        message(cat(paste0("\n No data associated with wave ", waves[i], " was found. \n")))
                         setTxtProgressBar(pb, i)
                         next
                 }
 
                 ## find which files contain the variables requested by the user
                 covarMats <- lapply(files, function(x){
-                        mat <- try(read_xpt(paste0(localpath,x)))
+                        mat <- try(read_xpt(file.path(localpath,x)))
                         if(inherits(mat, "try-error")) return(NULL)
-                        if(!"SEQN" %in% colnames(mat)) return(NULL)
                         ## expecting SEQN to be first column in all NHANES datasets
-                        if(!"SEQN" == colnames(mat)[1]) return(NULL)
+                        if(!"SEQN" %in% colnames(mat)[1]) return(NULL)
                         ## if extractAll = FALSE, return only those columns specified in the varnames argument
                         if(!extractAll){
+                                if(length(setdiff(intersect(colnames(mat),varnames), "SEQN"))==0) return(NULL)
                                 mat <- mat[,colnames(mat)%in%varnames,drop=FALSE]
                         }
                         ## if extractAll = TRUE, return all columns
-                        if(!is.null(dim(mat))) {
-                                mat
+                        if(!any(is.null(dim(mat)),all(colnames(mat) %in% "SEQN"))) {
+                                return(mat)
+                        } else {
+                                return(NULL)
                         }
-                        else NULL
                 })
-                ##
+                ## remove any matrices with no matches
                 covarMats <- covarMats[!vapply(covarMats, is.null,logical(1))]
                 matchedNames <- lapply(covarMats, colnames)
                 numMatched   <- length(unlist(matchedNames))
 
                 if(numMatched == 0) {
-                    message("\n No variable names recognized for this wave/variable combination except SEQN (participant ID)")
+                    message(cat(paste0("\n No variables specified by the varnames argument was found for wave ", waves[i], "\n")))
+                    setTxtProgressBar(pb, i)
+                    next
                 }
                 if(numMatched > 0 & !extractAll)  message(
                         cat(paste("\n For", cohort, "cohort,",
@@ -907,23 +856,15 @@ process_covar <- function(waves=c("C","D"),
                                         })
                                 )
                         message(
-                                cat(paste("Variables with repeated observations per subject found for the following variables:",
+                                cat(paste("\n Variables with repeated observations per subject found for the following variables:",
                                       paste(sapply(covarMats[rep_inx], function(x) colnames(x)[-1])  , collapse=","),
                                       "Note that these variables will be stored with class AsIs() objects in resulting data frames. ",
-                                      "See ?I for details on AsIs class."))
+                                      "See ?I for details on AsIs class. \n"))
                                 )
                 }
 
 
                 out.name <- paste0("Covariate_", cohort)
-
-                if(write){
-                        if(is.null(localpath)){
-                                writepath <- paste0(getwd(), .Platform$file.sep, out.name[i])
-                        }
-                        eval(parse(text=paste0(out.name, "<- CovarMat")))
-                        eval(parse(text=paste0("save(", out.name, ", file=file.path(writepath, paste0(out.name[i], \".rda\")))")))
-                }
 
                 ret[[out.name]] <- CovarMat
 
@@ -999,6 +940,11 @@ process_covar <- function(waves=c("C","D"),
 #' @references
 #'
 #'
+#' Hart, Teresa L et al. “How Many Days of Monitoring Predict Physical Activity and Sedentary Behaviour in Older Adults?”
+#' The International Journal of Behavioral Nutrition and Physical Activity 8 (2011): 62. PMC. Web. 10 Oct. 2018.
+#'
+#'
+#'
 #' @export
 exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, rm_PAXCAL = TRUE){
         stopifnot(all(is.data.frame(act), is.data.frame(flags)))
@@ -1032,7 +978,9 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #' @description
 #' This function re-weights accelerometry data for NHANES 2003-2004,2005-2006 waves.
 #'
-#' @param data Data frame to with survey weights to be re-weighted. Should only contain one participant.
+#' @param data Data frame to with survey weights to be re-weighted. Should not contain any duplicated participants. That is, each row
+#' of this dataframe should correspond to a unique value of SEQN.
+#' The data frame supplied to data must have the columns: SEQN", SDDSRVYR,WTMEC2YR, and WTINT2YR.
 #'
 #' @param return_unadjusted_wts Logical value indicating whether to return the unadjusted 2-year and, if applicable, 4-year survey weights for all participants.
 #'
@@ -1045,41 +993,108 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
 #' @details
 #'
 #' The reweight_accel function is designed to re-weight only the 2003-2004 and 2005-2006 waves in the context of missing data.
-#' That is, this function will re-weight individuals in the data supplied to the funciton
-#' The re-weighting is performed using age, sex, and ehtnicity strata.
-#' The underlying assumption
+#' This function calculates 2- and 4- year adjusted and unadjusted survey weights.
+#' The re-weighting is performed using age, sex, and ehtnicity strata applied to each wave separately.
+#' More specifically, individuals in the data frame supplied to the function via the
+#' "data" argument are upweighted by a factor such that the sum of their weights is equal to the total survey weight in the
+#' population strata. If data are missing completely at random within each of these strata, then these re-weighted strata are
+#' representative of the corresponding strata in the larger study.
+#'
+#' Users should ensure that if they intend to use the adjusted weights calculated by this function, that the data they reweight aligns with
+#' the re-weighted strategy, particularly with regard to age. That is, it does make sense to reweight all individuals 58-60 to be representative of
+#' all individuals ages 50-60. The age categories used in re-weighting are controlled by the "age_bks" argument. In illustrate the problems of misalignment of ages
+#' in the examples below. Moreover, the re-weighting is done separately for the interview and examination weights. Because there is a time lag between the interview and the exam, individuals
+#' may belong to different age strata for the purposes of re-weighting the interview and examination survey weights. Therefore, users need to make sure the
+#' ages in their data align with the survey weight they intend to use.
+#'
+#' It is possible that if there are one or more strata that are sparse, the survey weights. Users should always inspect the adjusted survey weights
+#' for outliers.
+#'
+#'
+#'
 #'
 #'
 #' @return
 #'
-#' The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" argument with up to 14 additional columns
+#' The function reweight_accel will return a dataframe with the same columns as the data frame supplied to the "data" argument with either 8 or 16 additional columns.
+#' If the data supplied to the reweight_accel function only comes from one NHANES wave, then only the 2-year survey weights will be returned.
+#' If there are data from both the 2003-2004 and 2005-2006 waves supplied to the reweight_accel function, then both the 2-year and 4-year survey weights will be
+#' returned.
 #'
+#' These survey weights are described below.
 #'
-#' If any of these columns are already in the dataframe supplied to the data argument, they will be overwritten and a warning will be printed.
-#' This may occur when an individual subsets their data multiple times and re-weights at each step.
 #'
 #' \itemize{
 #'      \item{Examination survey weights}
 #'      \itemize{
-#'           \item{wtmec2yr_unadj_norm: }{}
-#'           \item{wtmec4yr_unadj_norm: }{}
+#'           \item{wtmec2yr_adj: }{This variable is the re-weighted 2-year survey weight}
+#'           \item{wtmec2yr_adj_norm: }{}
+#'           \item{wtmec4yr_adj: }{}
+#'           \item{wtmec4yr_adj_norm: }{}
+#'           \item{wtmec2yr_unadj: }{This variable is a copy of the WTMEC2YR variable.}
+#'           \item{wtmec2yr_unadj_norm: }{This variable is calculated as wtmec2yr_unadj/mean(wtmec2yr_unadj). That is, these weights are the
+#'                                        2-year unadjusted precision weights. Here, precision weights means that the sum of the weights is equal
+#'                                        to the number of participants.}
+#'           \item{wtmec4yr_unadj: }{This variable is calculated as WTMEC2YR/2}
+#'           \item{wtmec4yr_unadj_norm: }{This variable is calculated as wtmec4yr_unadj/mean(wtmec4yr_unadj). That is, these weights are the
+#'                                        4-year unadjusted precision weights. Here, precision weights means that the sum of the weights is equal
+#'                                        to the number of participants.}
 #'      }
 #'
 #'      \item{Interview survey weights}
 #'      \itemize{
+#'           \item{wtint2yr_adj: }{}
+#'           \item{wtint2yr_adj_norm: }{}
+#'           \item{wtint4yr_adj: }{}
+#'           \item{wtint4yr_adj_norm: }{}
+#'           \item{wtint2yr_unadj: }{}
 #'           \item{wtint2yr_unadj_norm: }{}
+#'           \item{wtint4yr_unadj: }{}
+#'           \item{wtint4yr_unadj_norm: }{}
 #'      }
 #'
 #'
 #' }
 #'
+#' If any of the 14 columns described above are already in the dataframe supplied to the data argument, they will be overwritten and a
+#' warning will be printed to the console. This may occur when an individual subsets their data multiple times and re-weights at each step.
+#'
 #' @examples
+#'
+#'
 #' \dontrun{
-#' process_accel(write=FALSE)
+#' library("rnhanesdata")
+#' set.seed(1241)
+#' ## load the 2003-2004 demographic data
+#' data("Covariate_C")
+#'
+#' ## consider just those individuals between the ages in the interval [50,80)
+#' ## at the exam portion of the study
+#' df50 <- subset(Covariate_C, RIDAGEEX/12 >= 50 & RIDAGEEX/12 <80)
+#'
+#' ## subsample 75% of these individuals, then re-weight the data
+#' df50_sub <- df50[sample(1:nrow(df50), replace=FALSE, size=floor(nrow(df50)*0.75)),]
+#' df50_rw  <- reweight_accel(df50)
+#'
+#' ## check the unadjusted weights 2-year weights match the WTMEC2YR variable
+#' sum(df50_rw$WTMEC2YR != df50_rw$wtmec2yr_unadj)
+#'
+#' ## See that the adjusted interview weights are massively inflated
+#' ## This is because there are individuals who are in the [40,50) strata during the interview
+#' ## by are in the [50,60) strata for the exam. These few individuals are upweighted to
+#' ## "represent" all individuals [50,60) during the interview, which clearly doesn't make sense.
+#' summary(df50_rw$wtint2yr_adj)
+#'
+#'
+#' ## fit a linear regression of age on ethnicity categorized using
+#' ## the unadjusted 2 year survey weights (incorrect) and the
+#'
+#'
+#'
+#'
+#'
+#'
 #' }
-#'
-#' @references
-#'
 #'
 #' @export
 reweight_accel <- function(data, return_unadjusted_wts=TRUE,
@@ -1091,29 +1106,20 @@ reweight_accel <- function(data, return_unadjusted_wts=TRUE,
 
         ret <- data
 
-        vars_wts <- c("wtint2yr_unadj_norm","wtmec2yr_unadj_norm",
+        vars_wts <- c("wtint2yr_unadj", "wtmec2yr_unadj",
+                      "wtint2yr_unadj_norm","wtmec2yr_unadj_norm",
                       "wtint4yr_unadj", "wtint4yr_unadj_norm",
                       "wtmec4yr_unadj", "wtmec4yr_unadj_norm",
                       "wtint2yr_adj", "wtint2yr_adj_norm",
                       "wtint4yr_adj", "wtint4yr_adj_norm",
                       "wtmec4yr_adj", "wtmec4yr_adj_norm")
 
-        if(any(vars_wts) %in% colnames(data)){
+        if(any(vars_wts %in% colnames(data))){
             warning(paste0("Variables:",  paste0(vars_wts[vars_wts %in% colnames(data)],collapse=", ") ," found in data. These have been overwritten."))
         }
 
         for(i in vars_wts) ret[[i]] <- NULL
         rm(list=c("vars_wts","i"))
-
-        # ret$wtint2yr_unadj_norm <- ret$wtmec2yr_unadj_norm <-
-        #     ret$wtint4yr_unadj <- ret$wtint4yr_unadj_norm <-
-        #     ret$wtmec4yr_unadj <- ret$wtmec4yr_unadj_norm <-
-        #     ret$wtint2yr_adj <- ret$wtint2yr_adj_norm <-
-        #     ret$wtmec2yr_adj <- ret$wtmec2yr_adj_norm <-
-        #     ret$wtint4yr_adj <- ret$wtint4yr_adj_norm <-
-        #     ret$wtmec4yr_adj <- ret$wtmec4yr_adj_norm <- NULL
-
-
 
 
         uwave     <- sort(unique(ret$SDDSRVYR))
@@ -1121,6 +1127,9 @@ reweight_accel <- function(data, return_unadjusted_wts=TRUE,
 
 
         if(return_unadjusted_wts){
+            ret$wtint2yr_unadj <- ret$WTINT2YR
+            ret$wtmec2yr_unadj <- ret$WTMEC2YR
+
             ret$wtint2yr_unadj_norm <- ret$WTINT2YR/mean(ret$WTINT2YR)
             ret$wtmec2yr_unadj_norm <- ret$WTMEC2YR/mean(ret$WTMEC2YR)
 

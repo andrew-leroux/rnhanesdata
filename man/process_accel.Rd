@@ -5,18 +5,13 @@
 \title{Process NHANES 2003-2004 and 2005-2006 accelerometry data}
 \usage{
 process_accel(names_accel_xpt = c("PAXRAW_C", "PAXRAW_D"),
-  write = FALSE, local = FALSE, localpath = NULL, urls = NULL,
-  deleteraw = FALSE, zipped = TRUE, compress = "xz",
-  check_data = FALSE)
+  local = FALSE, localpath = NULL, urls = NULL, zipped = TRUE,
+  compress = "xz", check_data = FALSE)
 }
 \arguments{
 \item{names_accel_xpt}{A character vector of names for the zipped raw files. These should be of the form PAXRAW_\* where \* corresponds to the
 letter of the alphabet indicating which "wave" the data is from. For example, PAXRAW_C and PAXRAW_D correspond to the 2003-2004 and 2005-2006 waves
 accelerometery data, respectively. A vector containing PAXRAW_C and PAXRAW_D is the default and will process both 2003-2004 and 2005-2006 waves data.}
-
-\item{write}{Logical value indicating whether a .rda file should be created for each wave of processed data.
-Defaults to FALSE. If TRUE, each wave of data will be saved in the location specified by the localpath variable. Each
-wave will be saved as an .rda file named PAXINTEN_\*.rda where \* corresponds to the letter asspciated with a particular NHANES wave.}
 
 \item{local}{Logical value indicating whether the zippped raw .xpt accelerometry files are stored locally.
 If FALSE, will download the data into a temporary file from the CDC website and process the data. If TRUE, localpath must be specified and
@@ -27,9 +22,6 @@ the zipped data will be sourced locally. Defaults to FALSE.}
 \item{urls}{Character vector provides the website URLs where the NHANES accelerometry data can be downloaded. The default contains the URLs which will directly download the data frome
 the CDC's website. This argument, if specified, must be the same length as the names_accel_xpt argument. Downloading the data through R is often slower than downloading the data outside of R.
 See the examples section below for how to download and process the data directly from the CDC.}
-
-\item{deleteraw}{Logical value indicating whether to delete the (un)zipped .xpt files after reading them into R. If deleteraw=TRUE and zipped=TRUE,
-both the .xpt and .ZIP files are deleted locally. Defaults to FALSE.}
 
 \item{zipped}{Logical scalar indicating whether the physical activity files are in the zipped format downloaded directly from the CDC website (.ZIP).
 If local=FALSE and the data are downloaded from the CDC's website, this argument is ignored. Note that if the data are saved locally, processing speed is

@@ -13,9 +13,6 @@ process_mort(waves = c("C", "D"), mort_release_yr = 2011,
 \item{mort_release_yr}{Nuemric value indicating the year associated with the raw mortality data to be processed. The default, 2011, corresponds to the
 most recent raw mortality data included in the data package.}
 
-\item{write}{logical argument indicating whether a .rda file of wear/non-wear flags
-should be created for each wave of processed data. Defaults to FALSE.}
-
 \item{localpath}{Character scalar describing the location where the raw data are stored.
 If NULL, the funciton will look in pacakge data directory for the requested raw mortality data.
 Defaults to NULL.}
@@ -96,5 +93,6 @@ identical(mort_ls$Mortality_2011_D, Mortality_2011_D)
 
 }
 \references{
-NHANES linked public mortality files are described at the following link: \url{https://www.cdc.gov/nchs/data-linkage/mortality-public.htm}.
+National Center for Health Statistics. Office of Analysis and Epidemiology, Public-use Linked Mortality File, 2015.
+   Hyattsville, Maryland. (Available at the following address: http://www.cdc.gov/nchs/data_access/data_linkage/mortality.htm
 }

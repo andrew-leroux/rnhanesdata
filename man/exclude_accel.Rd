@@ -61,5 +61,6 @@ table(flags_good_C$PAXCAL)
 
 }
 \references{
-
+Hart, Teresa L et al. “How Many Days of Monitoring Predict Physical Activity and Sedentary Behaviour in Older Adults?”
+The International Journal of Behavioral Nutrition and Physical Activity 8 (2011): 62. PMC. Web. 10 Oct. 2018.
 }

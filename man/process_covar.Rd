@@ -9,7 +9,7 @@ process_covar(waves = c("C", "D"), varnames = c("SDDSRVYR", "WTMEC2YR",
   "RIAGENDR", "BMXWT", "BMXHT", "BMXBMI", "DMDEDUC2", "ALQ101", "ALQ110",
   "ALQ120Q", "ALQ120U", "ALQ130", "SMQ020", "SMD030", "SMQ040", "MCQ220",
   "MCQ160F", "MCQ160B", "MCQ160C", "PFQ049", "PFQ054", "PFQ057", "PFQ059",
-  "PFQ061B", "PFQ061C", "DIQ010"), localpath = NULL, write = FALSE,
+  "PFQ061B", "PFQ061C", "DIQ010"), localpath = NULL,
   extractAll = FALSE)
 }
 \arguments{
@@ -25,8 +25,6 @@ varnames, it will be autmatically added.}
 and should be in their own folder. For example, PAXRAW_C.XPT should not be located in the folder with
 your covariate files. This will not cause an error, but the code will take much longer to run.}
 
-\item{write}{logical argument indicating whether a .rda file of covariate data. Defaults to FALSE.}
-
 \item{extractAll}{logical argument indicating whether all columns of all .XPT files in the search path should be returned.
 If extractALL = TRUE, all variables from all .XPT files with
 Defaults to FALSE.}
@@ -36,13 +34,13 @@ This function will return a list with number of elements equal to the number of 
 The name of each element is Covariate_\* where  \* corresponds to each element of the "waves" argument.
 If none of the variables listed in the "varnames" arguemnt (and/or SEQN if SEQN was not supplied to the  "varnames" argument)
 for a particular wave are found, then the element of the returned object will be NULL.
-If none of the user specified variables are found, but subject identifiers (SEQN) are found, then the SEQN variable will be returned.
+If none of the user specified variables are found, but subject identifiers (SEQN) are found, the corresponding elements will still be NULL.
 See the examples below for illustrations of these scenarios.
-
 
 Most variables in NHANES are measured once per individual. In the event that a user requests a variable which has multiple records for a subject,
 this function will return the variable in matrix format, with one row per participant and number of columns equal to the number of observations per participant.
-This matrix is returned within each dataframe using an object with class "AsIs" (See \code{\link{I}} for details). For a concerte example, see the examples below.
+This matrix is returned within each dataframe using an object with class "AsIs" (See \code{\link{I}} for details).
+For a concrete example, see the examples below.
 }
 \description{
 This function retrieves and merges covariate data
@@ -55,9 +53,10 @@ character vector supplied to the "waves" argument in the specified data director
 Any file which matches the relevant naming convention AND has "SEQN" as their first column name will be searched for the variables requested in the
 "varnames" argument.
 
-It is recommended that if using the process_covar function to merge variables locally, that the local directory include the demographic dataset for each wave.
+It is recommended that if using the process_covar function to merge variables locally, that the local directory include the demographic dataset for each wave
+(DEMO_C.XPT and DEMO_D.XPT for the 2003-2004 and 2005-2006 waves, respectively).
 The reason for this is that without the demographic dataset, there is no guarantee that all
-participants in a wave will be included in the retunred results.
+participants in a wave will be included in the returned results.
 If the demographic datasets are not in the directory specified by localpath a warnining will be produced.
 In addition, it is recommended that the local directory contain only .XPT files associated with NHANES.
 }
@@ -93,12 +92,13 @@ str(covar_ls2)
 ##   PADACTIV: physical activity type (i.e. basketball, swimming, etc.)
 ##   PADLEVEL: intensity of activity identified by PADACTIV (moderate or vigorous)
 ##   PADTIMES: # of times activity identified by PADACTIV was done in the past 30 days
+## See the codebook at https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAQIAF_C.htm#PADTIMES
+## for additional descriptions of these variables for the 2003-2004 wave
 covar_ls3 <- process_covar(waves=c("C","D"), varnames=c("PADACTIV","PADLEVEL","PADTIMES"))
 str(covar_ls3)
 
 
 
-}
-\references{
+
 
 }
