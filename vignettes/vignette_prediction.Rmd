@@ -23,27 +23,20 @@ The following packages will be used in this vignette to provide illustration of 
 
 ```{r Paths, results = FALSE, echo = TRUE}
 
-pckgs <- c("tableone","knitr","kableExtra",   ## packages used for creating Table 1
+pckgs <- c("knitr","kableExtra",   ## packages used for creating Table 1
            "devtools",                        ## package used to download R packages stored on GitHub
            "prettydoc",                       ## for fancy vignette style
            "ggplot2", "gridExtra",            ## packages for plotting 
            "corrplot",                        ## for correlation plot
            "reshape2",                        ## for transforming data long -> wide and wide -> long           
-           "magrittr","dplyr",                ## packages for merging/transforming data
+           "magrittr","dplyr","plyr",         ## packages for merging/transforming data
            "survey",                          ## package used for analyzing complex survey data in R
-           "mgcv", "refund"                   ## packages used for smoothing/fpca
+           "survival",                        ## package used for analyzing survival data in R
+           "mgcv", "refund",                  ## packages used for smoothing/fpca
+           "rnhanesdata"                      ## nhanes accelerometry data pacakge
            )
-sapply(pckgs, function(x) if(!require(x,character.only=TRUE,quietly=TRUE)) {
-    install.packages(x)
-    require(x, character.only=TRUE)
-})
+sapply(pckgs, function(x) require(x,character.only=TRUE,quietly=TRUE))
 rm(list=c("pckgs"))
-
-#rnhanes data package from github
-if(!require("rnhanesdata")){
-    install_github("andrew-leroux/rnhanesdata")
-    require("rnhanesdata")
-}
 ```
 
 
@@ -408,7 +401,7 @@ for(i in 1:length(ind_vars)){
         form    <- paste0(c(inc_vars, exc_vars[-k]), collapse="+")
         fit_tmp <- svyglm(as.formula(paste("yr5_mort ~", form)), design=data_analysis_svy,family=quasibinomial())
 
-        epic_ij[k] <- survey:::extractAIC.svyglm(fit_tmp, k=4)[2]
+        epic_ij[k] <- extractAIC(fit_tmp, k=4)[2]
 
         rm(list=c("fit_tmp","form"))
     }
@@ -874,7 +867,7 @@ for(i in 1:length(ind_vars)){
                 if(fit_adj$df.residual > 0){
                         ## get AIC
                         aic_ij_adj[j]  <- AIC(fit_adj)[2]
-                        epic_ij_adj[j] <- survey:::extractAIC.svyglm(fit_adj, k=4)[2]
+                        epic_ij_adj[j] <- extractAIC(fit_adj, k=4)[2]
                 }
                 
                 ## Calculate in-sample weighted AUC using the appropriate weights
@@ -978,7 +971,7 @@ msp <- function(vars, data,cont_round = 1){
   for(i in 1:length(idx)){
     x = data[,idx[i]]
     if(vars[i] == "Gender"){
-      t1 = plyr::count(x)
+      t1 = count(x)
       name = t1$x
       prop = round(t1$freq/sum(t1$freq)*100,1)
       t1$freq = paste0(t1$freq," (",prop,"%)")
@@ -986,13 +979,13 @@ msp <- function(vars, data,cont_round = 1){
       t1 = data.frame(freq = t1[,-1], row.names = name)
       res = rbind(res,header,t1)
     } else if(is.factor(x) & length(levels(x))==2){
-      yes = plyr::count(x)$freq[2]
+      yes = count(x)$freq[2]
       yes.prop = round(yes/length(x)*100,1)
       t1 = paste0(yes," (",yes.prop,"%)")
       t1 = data.frame(freq = t1, row.names = vars[i])
       res = rbind(res,t1)
     } else if(is.factor(x) & length(levels(x)) > 2){
-      t1 = plyr::count(x)
+      t1 = count(x)
       name = t1$x
       prop = round(t1$freq/sum(t1$freq)*100,1)
       t1$freq = paste0(t1$freq," (",prop,"%)")
@@ -1333,7 +1326,7 @@ for(i in 1:length(ind_vars)){
                 ## point estimates for our coefficients, but can no longer calculate AIC
                 if(fit_adj$df.residual > 0){
                     aic_ij_adj[j]  <- AIC(fit_adj)[2]
-                    epic_ij_adj[j]  <- survey:::extractAIC.svyglm(fit_adj, k=4)[2]
+                    epic_ij_adj[j]  <- extractAIC(fit_adj, k=4)[2]
                 }
 
                 ## Calculate weighted and unweighted AUC using the appropriate weights
@@ -1571,7 +1564,7 @@ for(i in 1:length(ind_vars)){
                 ## point estimates for our coefficients, but can no longer calculate AIC
                 if(fit_adj$df.residual > 0){
                     aic_ij_adj[j]  <- AIC(fit_adj)[2]
-                    epic_ij_adj[j]  <- survey:::extractAIC.svyglm(fit_adj, k=4)[2]
+                    epic_ij_adj[j]  <- extractAIC(fit_adj, k=4)[2]
                 }
 
                 ## Calculate weighted and unweighted AUC using the appropriate weights

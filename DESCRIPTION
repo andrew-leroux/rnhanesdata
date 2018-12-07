@@ -12,6 +12,8 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Suggests: knitr,
-    rmarkdown
+    rmarkdown, kableExtra,prettydoc,devtools,
+    gridExtra, corrplot,ggplot2, reshape2, magrittr, dplyr,
+    survey, survival, mgcv, refund
 VignetteBuilder: knitr
 RoxygenNote: 6.1.0
