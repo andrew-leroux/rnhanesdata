@@ -1,0 +1,1728 @@
+---
+title: "The predictive performance of objective activity measures derived from accelerometry data for 5-year all-cause mortality in NHANES"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+vignette: >
+  %\VignetteIndexEntry{5-year mortality prediction in NHANES with Lab Measurements}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8} 
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, echo = FALSE,fig.align='center')
+```
+
+
+We access the prediction performance of objective physical activity  measures and their ranking relative to other established predictors of 5-year all-cause mortality in the US. In this analysis, we use participants between 50 and 85 years old from the 2003-2004 and 2005-2006 samples of the National Health and Nutritional Examination Survey (NHANES, n=2969, number of deaths in 5 years=294) who wore a hip-worn accelerometer in the free living environment for up to 7 days.  
+
+#Prerequisites
+
+The following packages will be used in this vignette to provide illustration of NHANES 5-year mortality prediction model. 
+
+```{r Paths, results = FALSE, echo = TRUE}
+
+pckgs <- c("tableone","knitr","kableExtra",   ## packages used for creating Table 1
+           "devtools",                        ## package used to download R packages stored on GitHub
+           "prettydoc",                       ## for fancy vignette style
+           "ggplot2", "gridExtra",            ## packages for plotting 
+           "corrplot",                        ## for correlation plot
+           "reshape2",                        ## for transforming data long -> wide and wide -> long           
+           "magrittr","dplyr",                ## packages for merging/transforming data
+           "survey",                          ## package used for analyzing complex survey data in R
+           "mgcv", "refund"                   ## packages used for smoothing/fpca
+           )
+sapply(pckgs, function(x) if(!require(x,character.only=TRUE,quietly=TRUE)) {
+    install.packages(x)
+    require(x, character.only=TRUE)
+})
+rm(list=c("pckgs"))
+
+#rnhanes data package from github
+if(!require("rnhanesdata")){
+    install_github("andrew-leroux/rnhanesdata")
+    require("rnhanesdata")
+}
+```
+
+
+## NHANES 2003-2004 and 2005-2006 5-year mortality model data selection
+
+We start by downloading NHANES 2003-2004 and 2005-2006 cohorts' information, processing data and combining survey weights for the two cohorts using R package *rnhanesdata* (Leroux, 2018). Items 1 - 11 illustrate processing steps we performed to obtain the subset of  NHANES data that meets this analysis criteria, and derive activity summaries. These steps produce an R object called "data_analysis", which is used in 5-year mortality prediction model. For simplicity of presentation, we suppress code printout at each step, which can be changed by setting echo = TRUE in the R chunk option (e.g., {r,  echo = TRUE}).  
+
+1. Download and process NHANES lab measurements from the 2 cohorts:  systolic blood pressure readings, total cholesterol, and HDL cholesterol. These data are saved in the temporary directory, which is then removed once the covariates information is processed. Blood pressure is recorded up to 4 times here for each participant. The data collection procedure and description of cholesterol and blood pressure variables is available at https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Examination&CycleBeginYear=2003 for the wave 2003-2004 and at https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Examination&CycleBeginYear=2005 for the wave 2005-2006.
+
+```{r get_lab_data, results='hide', echo = TRUE}
+# Create a (local) temporary directory 
+# where lab measurement (cholesterol, blood presure) data will be downloaded from the CDC website 
+# and then loaded into R. These files need to be downloaded separately as 
+# the raw files associated with these lab measurements are not included in the rnhanesdata package.
+# Note that this way of creating a temporary directory is a bit "hacky". 
+# A better solution would be to use the tempdir() function, but this can lead to issues with compiling the markdown 
+# document. As a result, here we use the current working directory, which, when compiled, is the directory where the .Rmd
+# file is saved. 
+dir_tmp <- file.path(getwd(), "tmp_dat_vignette")
+
+if(!dir.exists(dir_tmp)){
+    dir.create(dir_tmp)
+    ## download the lab measurement data for the cohort 2003-2004
+    # Cholesterol - Total & HDL: LBXTC and LBXHDD
+    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/L13_C.XPT", destfile = file.path(dir_tmp,"L13_C.XPT"))
+    # Blood Pressure: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
+    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/BPX_C.XPT", destfile = file.path(dir_tmp,"BPX_C.XPT"))
+
+    ## download the lab measurement data for the cohort 2005-2006
+    # Total Cholesterol: LBXTC
+    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/TCHOL_D.XPT", destfile = file.path(dir_tmp,"TCHOL_D.XPT"))
+    # HDL Cholesterol: LBDHDD
+    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/HDL_D.XPT", destfile = file.path(dir_tmp,"HDL_D.XPT"))
+    # Blood Pressure, up to 4 measurements per person: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
+    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/BPX_D.XPT", destfile = file.path(dir_tmp,"BPX_D.XPT"))
+}
+
+
+varnames <- c("LBXTC","LBXHDD","LBDHDD",           ## 1. cholesterol. Note LBXHDD and LBDHDD are the same variable, 
+                                                   ##    but different names for 2003-2004 and 2005-2006 cohorts
+              "BPXSY1","BPXSY2","BPXSY3", "BPXSY4" ## 2. blood pressure measurements
+              )
+
+
+## load and merge the lab data
+lab_data <- process_covar(varnames=varnames,localpath=dir_tmp)
+
+## change column name for cholesterol variable that changed names
+colnames(lab_data$Covariate_C)[colnames(lab_data$Covariate_C) == "LBXHDD"] <- "LBDHDD"
+
+## combine waves
+CVMarkers <- bind_rows(lab_data$Covariate_C, lab_data$Covariate_D)
+
+rm(list=c("lab_data","dir_tmp","varnames"))
+```
+
+2. Load  minute-level activity data and combine it with lab measurements, survey sampling data, and mortality data which are included in the *rnhanesdata* package. 
+
+```{r merge_PA_data, echo=TRUE}
+## load the data
+data("PAXINTEN_C");data("PAXINTEN_D")
+data("Flags_C");data("Flags_D")
+data("Mortality_2011_C");data("Mortality_2011_D")
+data("Covariate_C");data("Covariate_D")
+
+## re-code activity counts which are considered "non-wear" to be 0
+## this doesn't impact many data points, most estimated non-wear times correspond to 0 counts
+PAXINTEN_C[,paste0("MIN",1:1440)] <- PAXINTEN_C[,paste0("MIN",1:1440)]*Flags_C[,paste0("MIN",1:1440)]
+PAXINTEN_D[,paste0("MIN",1:1440)] <- PAXINTEN_D[,paste0("MIN",1:1440)]*Flags_D[,paste0("MIN",1:1440)]
+
+## Merge covariate, mortality, and accelerometry data
+## note that both PAXINTEN_* and Covariate_* have a column
+## called "SDDSRVYR" indicating which NHANES wave the data is associated with.
+## To avoid duplicating this column in the merged data, we add this variable to the "by"
+## argument in left_join()
+AllAct_C <- left_join(PAXINTEN_C, Mortality_2011_C, by = "SEQN") %>%
+        left_join(Covariate_C, by=c("SEQN", "SDDSRVYR"))
+AllAct_D <- left_join(PAXINTEN_D, Mortality_2011_D, by = "SEQN") %>%
+        left_join(Covariate_D, by=c("SEQN", "SDDSRVYR"))
+
+AllFlags_C <- left_join(Flags_C, Mortality_2011_C, by = "SEQN") %>%
+        left_join(Covariate_C, by=c("SEQN", "SDDSRVYR"))
+AllFlags_D <- left_join(Flags_D, Mortality_2011_D, by = "SEQN") %>%
+        left_join(Covariate_D, by=c("SEQN", "SDDSRVYR"))
+
+## clean up the workspace for memory purposes
+rm(list=c(paste0(c("PAXINTEN_", "Covariate_","Mortality_2011_","Flags_"),rep(LETTERS[3:4],each=4))))
+
+## combine data for the two waves
+AllAct   <- bind_rows(AllAct_C,AllAct_D)
+AllFlags <- bind_rows(AllFlags_C,AllFlags_D)
+
+#merge with cardiovascular markers 
+AllAct <- left_join(AllAct, CVMarkers, by = "SEQN")
+AllFlags <- left_join(AllFlags, CVMarkers, by = "SEQN")
+
+## clean up the workspace again
+rm(list=c("AllAct_C","AllAct_D","AllFlags_C","AllFlags_D","CVMarkers"))
+```
+
+3. Create new factor covariates from NHANES questionnaire, which will be used in the prediction model. 
+In addition, calculate average systolic blood pressure using the 4 measurements per participant. 
+
+```{r create_factor_vars, echo=TRUE}
+## Code year 5 mortality, NAs for individuals with follow up less than 5 years and alive
+AllAct$yr5_mort <- AllFlags$yr5_mort <- as.integer(ifelse(AllAct$permth_exm/12 <= 5 & AllAct$mortstat == 1, 1,
+                                                          ifelse(AllAct$permth_exm/12 < 5 & AllAct$mortstat == 0, NA, 0))
+                                                    )
+## Create Age in years using the age at examination (i.e. when participants wore the device)
+AllAct$Age <- AllFlags$Age <- AllAct$RIDAGEEX/12
+
+## Re-level comorbidities to assign refused/don't know as not having the condition
+## Note that in practice this does not affect many individuals, but it is an assumption we're making.
+levels(AllAct$CHD)    <- levels(AllFlags$CHD)    <- list("No" = c("No","Refused","Don't know"), "Yes" = c("Yes"))
+levels(AllAct$CHF)    <- levels(AllFlags$CHF)    <- list("No" = c("No","Refused","Don't know"), "Yes" = c("Yes"))
+levels(AllAct$Stroke) <- levels(AllFlags$Stroke) <- list("No" = c("No","Refused","Don't know"), "Yes" = c("Yes"))
+levels(AllAct$Cancer) <- levels(AllFlags$Cancer) <- list("No" = c("No","Refused","Don't know"), "Yes" = c("Yes"))
+levels(AllAct$Diabetes) <- levels(AllFlags$Diabetes) <- list("No" = c("No","Borderline", "Refused","Don't know"), "Yes" = c("Yes"))
+
+
+## Re-level education to have 3 levels and categorize don't know/refused to be missing
+levels(AllAct$EducationAdult) <- levels(AllFlags$EducationAdult) <- list("Less than high school" = c("Less than 9th grade", "9-11th grade"),
+                                                                         "High school" = c("High school grad/GED or equivalent"),
+                                                                         "More than high school" = c("Some College or AA degree", "College graduate or above"))
+
+## Re-level alcohol consumption to include a level for "missing"
+levels(AllAct$DrinkStatus) <- levels(AllFlags$DrinkStatus) <- c(levels(AllAct$DrinkStatus), "Missing alcohol")
+AllAct$DrinkStatus[is.na(AllAct$DrinkStatus)] <- AllFlags$DrinkStatus[is.na(AllAct$DrinkStatus)] <- "Missing alcohol"
+
+
+# systolic blood pressure calculation 
+AllAct$SYS <- AllFlags$SYS <-  round(apply(AllAct[,c("BPXSY1","BPXSY2","BPXSY3", "BPXSY4")],
+                            1,mean, na.rm= T))
+
+## Re-order columns so that activity and wear/non-wear flags are the last 1440 columns of our two
+## data matrices. This is a personal preference and is absolutely not necessary.
+act_cols <- which(colnames(AllAct) %in% paste0("MIN",1:1440))
+oth_cols <- which(!colnames(AllAct) %in% paste0("MIN",1:1440))
+AllAct   <- AllAct[,c(oth_cols,act_cols)]
+AllFlags <- AllFlags[,c(oth_cols,act_cols)]
+rm(list=c("act_cols","oth_cols"))
+```
+
+
+4. Calculate daily activity summary measures: total activity count (TAC), total log activity count (TLAC),  total accelerometer wear time (WT), total minutes of moderate/vigorous physical activity (MVPA),  sedentary/sleep/non-wear to active transition probability (SATP$_{sl/nw}$), and active to sedentary/sleep/non-wear transition probability (ASTP$_{sl/nw}$). In addition, compute total log activity count summary measures (TLAC_1, TLAC_2, …, TLAC_12) in each 2-hr window, i.e. 12AM-2AM, 2AM-4AM, 4AM-6AM, etc. Note, there is one individual with 501 minutes recorded as NA. These missing data occur on the last day they wore the device for the last 501 minutes of the day. We impute these missing data with 0.
+
+```{r calculate_accel_features, echo = TRUE}
+## Assign just the activity and wear/non-wear flag data to matrices.
+## This makes computing the features faster but is technically required.
+act_mat  <- as.matrix(AllAct[,paste0("MIN",1:1440)])
+flag_mat <- as.matrix(AllFlags[,paste0("MIN",1:1440)])
+
+## replace NAs with 0s
+act_mat[is.na(act_mat)]   <- 0
+flag_mat[is.na(flag_mat)] <- 0
+
+
+AllAct$TAC   <- AllFlags$TAC   <- rowSums(act_mat)
+AllAct$TLAC  <- AllFlags$TLAC  <- rowSums(log(1+act_mat))
+AllAct$WT    <- AllFlags$WT    <- rowSums(flag_mat)
+AllAct$ST    <- AllFlags$ST    <- rowSums(act_mat < 100)
+AllAct$MVPA  <- AllFlags$MVPA  <- rowSums(act_mat >= 2020)
+
+## calculate fragmentation measures
+bout_mat <- apply(act_mat >= 100, 1, function(x){
+                        mat <- rle(x)
+                        sed <- mat$lengths[which(mat$values == FALSE)]
+                        act <- mat$length[mat$values == TRUE]
+
+                        sed <- ifelse(length(sed) == 0, NA, mean(sed))
+                        act <- ifelse(length(act) == 0, NA, mean(act))
+                        c(sed,act)
+                    })
+
+AllAct$SBout <- AllFlags$SBout <- bout_mat[1,]
+AllAct$ABout <- AllFlags$ABout <- bout_mat[2,]
+AllAct$SATP  <- AllFlags$SATP  <- 1/AllAct$SBout
+AllAct$ASTP  <- AllFlags$ASTP  <- 1/AllAct$ABout
+
+
+
+# compute total log activity count in each 2-hr window, 
+# 2 hour (120 minutes) binning window 
+tlen <- 120
+nt   <- floor(1440/tlen)
+# create a list of indices for binning into 2-hour windows
+inx_col_ls <- split(1:1440, rep(1:nt,each=tlen))
+Act_2hr    <- sapply(inx_col_ls, function(x) rowSums(log(1+act_mat[,x,drop=FALSE])))
+colnames(Act_2hr) <- paste0("TLAC_",c(1:12))
+
+
+AllAct   <- cbind(AllAct, Act_2hr)
+AllFlags <- cbind(AllFlags, Act_2hr)
+
+rm(list=c("tlen","nt","inx_col_ls","Act_2hr","act_mat","flag_mat","bout_mat"))
+```
+
+5. Exclude participants who were: 1) younger than 50 years old, or 85 and older at the time they wore the accelerometer (10, 859 participants); 2) missing BMI or education predictor variables (41 participants); 3) had fewer than 3 days of data with at least 10 hours of estimated wear time (517 participants); 4) missing mortality information (16 participants); 5) alive with follow up less than 5 years (17 participants); 6) missing systolic blood pressure, total cholesterol or HDL cholesterol  measurements (293 participants).  Table 1 below displays number of participants with missing data for all pairwise combinations of variables with missing data. 
+
+
+```{r exclusion_criteria}
+## make dataframe with one row per individual to create table 1.
+## Remove columns associated with activity to avoid any confusion.
+table_dat <- AllAct[!duplicated(AllAct$SEQN),-which(colnames(AllAct) %in% c(paste0("MIN",1:1440),
+                                                                            "TAC","TLAC","WT","ST","MVPA",
+                                                                            "SBout","ABout","SATP","ASTP", paste0("TLAC_",1:12)))]
+
+## subset based on our age inclusion/exclusion criteria
+## note that individuals age 85 and over are coded as NA
+#number of individuals excluded due to subset selection
+table_dat <- subset(table_dat, !(Age < 50 | is.na(Age)))
+
+## get the SEQN (id variable) associated with individuals with fewer than 3 days accelerometer wear time
+## with at least 10 hours OR had their data quality/device calibration flagged by NHANES
+keep_inx       <- exclude_accel(AllAct, AllFlags)
+Act_Analysis   <- AllAct[keep_inx,]
+Flags_Analysis <- AllFlags[keep_inx,]
+nms_rm         <- unique(c(Act_Analysis$SEQN[-which(Act_Analysis$SEQN %in% names(table(Act_Analysis$SEQN))[table(Act_Analysis$SEQN)>=3])],
+                           setdiff(AllAct$SEQN, Act_Analysis$SEQN))
+                          )
+rm(list=c("keep_inx"))
+
+
+## Additional inclusion/exclusion criteria.
+## Aside from mortality or accelerometer weartime, the only missingness is in
+## BMI (35), Education (6), SYS (165), total cholesterol, LBXTC (152) and HDL cholesterol, LBDHDD (152).
+criteria_vec <- c("(is.na(table_dat$BMI_cat))",         # missing BMI
+                  "(is.na(table_dat$EducationAdult))",  # missing education
+                  "(table_dat$SEQN %in% nms_rm)",       # too few "good" days of accelerometery data
+                  "((!table_dat$eligstat %in% 1) | is.na(table_dat$mortstat) | is.na(table_dat$permth_exm) | table_dat$ucod_leading %in% \"004\")", # missing mortality data, or accidental death
+                  "(table_dat$mortstat == 0 & table_dat$permth_exm/12 < 5)", # less than 5 years of follow up with no mortality
+
+                  "(is.na(table_dat$SYS) | (is.na(table_dat$LBXTC)) | (is.na(table_dat$LBDHDD)) )" #missing lab measures
+                  )
+                  
+## create matrix of pairwise missing data based on our exclusion criteria
+tab_miss <- matrix(NA, ncol=length(criteria_vec), nrow=length(criteria_vec))
+for(i in seq_along(criteria_vec)){
+    for(j in seq_along(criteria_vec)){
+        eval(parse(text=paste0("miss_cur <- which(", criteria_vec[i], "&", criteria_vec[j],")")))
+        tab_miss[i,j] <- length(miss_cur)
+        rm(list=c("miss_cur"))
+    }
+}
+names_spaced <- c("BMI","Education","Bad Accel Data","Mortality","Follow-up", "Lab")
+rownames(tab_miss) <- colnames(tab_miss) <- names_spaced
+## view missing data pattern
+kable(data.frame(tab_miss),format = "html", caption = "Table 1: Missing data patterns", col.names = names_spaced) %>%
+  kable_styling("striped", full_width = F)
+rm(list=c("i","j","names_spaced"))
+
+                  
+## add in column indicating exclusion:
+##   Exclude = 1 indicates an individual does not meet our inclusion criteria
+##   Exclude = 0 indicates an individual does meet our inclusion criteria
+eval(parse(text=paste0("table_dat$Exclude <- as.integer(", paste0(criteria_vec,collapse="|"), ")")))
+```
+
+
+6. Create our dataset for analysis, "data_analysis",  with one row per subject containing only those subjects who meet our inclusion criteria.
+
+```{r final_data_set}
+## Create our dataset for analysis with one row per subject
+## containing only those subjects who meet our inclusion criteria.
+data_analysis  <- subset(table_dat, Exclude == 0)
+## get adjusted survey weights using the reweight_accel function
+data_analysis  <- reweight_accel(data_analysis)
+
+## Get activity/flag data for only those included participants AND days.
+## Since we've already removed the "bad" days from Act_Analysis and Act_Flags,
+## we need only subset based on subject ID now
+Act_Analysis   <- subset(Act_Analysis, SEQN %in% data_analysis$SEQN)
+Flags_Analysis <- subset(Flags_Analysis, SEQN %in% data_analysis$SEQN)
+```
+
+7. Calculate subject specific averages of the accelerometry features using only the "good" days of data.
+
+```{r}
+## calculate subject specific averages of the accelerometry features
+## using only the "good" days of data
+act_var_nms <- c("TAC","TLAC","WT","ST","MVPA","ABout","SBout","SATP","ASTP", paste0("TLAC_",1:12))
+for(i in act_var_nms){
+    data_analysis[[i]] <- vapply(data_analysis$SEQN, function(x) mean(Act_Analysis[[i]][Act_Analysis$SEQN==x]), numeric(1))
+}
+
+## clean up the workspace
+rm(list=c("AllAct","AllFlags","i","criteria_vec","nms_rm","tab_miss","act_var_nms"))
+```
+
+
+8. Get log(count +1) activity  data in a matrix format and conduct functional Principal Component analysis (fPCA)  using the fpca.face() function with 50 knots in the *refund* package in R. 
+
+```{r estimate_fpca, echo = TRUE}
+Act <- as.matrix(log(1+Act_Analysis[,paste0("MIN",1:1440)]))
+Act[is.na(Act)] <- 0
+fpca_fit <- fpca.face(Act,knots=50)
+```
+
+
+
+
+9. Retain the first 6 PCs, which explain approximately `r 100*round(cumsum(fpca_fit$evalues/sum(fpca_fit$evalues))[6],2)`% variability in the daily activity data (the space spanned by the rows of the matrix of non-smoothed log transformed activity counts) and obtain the score for each day on each PC and calculate the mean and standard deviation of these scores for each subject across days.
+
+```{r fpca_features}
+## exmine the proportion of variability explained by the first 6 principal components
+## calculate the mean and sd of the first 6 PC scores for all participants
+# cumsum(fpca_fit$evalues/sum(fpca_fit$evalues))[1] #22% variability by 1st component
+# cumsum(fpca_fit$evalues/sum(fpca_fit$evalues))[2] #14% (36% total) variability by 2nd component 
+# cumsum(fpca_fit$evalues/sum(fpca_fit$evalues))[6] #57% variability explained by the first  6 components
+
+for(k in 1:6){
+    data_analysis[[paste0("mi",k)]] <- vapply(data_analysis$SEQN, function(x) mean(fpca_fit$scores[Act_Analysis$SEQN==x,k]), numeric(1))
+    data_analysis[[paste0("si",k)]] <- vapply(data_analysis$SEQN, function(x) sd(fpca_fit$scores[Act_Analysis$SEQN==x,k]), numeric(1))
+}
+
+```
+
+
+
+```{r fpca_plot, fig.width = 10, fig.height = 6}
+#11. Plot first 6 principal components.
+sd_pcs <- apply(fpca_fit$scores,2,sd)[1:8]
+inx_plot <- c(1:1440)[seq(1,1440,by=20)]
+textscale <- 1.5
+par(mfrow=c(2,3),las=1,mar=c(5.1,6.1,2.1,2.1))
+for(i in 1:6){
+    low_tmp <- fpca_fit$mu + -2*sd_pcs[i]*fpca_fit$efunctions[,i]
+    high_tmp <- fpca_fit$mu + 2*sd_pcs[i]*fpca_fit$efunctions[,i]
+    matplot(inx_plot,cbind(low_tmp,fpca_fit$mu,high_tmp)[inx_plot,], type=c('p',"l","p"), pch=c("-",NA,"+"),lty=c(1,1,1),
+            col=c("grey","black","grey"),xaxt='n',xlab="Time of Day",ylim=c(-0.5,6),
+            main=paste("PC ", i, " Percentage of variabiity ", round(100*fpca_fit$evalues[i]/sum(fpca_fit$evalues),1), "%", sep=""),
+            ylab="log(1+AC)", cex.main=textscale,cex.lab=textscale, cex.axis=textscale,
+            lwd=1.5*textscale,cex=1.5*textscale)
+    axis(1, at=c(1,6,12,18,23)*60 +1 , labels=c("01:00","06:00","12:00","18:00","23:00"),
+         cex=textscale,cex.lab=textscale, cex.axis=textscale)
+}
+rm(list=c("sd_pcs","inx_plot","high_tmp","low_tmp","i","textscale"))
+
+```
+
+
+10. Identify the PC-specific mean and standard deviation that are significantly associated with 5-year mortality using backward selection logistic model fitted with svyglm() function in R. In this step, the demographic, behavioral and comorbidity variables were included in all models and the selection was conducted on the means and standard deviations of the scores on the 6 PCs (a total of 12 variables) using the compelx survey AIC criteria (Lumley and Scott 2015). 
+
+```{r backward_selection}
+## Create a svydesign() object for
+## estimating complex survey generalized linear models.
+## Here we use the adjusted (re-weighted) 4-year normalized survey weights.
+data_analysis_svy <- svydesign(id= ~SDMVPSU, strata = ~SDMVSTRA,
+                               weights = ~wtmec4yr_adj_norm, data = data_analysis, nest = TRUE)
+
+ind_vars  <- c("mi1", "mi2","mi3", "mi4","mi5","mi6",
+               "si1","si2","si3","si4","si5", "si6")
+inc_vars  <- c("Age", "SmokeCigs", "DrinkStatus", "BMI_cat",
+               "Diabetes","CHF",  "CHD", "Stroke",
+               "Cancer", "MobilityProblem", "LBXTC","LBDHDD","SYS")
+exc_vars <- ind_vars
+epic_vec  <- var_vec <- model_vec <- rep(NA, length(ind_vars))
+for(i in 1:length(ind_vars)){
+     epic_ij <- rep(NA,length(exc_vars))
+
+    for(k in 1:length(exc_vars)){
+        form    <- paste0(c(inc_vars, exc_vars[-k]), collapse="+")
+        fit_tmp <- svyglm(as.formula(paste("yr5_mort ~", form)), design=data_analysis_svy,family=quasibinomial())
+
+        epic_ij[k] <- survey:::extractAIC.svyglm(fit_tmp, k=4)[2]
+
+        rm(list=c("fit_tmp","form"))
+    }
+    
+    k_cur         <- which(epic_ij == min(epic_ij))
+    model_vec[i]  <- paste0(c(inc_vars, exc_vars[-k_cur]), collapse="+")
+    exc_vars      <- exc_vars[-k_cur]
+    epic_vec[i]   <- epic_ij[k_cur]
+    rm(list=c("k_cur", "k", "epic_ij"))
+}
+
+## get the final model as the first model where AIC increases after removing a variable
+## identified mi1,  si6
+backward_model <- model_vec[which(diff(epic_vec) > 0) + 1][1]
+fit_logistic_pca <- svyglm(as.formula(paste("yr5_mort ~", backward_model)), design=data_analysis_svy,
+                           family=quasibinomial())
+```
+
+
+```{r table_backward_selection}
+df <- round(summary(fit_logistic_pca, df.resid=Inf)$coefficients, 3)
+df <- df[,-which(colnames(df) %in% c("Std. Error", "t value"))]
+rownames(df)[which(rownames(df) == "(Intercept)")] <- "Intercept"
+rownames(df)[which(rownames(df) == "SmokeCigsFormer")] <- "Former Smoker"
+rownames(df)[which(rownames(df) == "SmokeCigsCurrent")] <- "Current Smoker"
+rownames(df)[which(rownames(df) == "MobilityProblemAny Difficulty")] <- "Mobility Problem"
+rownames(df)[which(rownames(df) == "DrinkStatusNon-Drinker")] <- "Non-Drinker"
+rownames(df)[which(rownames(df) == "DrinkStatusHeavy Drinker")] <- "Heavy Drinker"
+rownames(df)[which(rownames(df) == "DrinkStatusMissing alcohol")] <- "Missing Alcohol"
+rownames(df)[which(rownames(df) == "CHFYes")] <- "CHF: yes"
+rownames(df)[which(rownames(df) == "BMI_catUnderweight")] <- "Underweight"
+rownames(df)[which(rownames(df) == "BMI_catOverweight")] <- "Overweight"
+rownames(df)[which(rownames(df) == "BMI_catObese")] <- "Obese"
+rownames(df)[which(rownames(df) == "CancerYes")] <- "Cancer: yes"
+rownames(df)[which(rownames(df) == "DiabetesYes")] <- "Diabetes: yes"
+rownames(df)[which(rownames(df) == "CHDYes")] <- "CHD: yes"
+rownames(df)[which(rownames(df) == "StrokeYes")] <- "Stroke: yes"
+rownames(df)[which(rownames(df) == "LBXTC")] <- "Total Cholesterol"
+rownames(df)[which(rownames(df) == "LBDHDD")] <- "HDL Cholesterol"
+rownames(df)[which(rownames(df) == "SYS")] <- "Systolic Blood Pressure"
+#rownames(df)[which(rownames(df) == "mi1")] <- "Mean on PC 1"
+#rownames(df)[which(rownames(df) == "si6")] <- "SD on PC 6"
+
+ci.pca <- confint(fit_logistic_pca,  level = 0.95, method = "likelihood")
+
+#exponentiate to convert estimated coefficients into odds ratio
+df2 <- data.frame(exp(df[,which(colnames(df) == "Estimate")]), exp(ci.pca))
+colnames(df2) <- paste("OR", c("Estimate", "Lower CL", "Upper CL"))
+df <- cbind(df, round(df2,3))
+
+kable(df, caption = "Table 2: Final backward selection model estimated coefficients")%>%
+  kable_styling("striped", full_width = F) #p-values 
+
+rm(list=c("epic_vec","i","model_vec","exc_vars","ind_vars","var_vec",
+          "inc_vars","data_analysis_svy","backward_model","fit_logistic_pca","df"))
+```
+
+
+
+```{r}
+#################################
+## surrogate for m_{i1} ##
+#################################
+
+## Note that the shape of PC1 is predominantly  a shift in average activity profile
+## so we use TLAC as our surrogate measure for m_{i1}
+
+## compare association between m_{i1} with our surrogate measures
+# cor(data_analysis$TLAC,data_analysis$mi1)
+
+##########################
+## surrogate for s_{i6} ##
+##########################
+t6a <- c((8*60+1):(10*60),
+         (15*60+1):(17*60),
+         (22*60+1):(24*60))
+t6b <-c((5*60+1):(7*60),
+        (11*60+1):(13*60),
+        (18*60+1):(20*60))
+s6  <- rowMeans(Act[,t6a])-rowMeans(Act[,t6b])
+data_analysis$sPC6 <- vapply(data_analysis$SEQN, function(x) sd(s6[Act_Analysis$SEQN == x]), numeric(1))
+# cor(data_analysis$sPC6,data_analysis$si6)
+rm(list=c("t6a","t6b","s6"))
+
+```
+
+11. Replace the significant PC based measures with corresponding surrogate variables. This step is done to improve the interpretability and comparability (across studies) of results. For those unfamiliar with principal component analysis, reading the section "Intuition behind fPCA" below may be helpful in understanding this step further. 
+
+Identifying potential surrogate measures is based on (subjective) interpretations involving the shapes of each principal component. Fundamentally, the idea is to use visual inspection of the principal components to identify the "dominant" features of each component. Then, we return to the original data, and calculate a statistic which we believe captures this dominant feature. For example, looking at the upper-left panel of the plot above in Step 10, we see that days which load negatively on the first the first principal component tend to be extremely active, while those who load positively tend to be very inactive. As a result, one reasonable "guess" at a surrogate measure which is highly associated with average first component is simply the total log transformed activity count (TLAC) for that day. If that is true, we would also expect that the average PC1 score within subjects is highly correlated with their average TLAC across days. In our data, average TLAC and average PC1 score are highly (negatively) correlated ($\hat{\rho}$ =`r round(cor(data_analysis$TLAC,data_analysis$mi1),2)`), which is expected based on the sign of the first PC. 
+
+This procedure would then be repeated for each feature identified as potentially predictive. In our application, we are also interested in the standard deviation of PC6. Looking at the bottom-right panel of the plot above in Step 10, we see that there are 6 periods where the contrast is highest between days with positive and negative loadings (i.e. the difference between the $+$ and $-$ curves are largest). One reasonable guess for a statistic which is highly correlated with PC6 score is the difference in average activity during the specific time periods where positive/negative loadings are high/low, respectively. For example, days that load highly on PC6 should, on average, have higher activity during the mid morning (8AM-10AM), late afternoon (3PM-5PM) and late evening (10PM-12AM) and lower activity during the early morning (5AM-7AM), late morning/early afternoon (11AM-1PM), and early evening (6PM-8PM). Since we're interested in the standard deviation of PC6 score, we calculate the standard deviation of average log-transformed activity counts during these periods as a surrogate measure for $s_{i6}$. In our analysis, we used all 6 of these time periods and obtained an observed correlation of  $\hat{\rho}$ = `r round(cor(data_analysis$sPC6,data_analysis$si6),2)`, though multiple choices can be explored to see which statistic has the highest correlation with $s_{i6}$. 
+
+
+
+
+## Intuition behind fPCA
+
+A major problem with PC analysis is that it is not always intuitive and requires a degree of familiarity with matrix algebra and complex trajectories (functional data analysis in statistics speak). While some of these problems are unavoidable given the complexity of the data, we will now provide the needed intuition for understanding both the PCs and the implication of our findings on the original data scale (daily minute-level activity profiles). We will start with explaining the first 2PCs, which are shown in the left-top panel of Figure 1. 
+
+
+```{r plot_PC_profiles, fig.height=4, fig.width=10}
+#code for producing Figure 1 in the Supplementary materials
+###################################
+#Figure 1
+####################################
+#subject with  variability on PC1 smaller than 1st quantile and positive PC1 scores
+SEQN_s <- data_analysis$SEQN[which(data_analysis$si1 < summary(data_analysis$si1)[2])[1]]#21039
+#subject with  variability on PC1 larger than 3rd quantile and negative PC1 scores
+SEQN_l <- data_analysis$SEQN[which(data_analysis$si1 > summary(data_analysis$si1)[5])[1]]#21009
+#subject with large PC1 and PC2 scores
+#subject with large PC1 and PC2 scores
+ind.pc1 <- which(-fpca_fit$scores[,1] >50)
+ind.pc2 <- which(fpca_fit$scores[,2] >50)
+SEQN_3 <- Act_Analysis$SEQN[intersect(ind.pc2, ind.pc1)[1]]#21913
+
+#plot activity data for these 3 subjects
+df.act <- Act[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s),]
+df.act <- df.act[c(2,10),]#second and third day data for subject 21009 and 21913
+df.act <- rbind(df.act, Act[intersect(ind.pc2, ind.pc1)[1],])#first day of subject 21913
+#smooth these data
+x <- 1:ncol(Act)
+for(i in 1:nrow(df.act)){
+  df.act[i,] <- gam(df.act[i,]~s(x,k=30))$fitted.values
+}
+#plot activity data for these 3 subjects
+df.act <- data.frame(time = seq(1,1440), s1 = df.act[1,], s2 = df.act[2,], s3 = df.act[3,])
+df.act$time <- factor(df.act$time)
+df.act.m<- melt(df.act)
+df.act.m$time <- as.numeric(df.act.m$time)
+
+#extract each day's scores on first and second PC for these subjects
+#used in labels for the activity data plot
+df_labs <- fpca_fit$scores[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s),c(1:2)]
+df_labs <- df_labs[c(2,10),]
+df_labs <- rbind(df_labs, fpca_fit$scores[intersect(ind.pc2, ind.pc1)[1],c(1:2)])
+df_labs[,1]<- -df_labs[,1] #flip the sign of PC 1 
+df_labs <- data.frame(SEQN = c(SEQN_l, SEQN_s, SEQN_3),
+                 PC1 = df_labs[,1], PC2 = df_labs[,2])
+df_labs <- round(df_labs[,-1],2)
+rownames(df_labs) <- c(SEQN_l, SEQN_s, SEQN_3)
+labs <- c(paste0(SEQN_l, "; PC1=", df_labs[1,1], ", PC2=", df_labs[1,2]), 
+          paste0(SEQN_s, "; PC1=", df_labs[2,1], ", PC2=", df_labs[2,2]), 
+          paste0(SEQN_3, "; PC1=", df_labs[3,1], ", PC2=", df_labs[3,2]))
+
+  
+p.act <- p.act <- ggplot(df.act.m, aes(x = time, group=variable))+ 
+  geom_line(aes(y = value,color = variable),size = 0.5)
+p.act <- p.act +
+  scale_x_continuous( breaks =  c(1, 481, 721, 1021, 1201),
+                      labels = c("12 AM", "8 AM", "12 PM", "5 PM", "8 PM"))+
+  scale_color_manual(values=c("red", "deepskyblue", "darkolivegreen4"), 
+                     labels= labs)+
+  theme_bw()+ theme(legend.title = element_blank(),
+                    legend.position = c(0.16, 0.95),
+                    legend.key.height=unit(0.5,"line"),
+                    legend.text=element_text(size=7, colour = "black", face="bold"),
+                    axis.text.x = element_text( size = 10, colour = "black", face="bold", angle = 90, vjust = 0.5, hjust=1),
+                    axis.text.y = element_text( size = 10, colour = "black", face="bold"),
+                    axis.title = element_text( size = 10, colour = "black", face = "bold"))+xlab("")+ylab("")+ ggtitle("Figure 1b. \nActivity profiles for 3 subjects")
+
+
+#plot 1st and 2nd PC
+df1 <- data.frame(time = seq(1,1440), PC1 = -fpca_fit$efunctions[,1], PC2 = fpca_fit$efunctions[,2])
+df1$time <- factor(df1$time)
+df1<- melt(df1)
+df1$time <- as.numeric(df1$time)
+p.pc <- p.pc <- ggplot(df1, aes(x = time, group=variable))+ 
+  geom_line(aes(y = value,color = variable, linetype=variable),size = 0.7)
+p.pc <- p.pc +
+  scale_x_continuous( breaks =  c(1, 481, 721, 1021, 1201),
+                      labels = c("12 am", "8 am", "12 pm", "5 pm", "8 pm"))+
+  scale_linetype_manual(values=c("solid", "dashed"))+
+  scale_color_manual(values=c("blue", "lightslateblue"))+
+  theme_bw()+ theme(legend.title = element_blank(),
+                    legend.position = c(0.12, 0.95),
+                    legend.key.height=unit(0.5,"line"),
+                    legend.text=element_text(size=7, colour = "black", face="bold"),
+                    axis.text.x = element_text( size = 10, colour = "black", face="bold", angle = 90, vjust = 0.5, hjust=1),
+                    axis.text.y = element_text( size = 10, colour = "black", face="bold"),
+                    axis.title = element_text( size = 10, colour = "black", face = "bold"))+xlab("")+ylab("") +ggtitle("Figure 1a.\nThe first two Principle Components")
+
+grid.arrange(p.pc, p.act, ncol=2, nrow = 1)
+
+```
+
+
+
+The first PC (solid blue line) captures `r 100*round((fpca_fit$evalues/sum(fpca_fit$evalues))[1],2)`% of the overall variability in the observed daily profiles of activity. It has a distinct shape, with values starting negative between 12AM and 5AM then becoming strongly positive with a peak around 8AM and slowly decreasing but staying positive until 9:30PM, and then becoming negative after 9:30PM. This is exactly what we expected to see. For each subject, we have 3 - 7 days of valid activity data. Individuals with  a positive score on this component (a.k.a., positively loaded on the first PC) on a given day will tend to have less activity during the night hours and more activity during the day hours  than the average activity across all subject-days. The biggest difference between such a subject's day and the average daily activity across all subjects is centered on the morning hours (8AM-9AM). In contrast, the second PC (dashed line) captures `r 100*round((fpca_fit$evalues/sum(fpca_fit$evalues))[2],2)`% of the overall variability in the observed daily activity profiles. It starts positive between 12AM and 2AM, then becomes negative between 2AM and 11AM, with a negative peak at 8AM, increases between 11 AM and 8PM, and decreases while staying positive after 8PM. Participants days  with positive scores on this component will be more active in the evening than the average individuals dayly activity. 
+
+```{r}
+###################################
+#Figure 2 and scores summaries reported in the text
+#####################################
+#extract each day's scores on first and second PC for  subject 21009 (red line) and 21039 (blue line)
+df <- fpca_fit$scores[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s),c(1:2)]
+df <- data.frame(SEQN = Act_Analysis$SEQN[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s)],
+                 WEEK = Act_Analysis$WEEK[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s)],
+                 PC1 = df[,1], PC2 = df[,2], 
+                 mi1 = c(rep(data_analysis$mi1[data_analysis$SEQN == SEQN_l], length(Act_Analysis$SEQN[Act_Analysis$SEQN == SEQN_l])), 
+                         rep(data_analysis$mi1[data_analysis$SEQN ==SEQN_s], length(Act_Analysis$SEQN[Act_Analysis$SEQN == SEQN_s]))),
+                 mi2 = c(rep(data_analysis$mi2[data_analysis$SEQN ==SEQN_l], length(Act_Analysis$SEQN[Act_Analysis$SEQN == SEQN_l])), 
+                         rep(data_analysis$mi2[data_analysis$SEQN ==SEQN_s], length(Act_Analysis$SEQN[Act_Analysis$SEQN == SEQN_s]))),
+                 si1 = c(rep(data_analysis$si1[data_analysis$SEQN ==SEQN_l], length(Act_Analysis$SEQN[Act_Analysis$SEQN == SEQN_l])), 
+                         rep(data_analysis$si1[data_analysis$SEQN ==SEQN_s], length(Act_Analysis$SEQN[Act_Analysis$SEQN == SEQN_s]))),
+                 si2 = c(rep(data_analysis$si2[data_analysis$SEQN ==SEQN_l], length(Act_Analysis$SEQN[Act_Analysis$SEQN == SEQN_l])), 
+                         rep(data_analysis$si2[data_analysis$SEQN ==SEQN_s], length(Act_Analysis$SEQN[Act_Analysis$SEQN == SEQN_s]))))
+df <- df[order(df$SEQN, df$WEEK),]
+df[, c(3, 5)] <- -df[, c(3, 5)]
+df[,-c(1:2)] <- round(df[,-c(1:2)],2)#scores reported in the text
+
+```
+
+Now, let us investigate in detail the connection between PCs, scores and individual daily trajectories. The right panel in Figure 1 displays the one day of activity profiles for 3 subjects. Here, we plot the activity data smoothed for each subject and day using thin-plate penalized spline with 30 knots as implemented in the **gam()** function in the **mgcv**  package  in R. The individual days for subjects `r SEQN_l` (red line) and `r SEQN_3`  (green line) have overall high activity, which is reflected by the high positive loadings on PC 1 (`r df_labs[1,1]` and `r df_labs[3,1]`, respectively). In contrast, the individual day's activity for subject `r SEQN_s` (blue line) has lower  levels, which is reflected by the negative score on the first PC (-21.12). Subjects `r SEQN_l`  (red line) and `r SEQN_s` (blue line) are mostly active between 7AM and 9PM and their corresponding scores of the second principal component are negative (`r df_labs[1,2]` and `r df_labs[2,2]`, respectively). Subject `r SEQN_3` (green line) is however, unusually highly active during night hours (8PM – 2AM) with a highly positive score on the second PC (`r df_labs[3,2]`). 
+
+
+The last, but not least important interpretation is of means of scores versus standard deviation of scores. In Figure 1, we have displayed three days, one for each subject. However, each subject has multiple days and each day will get a score and a pattern. For example, on days when subject `r SEQN_l` (red line) is less active the score on PC1 will be lower, even if the general pattern stays the same. Thus, for every subject and PC we obtain a vector of scores; for `r SEQN_l` (red line) we obtain (`r df[1:7,3]`) on the first PC, where we showed only the trajectory corresponding to the 3rd day. What we calculate is the mean of these scores, `r df[1,5]`, and the standard deviation, `r df[1,7]`. The mean of the scores is relatively easy to interpret, as it represents whether the average of the 7 days is higher or lower on PC1. The standard deviation captures the day-to-day variability of the individual. In this case the mean and standard deviation for subject `r SEQN_l` (red line) were `r df[1,5]` and `r df[1,7]`, respectively. In contrast, for subject `r SEQN_s` (blue line), the mean and standard deviation were `r df[8,5]` and `r df[8,7]`, respectively, much smaller than for subject `r SEQN_l` (red line). This means that both the overall mean and the daily variability around this larger mean are larger for subject `r SEQN_l` than for subject `r SEQN_s` (blue line). This is depicted in Figure 2, where we show smoothed activity data for all days for subjects `r SEQN_l` (Figure 2a red lines) and `r SEQN_s` (Figure 2b blue lines). Note that the red lines tend to be higher the blue lines and that the blue lines are less variable around their means. We conclude that, in general, average PC1 scores will tend to distinguish between lower and higher activity individuals whose are, on average, more active over the course of days with available activity data.  In contrast,  average PC2 scores will distinguish between individuals who, on average,  have high activity in the morning and low in the evening/night and individuals who, on average, have lower activity intensity in the morning and higher during the evening/nighttime. 
+
+Of course, things are more complicated once we start interpreting every component. Instead, in Table 1 we will provide just the interpretation of those components and summaries that were found to be predictive of the outcome. 
+
+```{r, fig.height=4, fig.width=10}
+
+#plot activity data
+#extract each day's activity data  for these subjects
+df.act <- Act[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s),]
+#smooth these data
+for(i in 1:nrow(df.act)){
+  df.act[i,] <- gam(df.act[i,]~s(x,k=30))$fitted.values
+}
+
+df2 <- data.frame(time = seq(1,1440), s1.v1 = df.act[1,], s1.v2 = df.act[2,],
+                  s1.v3 = df.act[3,], s1.v4 = df.act[4,], 
+                  s1.v5 = df.act[5,], s1.v6 = df.act[6,],s1.v7 = df.act[7,],
+                  s2.v1 = df.act[8,], s2.v2 = df.act[9,],
+                  s2.v3 = df.act[10,], s2.v4 = df.act[11,], 
+                  s2.v5 = df.act[12,], s2.v6 = df.act[13,],s2.v7 = df.act[14,])
+df2$time <- factor(df2$time)
+df2<- melt(df2)
+df2$time <- as.numeric(df2$time)
+p.fn <- p.fn <- ggplot(df2, aes(x = time, group=variable))+ 
+  geom_line(aes(y = value,color = variable),size = 0.5)
+p.fn <- p.fn +
+  scale_x_continuous( breaks =  c(1, 481, 721, 1021, 1201),
+                      labels = c("12 am", "8 am", "12 pm", "5 pm", "8 pm"))+
+  scale_color_manual(values=c(rep("red", 7), rep("blue", 7)))+
+  theme_bw()+ theme(legend.title = element_blank(),
+                    legend.position = "none",
+                    legend.text=element_text(size=8, colour = "black", face="bold"),
+                    axis.text.x = element_text( size = 10, colour = "black", face="bold", angle = 90, vjust = 0.5, hjust=1),
+                    axis.text.y = element_text( size = 10, colour = "black", face="bold"),
+                    axis.title = element_text( size = 10, colour = "black", face = "bold"))+xlab("")+ylab("")
+
+ 
+
+#######################
+#Add means to the plot
+######################
+
+#subject 1 daily activity
+df2 <- data.frame(time = seq(1,1440), s1.v1 = df.act[1,], s1.v2 = df.act[2,],
+                  s1.v3 = df.act[3,], s1.v4 = df.act[4,], 
+                  s1.v5 = df.act[5,], s1.v6 = df.act[6,],s1.v7 = df.act[7,])
+df2$time <- factor(df2$time)
+df2<- melt(df2)
+df2$time <- as.numeric(df2$time)
+p.fn.s1 <- p.fn.s1 <- ggplot(df2, aes(x = time, group=variable))+ 
+  geom_line(aes(y = value,color = variable, alpha = variable),size = 0.5, linetype = "solid")
+p.fn.s1 <- p.fn.s1 +
+  scale_x_continuous( breaks =  c(1, 481, 721, 1021, 1201),
+                      labels = c("12 am", "8 am", "12 pm", "5 pm", "8 pm"))+
+  scale_color_manual(values=rep("red", 7))+
+  scale_alpha_discrete(range = c(0.1, 0.6), guide=FALSE)+
+  theme_bw()+ theme(legend.title = element_blank(),
+                    legend.position = "none",
+                    legend.text=element_text(size=8, colour = "black", face="bold"),
+                    axis.text.x = element_text( size = 10, colour = "black", face="bold", angle = 90, vjust = 0.5, hjust=1),
+                    axis.text.y = element_text( size = 10, colour = "black", face="bold"),
+                    axis.title = element_text( size = 10, colour = "black", face = "bold"))+xlab("")+ylab("")+ylim(range(df.act))+ggtitle("Figure 2a. \nDaily activity profiles for subject 21009")
+
+#subject 2 daily activity
+df2 <- data.frame(time = seq(1,1440), s2.v1 = df.act[8,], s2.v2 = df.act[9,],
+                  s2.v3 = df.act[10,], s2.v4 = df.act[11,], 
+                  s2.v5 = df.act[12,], s2.v6 = df.act[13,],s2.v7 = df.act[14,])
+df2$time <- factor(df2$time)
+df2<- melt(df2)
+df2$time <- as.numeric(df2$time)
+p.fn.s2 <- p.fn.s2 <- ggplot(df2, aes(x = time, group=variable))+ 
+  geom_line(aes(y = value,color = variable, alpha = variable),size = 0.5, linetype = "solid")
+p.fn.s2 <- p.fn.s2 +
+  scale_x_continuous( breaks =  c(1, 481, 721, 1021, 1201),
+                      labels = c("12 am", "8 am", "12 pm", "5 pm", "8 pm"))+
+  scale_color_manual(values=rep("blue", 7))+
+  scale_alpha_discrete(range = c(0.1, 0.6), guide=FALSE)+
+  theme_bw()+ theme(legend.title = element_blank(),
+                    legend.position = "none",
+                    legend.text=element_text(size=8, colour = "black", face="bold"),
+                    axis.text.x = element_text( size = 10, colour = "black", face="bold", angle = 90, vjust = 0.5, hjust=1),
+                    axis.text.y = element_text( size = 10, colour = "black", face="bold"),
+                    axis.title = element_text( size = 10, colour = "black", face = "bold"))+xlab("")+ylab("")+ylim(range(df.act))+ggtitle("Figure 2b. \nDaily activity profiles for subject 21039")
+  
+grid.arrange(p.fn.s1, p.fn.s2, ncol=2, nrow = 1)
+
+```
+
+```{r}
+col1 <- c("(-) association mi1","(+) association si6")
+col2 <- c("Individuals with higher levels of overall activity during the day, and those who have higher early afternoon activity relative to early AM are associated with later mortality","Individuals who are more variable in
+the start time of their daily activity are associated with earlier mortality.")
+col3 <- c(
+  "1. Average TLAC",
+  "1. Standard deviation of ratio of mid-day to morning/afternoon activity 2. Standard deviation of the difference in average activity during peaks/troughs highlighted by PC6"
+)
+ress <- data.frame(Result = col1, Interpretation = col2, Surrogates = col3)
+kable(ress,format = "html", caption = "Table 3: Interpretation of the results of FPCA") %>%
+  kable_styling("striped", full_width = F)
+```
+
+
+## Mortality prediction model
+
+Once we've subset the data to obtain "data_analysis", we calculate adjusted
+               survey weights. These weights are calculated using the reweight_accel() function
+               (see ?reweight_accel for help) which re-weights observed participants using age, gender,
+               and ethnicity strata (among other things).
+
+
+```{r helper_fns, eval=TRUE}
+## function which will get cut-points to use in AUC calculation
+## returns all unique predicted values of the model for a given
+get_ctpts <- function(model, type='link',...) c(Inf,sort(unique(predict(model,type=type,...)),decreasing=TRUE))
+
+calc_weighted_AUC <- function(response, labels, cutpts, weights=NULL){
+    stopifnot(length(response) == length(labels))
+    stopifnot(all(labels %in% c(0,1)))
+
+    N      <- length(response)
+    u_resp <- unique(sort(response))
+    n_cuts <- length(cutpts)
+
+    x1 <- x2 <- rep(NA, n_cuts)
+
+    if(is.null(weights)) weights = rep(1/N,N)
+
+
+    f_0    <- weights[labels==0]/mean(weights[labels==0])
+    resp_0 <- response[labels==0]
+
+    f_1    <- weights[labels==1]/mean(weights[labels==1])
+    resp_1 <- response[labels==1]
+
+    for(j in 1:n_cuts){
+        x1[j] <- mean((resp_1 >= cutpts[j])*f_1)
+        x2[j] <- mean((resp_0 >= cutpts[j])*f_0)
+    }
+
+    sum((x1[1:(n_cuts-1)] + x1[2:(n_cuts)])/2 * (x2[2:(n_cuts)] - x2[1:(n_cuts-1)]))
+}
+
+```
+
+
+```{r run_auc_fwd, eval=TRUE, echo=FALSE, results='hide'}
+files_auc_fwd <- c("auc_mat_1_adj.Rds","auc_mat_adj.Rds","data_analysis_ns.Rds","data_analysis_svy_adj.Rds")
+run_auc <- !all(sapply(files_auc_fwd, function(x) file.exists(file.path(getwd(), x))))
+
+if(!run_auc){
+    sapply(files_auc_fwd, function(x) assign(gsub(".Rds","",x), readRDS(file.path(getwd(), x)) , envir=.GlobalEnv))
+}
+
+## variables to consider as linear predictors of 5-year mortality
+ind_vars <- c("Age", "Gender", "Race", "EducationAdult", "SmokeCigs", "DrinkStatus", "BMI_cat",
+              "Diabetes","CHF",  "CHD", "Stroke", "Cancer", "MobilityProblem",
+              "sPC6", "ST", "WT", "MVPA","TAC", "TLAC", "SATP", "ASTP", paste0("TLAC_",c(1:12)))
+
+
+dep_vars <- "yr5_mort"
+
+#save non-standardized variables
+data_analysis_ns <- data_analysis
+vars_std <- c("sPC6", "ST", "WT", "MVPA","TAC", "TLAC", "SATP", "ASTP","ABout","SBout",paste0("TLAC_",c(1:12)))
+for(i in vars_std){
+    data_analysis[[i]] <- data_analysis[[i]]/sd(data_analysis[[i]])
+}
+rm(list=c("vars_std","i"))
+```
+
+```{r, eval = run_auc, results='hide'}
+####################################
+##                                ##
+##          Prediction            ##
+##                                ##
+####################################
+## Create svydesign() objects associated with the adjusted and unadjusted
+## survey weights. These are the basis for complex survey glm regressions.
+data_analysis_svy_adj   <- svydesign(id= ~SDMVPSU, strata = ~SDMVSTRA,
+                                     weights = ~wtmec4yr_adj_norm,
+                                     data = data_analysis, nest = TRUE)
+
+## Create empty vector for incrementing included variables 
+inc_vars_adj <- c()
+
+## Create empty data frames for storing results for each of the three weighting
+## procedures. Each of these data frames contains 4 columns:
+##    - Variable: The variable selected in order of inclusion via the forward selection procedure
+##    - Cross-Validated AUC: k-fold cross-valided AUC associated with the forward selection procedure after each variable is selected into the model
+##    - AIC: Complex survey AIC associated with the forward selection procedure after each variable is selected into the model
+##    - AUC: In-sample AUC associated with the forward selection procedure after each variable is selected into the model
+auc_mat_adj  <-  data.frame("Variable" = rep(NA_character_,length(ind_vars)),
+                           "Cross-Validated AUC" = rep(NA_real_,length(ind_vars)),
+                           "AUC" = rep(NA_real_,length(ind_vars)),
+                           "AIC" = rep(NA_real_,length(ind_vars)),
+                           "EPIC" = rep(NA_real_,length(ind_vars)),
+                           stringsAsFactors = FALSE)
+
+
+## set the seed so cross-validation results are reproducible
+set.seed(1244)
+## get the training and testing datasets for 10-fold cross validation
+n_folds <- 10
+## split the data to have an (approximately) equal number of alive/died in each training/test dataset
+inx_id_alive <- which(data_analysis$yr5_mort==0)
+inx_id_died  <- which(data_analysis$yr5_mort==1)
+nid_alive    <- length(inx_id_alive)
+nid_died     <- length(inx_id_died)
+
+inx_ls_alive <- split(sample(inx_id_alive, size=nid_alive, replace=FALSE),
+                      rep(1:n_folds,each=ceiling(nid_alive/n_folds))[1:nid_alive])
+inx_ls_died <- split(sample(inx_id_died, size=nid_died, replace=FALSE),
+                     rep(1:n_folds,each=ceiling(nid_died/n_folds))[1:nid_died])
+inx_ls <- lapply(1:n_folds, function(x) c(inx_ls_alive[[x]], inx_ls_died[[x]]))
+rm(list=c("inx_id_alive","inx_id_died","nid_alive","nid_died","inx_ls_alive","inx_ls_died"))
+
+
+## Vector to multiply vector of k-fold cross validated weights by to
+## get an estimate of cross-valided AUC.
+## This accounts for potentially unequal sizes in the test datasets
+k_id <- vapply(inx_ls, length, numeric(1))/nrow(data_analysis)
+
+for(i in 1:length(ind_vars)){
+        ## get a vector containing all variables not already included in the forward prediction
+        exc_vars_adj   <- setdiff(ind_vars, inc_vars_adj)
+
+        ## create empty matrices/vectors to store AUC/AIC results
+        auc_ijk_adj <-  matrix(NA, nrow=length(exc_vars_adj), ncol=n_folds)
+        aic_ij_adj  <-   epic_ij_adj <- auc_ij_full_adj <-  rep(NA,length(exc_vars_adj))
+
+
+        ## loop over all variables not currently in the model to calcualte their
+        ## improvment to AUC/AIC.
+        for(j in 1:length(exc_vars_adj)){
+                ## current variable to consider
+                var_adj   <- exc_vars_adj[j]
+
+                ## create formulas for current regression using
+                ## all variables previously identified aand the current variable under consideration
+                form_adj   <- paste(c(inc_vars_adj, var_adj), collapse=" +")
+
+                ## fit the model to the full data for calculating AIC
+                fit_adj   <- svyglm(as.formula(paste("yr5_mort ~", form_adj)),
+                                    design=data_analysis_svy_adj, family=quasibinomial())
+ 
+                ## once we have exceeded the design degrees of freedom, we can get
+                ## point estimates for our coefficients, but can no longer calculate complex survey AIC
+                if(fit_adj$df.residual > 0){
+                        ## get AIC
+                        aic_ij_adj[j]  <- AIC(fit_adj)[2]
+                        epic_ij_adj[j] <- survey:::extractAIC.svyglm(fit_adj, k=4)[2]
+                }
+                
+                ## Calculate in-sample weighted AUC using the appropriate weights
+                auc_ij_full_adj[j] <- calc_weighted_AUC(response=predict(fit_adj,type='link'),
+                                                        cutpts=get_ctpts(fit_adj,type='link'),
+                                                        labels=data_analysis$yr5_mort,
+                                                        weights=data_analysis$wtmec4yr_adj_norm)
+                    
+                ## get cross-validated AUC
+                for(k in 1:n_folds){
+                    ## subset test and training data sets
+                    SEQN_train <- data_analysis$SEQN[-inx_ls[[k]]]
+                    SEQN_test  <- data_analysis$SEQN[inx_ls[[k]]]
+                    data_test  <- subset(data_analysis, SEQN %in% SEQN_test)
+                    data_train <- subset(data_analysis, SEQN %in% SEQN_train)
+
+
+                    ## Fit the appropriate models by subsetting the data.
+                    ## By subsetting the existing svydesign objects instead of creating new svydesign objects,
+                    ## we retain information on the number of PSU/strata in the original study.
+                    fit_adj_cv <- svyglm(as.formula(paste("yr5_mort ~", form_adj)),
+                                         design=subset(data_analysis_svy_adj, SEQN %in% SEQN_train),
+                                         family=quasibinomial())
+
+
+                    ## Calculate weighted AUC using the appropriate weights
+                    auc_ijk_adj[j,k] <- calc_weighted_AUC(response=predict(fit_adj_cv, newdata=data_test, type='link'),
+                                                          cutpts=get_ctpts(fit_adj_cv,type='link',newdata=data_test),
+                                                          labels=data_test$yr5_mort,
+                                                          weights=data_test$wtmec4yr_adj_norm)
+
+                    rm(list=c("data_train","data_test","SEQN_train","SEQN_test",
+                              paste0("fit_",c("adj") ,"_cv")))
+                }
+
+                rm(list=c(paste0("fit_",c("adj")),
+                          paste0("form_",c("adj")),
+                          paste0("var_",c("adj")),
+                          "k"))
+        }
+
+        ## average across the k-folds using a weighted average of the number of individuals in each test set
+        #these are the survey weighted cross-validated AUC
+        auc_ij_adj   <- auc_ijk_adj %*% k_id
+
+        ## combine results for this iteration
+        auc_j_adj   <- data.frame(exc_vars_adj, auc_ij_adj, auc_ij_full_adj,
+                                   aic_ij_adj, epic_ij_adj,
+                                   stringsAsFactors = FALSE)
+
+        
+        ind.criteria <- which(colnames(auc_j_adj) == "aic_ij_adj")
+        #break the loop if run out of df for survey weighted AIC calculation 
+        if (all(is.na(auc_j_adj[,ind.criteria]))) break
+        ## identify which variable is associated with the best improvement (or least bad decrease) in CV-AUC
+        auc_mat_adj[i,]   <- auc_j_adj[which.max(auc_j_adj[,2]),]
+
+        ## Create matrices which communicate the predictive power of  all univariate regressions.
+        ## These are used to create Table 4 in the manuscript.
+        if(i == 1){
+            auc_mat_1_adj   <- auc_j_adj[rev(order(auc_j_adj[,2])),]
+        }
+
+        ## Add in our "best" variable to our list of variabels included in the analysis
+        inc_vars_adj   <- c(inc_vars_adj, auc_mat_adj[i,1])
+    
+
+        ## at the end of each iteration, print out the current
+        ## adjusted survey weight results
+        print(paste(i, " Independent variable finished"))
+        rm(list=c(paste0("auc_j_",c("adj")),
+                  paste0("auc_ij_",c("adj")),
+                  paste0("auc_ijk_",c("adj")),
+                  paste0("auc_ij_full_",c("adj")),
+                  paste0("aic_ij_",c("adj")),
+                  paste0("epic_ij_",c("adj")),
+                  "j"))
+}
+rm(list=c("inx_ls",
+          paste0("inc_vars_",c("adj")),
+          paste0("exc_vars_",c("adj")),
+          "i","n_folds","k_id"))
+saveRDS(auc_mat_1_adj,"auc_mat_1_adj.Rds")
+saveRDS(auc_mat_adj, "auc_mat_adj.Rds")
+saveRDS(data_analysis_ns,"data_analysis_ns.Rds")
+saveRDS(data_analysis_svy_adj,"data_analysis_svy_adj.Rds")
+```
+
+
+## Results
+
+
+Participant characteristics by mortality status are detailed in Table 5. Predictors in Table 5 are ranked according to the AUC criteria in univariate logistic regression models, where each mortality prediction model was fitted with one covariate at a time. For example, TAC (Total activity count) is the most powerful single predictor of the 5-year mortality (AUC = `r round(auc_mat_1_adj$auc_ij_adj[which(auc_mat_1_adj$exc_vars_adj == "TAC")], 3)`), the next most predictive variable is Age (AUC = `r round(auc_mat_1_adj$auc_ij_adj[which(auc_mat_1_adj$exc_vars_adj == "Age")], 3)`), and so on. We use cross validated survey weight adjusted AUC (auc_ij_adj column of object auc_mat_1_adj) calculated at the first step of the forward selection process.
+
+```{r, eval = TRUE}
+msp <- function(vars, data,cont_round = 1){
+  res = data.frame(freq = numeric())
+  idx = match(vars,names(data))
+  special = c("mPC1","sPC5")
+  idx_special =match(special,names(data))
+  for(i in 1:length(idx)){
+    x = data[,idx[i]]
+    if(vars[i] == "Gender"){
+      t1 = plyr::count(x)
+      name = t1$x
+      prop = round(t1$freq/sum(t1$freq)*100,1)
+      t1$freq = paste0(t1$freq," (",prop,"%)")
+      header = data.frame(freq = "", row.names = vars[i])
+      t1 = data.frame(freq = t1[,-1], row.names = name)
+      res = rbind(res,header,t1)
+    } else if(is.factor(x) & length(levels(x))==2){
+      yes = plyr::count(x)$freq[2]
+      yes.prop = round(yes/length(x)*100,1)
+      t1 = paste0(yes," (",yes.prop,"%)")
+      t1 = data.frame(freq = t1, row.names = vars[i])
+      res = rbind(res,t1)
+    } else if(is.factor(x) & length(levels(x)) > 2){
+      t1 = plyr::count(x)
+      name = t1$x
+      prop = round(t1$freq/sum(t1$freq)*100,1)
+      t1$freq = paste0(t1$freq," (",prop,"%)")
+      header = data.frame(freq = "", row.names = vars[i])
+      t1 = data.frame(freq = t1[,-1], row.names = name)
+      res = rbind(res,header,t1)
+    } else {
+      if(idx[i] %in% idx_special){
+        avg = round(mean(x),3)
+        std = round(sd(x),3)
+        t1 = paste0(avg," (",std,")")
+        t1 = data.frame(freq = t1, row.names = vars[i])
+        res = rbind(res,t1)
+      } else {
+        if(mean(x) < 1){
+           avg = round(mean(x),2)
+           std = round(sd(x),2)
+        } else{
+        avg = round(mean(x),cont_round)
+        std = round(sd(x),cont_round)
+        }
+        t1 = paste0(avg," (",std,")")
+        t1 = data.frame(freq = t1, row.names = vars[i])
+        res = rbind(res,t1)
+      }
+    }
+  }
+  colnames(res) = c("Mean(SD)/Count(%)")
+  return(res)
+}
+
+data_analysis_ns$yr5_mort_string = factor(data_analysis_ns$yr5_mort, labels = c("Alive","Dead"))
+alive = data_analysis_ns[data_analysis_ns$yr5_mort_string=="Alive",]
+dead = data_analysis_ns[data_analysis_ns$yr5_mort_string=="Dead",]
+
+auc_mat_1_adj$auc_ij_adj <- round(auc_mat_1_adj$auc_ij_adj,3)
+rank <- match(auc_mat_1_adj$exc_vars_adj,ind_vars)
+vars <- ind_vars[rank] # rerank the variable before computing summary
+
+res1 <- msp(vars,data_analysis_ns)
+res2 <- msp(vars,alive)
+res3 <- msp(vars,dead)
+res4 <- cbind(res1,res2,res3) # combine results for dead and alive group
+
+cat_vars <- c("EducationAdult","DrinkStatus","SmokeCigs","BMI_cat","Gender","Race")
+cat_idx <- match(cat_vars,auc_mat_1_adj$exc_vars_adj)
+cat_levels <-c(3,4,3,4,2,5)
+
+auc_val = c(auc_mat_1_adj$auc_ij_adj[1:16],"","","",
+            auc_mat_1_adj$auc_ij_adj[17:18],
+            auc_mat_1_adj$auc_ij_adj[19],"","","","",
+            auc_mat_1_adj$auc_ij_adj[20],"","","",
+            auc_mat_1_adj$auc_ij_adj[21:22],"","","","",
+            auc_mat_1_adj$auc_ij_adj[23:25],"","",
+            auc_mat_1_adj$auc_ij_adj[26:29],"","","","","",
+            auc_mat_1_adj$auc_ij_adj[30:33])
+
+#length(auc_val)
+res4$AUC = auc_val
+
+# Some formatting
+res4$Characteristics = rownames(res4)
+res4$Rank = c(1:16,"","","",
+              17:18,
+              19,"","","","",
+              20,"","","",
+              21:22,"","","","",
+              23:25,"","",
+              26:29,"","","","","",
+              30:33)
+row.names(res4) =c()
+res4 = res4[,c(6,5,1,2,3,4)]
+colnames(res4) = c("Rank","Characteristics","Total","Survivors","Decedents","AUC")
+
+#replace some variables names
+res4$Characteristics[which(res4$Characteristics == "ST")] <- "Sedentary time"
+res4$Characteristics[which(res4$Characteristics == "BMI_cat")] <- "BMI"
+res4$Characteristics[which(res4$Characteristics == "MobilityProblem")] <- "Mobility problem"
+res4$Characteristics[which(res4$Characteristics == "EducationAdult")] <- "Education"
+res4$Characteristics[which(res4$Characteristics == "WT")] <- "Wear time"
+res4$Characteristics[which(res4$Characteristics == "DrinkStatus")] <- "Drinking Status"
+res4$Characteristics[which(res4$Characteristics == "SmokeCigs")] <- "Smoking Status"
+res4$Characteristics[which(res4$Characteristics == "sPC6")] <- "SD on PC 6 (surrogate)"
+
+#replace TLAC 2-hour chunk names
+times <- c("12AM-2AM", "2AM-4AM", "4AM-6AM", "6AM-8AM", "8AM-10AM", "10AM-12PM",
+           "12PM-2PM", "2PM-4PM", "4PM-6PM", "6PM-8PM", "8PM-10PM", "10PM-12AM")
+s1 <- paste0("TLAC_", c(1:12))
+s2 <- paste("TLAC", times)
+for(i in 1:length(s1)){res4$Characteristics[which(res4$Characteristics == s1[i])] <- s2[i]}
+
+
+kable(res4,caption = " Table 3: Demographic and clinical characteristics ranked by their predictive ability in the 5-year mortality model.",format = "html") %>%  
+  kable_styling("striped", full_width = F) %>%  
+  add_indent(which(res4$Rank == "")) %>%
+  footnote(general = "Data are presented as means (standard deviation) or n (%). ")
+
+```
+
+Figure 3 displays the AIC, EPIC, and AUC at each stage of the forward selection procedure when using cross-validated AUC as the selection criteria. The scale for AIC and EPIC is shown on the right y axis, while the scale for AUC is shown on the left y axis. Accelerometry predictors are denoted in red font on the horizontal axis. In addition, the stopping point for the procedure is denoted by the large red dot. The blue and green dots correspond to the model which had the lowest (best) EPIC and AIC values, respectively. 
+
+```{r, fig.height=6, fig.width=8, eval = TRUE}
+## the number of predictors identified by AIC, EPIC and AUC
+inx_svy_adj_aic     <- which(auc_mat_adj$AIC == min(auc_mat_adj$AIC, na.rm=TRUE))
+inx_svy_adj_epic     <- which(auc_mat_adj$EPIC == min(auc_mat_adj$EPIC, na.rm=TRUE))
+inx_svy_adj_auc     <- which(auc_mat_adj$Cross.Validated.AUC == max(auc_mat_adj$Cross.Validated.AUC, na.rm=TRUE))
+#save final formula
+final_formula <- paste0(auc_mat_adj[1:inx_svy_adj_auc,1] ,collapse="+")
+#replace some variables names
+auc_mat_adj$Variable[which(auc_mat_adj$Variable == "ST")] <- "Sedentary time"
+auc_mat_adj$Variable[which(auc_mat_adj$Variable == "MobilityProblem")] <- "Mobility problem"
+auc_mat_adj$Variable[which(auc_mat_adj$Variable == "BMI_cat")] <- "BMI"
+auc_mat_adj$Variable[which(auc_mat_adj$Variable == "EducationAdult")] <- "Education"
+auc_mat_adj$Variable[which(auc_mat_adj$Variable == "WT")] <- "Wear time"
+auc_mat_adj$Variable[which(auc_mat_adj$Variable == "DrinkStatus")] <- "Drinking Status"
+auc_mat_adj$Variable[which(auc_mat_adj$Variable == "SmokeCigs")] <- "Smoking Status"
+auc_mat_adj$Variable[which(auc_mat_adj$Variable == "sPC6")] <- "SD on PC 6 (surrogate)"
+
+#replace TLAC 2-hour chunk names
+times <- c("12AM-2AM", "2AM-4AM", "4AM-6AM", "6AM-8AM", "8AM-10AM", "10AM-12PM",
+           "12PM-2PM", "2PM-4PM", "4PM-6PM", "6PM-8PM", "8PM-10PM", "10PM-12AM")
+s1 <- paste0("TLAC_", c(1:12))
+s2 <- paste("TLAC", times)
+for(i in 1:length(s1)){auc_mat_adj$Variable[which(auc_mat_adj$Variable == s1[i])] <- s2[i]}
+
+#select complete cases only for the plot
+cut_auc_mat_adj <- auc_mat_adj[complete.cases(auc_mat_adj),]
+cut_auc_mat_adj$Variable <- factor(cut_auc_mat_adj$Variable, cut_auc_mat_adj$Variable)
+
+all=cbind.data.frame(Variable = cut_auc_mat_adj$Variable,
+                     AUC = cut_auc_mat_adj$Cross.Validated.AUC*1850,
+                     AIC = cut_auc_mat_adj$AIC,
+                     EPIC = cut_auc_mat_adj$EPIC)
+
+melt_all <- melt(all)
+act_vars <- c("SD on PC 6 (surrogate)", "Sedentary time", "Wear time", "MVPA","TAC", "TLAC", "SATP", "ASTP", s2)
+colour_act <- ifelse(melt_all$Variable %in% act_vars, 'red','black')
+
+p <- ggplot(melt_all, aes(x = Variable,group=variable))
+p <- p + geom_line(aes(y = value,color = variable),size = 0.7,linetype="solid")+
+  scale_y_continuous(sec.axis = sec_axis(~./1850, name = ""))+
+  scale_x_discrete(breaks =  cut_auc_mat_adj$Variable)+
+  geom_point(aes(y=value),size=0.7)+ 
+  theme_bw()+
+  theme(legend.title = element_blank(), legend.position = c(0.9, 0.8), 
+        axis.text.x = element_text(angle = 60, hjust = 1, colour = colour_act))+
+  geom_point(data=melt_all[which(melt_all$Variable == auc_mat_adj$Variable[inx_svy_adj_aic] & melt_all$variable == "AIC"),],
+             aes(x=Variable, y=value), colour="green", size=5) +
+  geom_point(data=melt_all[which(melt_all$Variable == auc_mat_adj$Variable[inx_svy_adj_auc] & melt_all$variable == "AUC"),],
+             aes(x=Variable, y=value), colour="red", size=5) +
+  geom_point(data=melt_all[which(melt_all$Variable == auc_mat_adj$Variable[inx_svy_adj_epic] & melt_all$variable == "EPIC"),],
+             aes(x=Variable, y=value), colour="blue", size=5)+
+  xlab("")+
+  ylab("")+
+  ggtitle("Figure 3. \nCross-Validated AUC Forward  Selection Criteria")
+p
+ggsave("Fig1.jpg", p + ggtitle(""), width = 10, height = 6)
+```
+
+
+Table 6 presents estimated final model coefficients with corresponding standard errors and significance values, according to the complex survey design of NHANES via the svyglm() function. The number of variables used in the model is selected according to across validated AUC criteria. The "adjusted" weights we use for regression analyses are "wtmec4yr_adj_norm". These weights are calculated using the reweight_accel() function  (see ?reweight_accel for help) which re-weights observed participants using age, gender, and ethnicity strata. 
+
+```{r, eval = TRUE, echo = TRUE}
+## Final model fits using the adjusted survey weights.
+fit_final <- svyglm(as.formula(paste("yr5_mort ~", final_formula )),
+                        design=data_analysis_svy_adj,
+                        family=quasibinomial())
+```
+
+```{r}
+df <- round(summary(fit_final)$coefficients, 3)
+df <- df[,-which(colnames(df) %in% c("Std. Error", "t value"))]
+#change variable names in final model output
+#replace some variables names
+rownames(df)[which(rownames(df) == "(Intercept)")] <- "Intercept"
+rownames(df)[which(rownames(df) == "SmokeCigsFormer")] <- "Former Smoker"
+rownames(df)[which(rownames(df) == "SmokeCigsCurrent")] <- "Current Smoker"
+rownames(df)[which(rownames(df) == "MobilityProblemAny Difficulty")] <- "Mobility Problem"
+rownames(df)[which(rownames(df) == "DrinkStatusNon-Drinker")] <- "Non-Drinker"
+rownames(df)[which(rownames(df) == "DrinkStatusHeavy Drinker")] <- "Heavy Drinker"
+rownames(df)[which(rownames(df) == "DrinkStatusMissing alcohol")] <- "Missing Alcohol"
+rownames(df)[which(rownames(df) == "CHFYes")] <- "CHF: yes"
+rownames(df)[which(rownames(df) == "GenderFemale")] <- "Gender: female"
+rownames(df)[which(rownames(df) == "EducationAdultHigh school")] <- "High school Education"
+rownames(df)[which(rownames(df) == "EducationAdultMore than high school")] <- "More than high school Education"
+rownames(df)[which(rownames(df) == "BMI_catUnderweight")] <- "Underweight"
+rownames(df)[which(rownames(df) == "BMI_catOverweight")] <- "Overweight"
+rownames(df)[which(rownames(df) == "BMI_catObese")] <- "Obese"
+rownames(df)[which(rownames(df) == "CancerYes")] <- "Cancer: yes"
+rownames(df)[which(rownames(df) == "DiabetesYes")] <- "Diabetes: yes"
+rownames(df)[which(rownames(df) == "sPC6")] <- "SD on PC 6 (surrogate)"
+
+#replace TLAC 2-hour chunk names
+times <- c("12AM-2AM", "2AM-4AM", "4AM-6AM", "6AM-8AM", "8AM-10AM", "10AM-12PM",
+           "12PM-2PM", "2PM-4PM", "4PM-6PM", "6PM-8PM", "8PM-10PM", "10PM-12AM")
+s1 <- paste0("TLAC_", c(1:12))
+s2 <- paste("TLAC", times)
+for(i in 1:length(s1)){rownames(df)[which(rownames(df) == s1[i])] <- s2[i]}
+
+ci.final <- confint(fit_final,  level = 0.95, method = "likelihood")
+
+#exponentiate to convert estimated coefficients into odds ratio
+#exponentiate to convert estimated coefficients into odds ratio
+df2 <- data.frame(exp(df[,which(colnames(df) == "Estimate")]), exp(ci.final))
+colnames(df2) <- paste("OR", c("Estimate", "Lower CL", "Upper CL"))
+df <- cbind(df, round(df2,3))
+
+## selected using the adjusted survey weight model
+kable(df,caption = "Table 6: Estimated final model coefficients with corresponding standard errors and significance values") %>%  
+  kable_styling("striped", full_width = F)
+
+```
+
+
+#Robustness of the final model results
+
+Our analysis includes 20 variables derived directly from accelerometry measurements. These variables may be highly correlated with one another and with age. The correlation plot between age and all activity derived variables is presented below. Age has high negative correlations with TAC, TLAC and positive correlation with sedentary time. TAC is highly correlated with most activity derived measures, including MVPA, SATP, Sedentary time, TLAC, and TLAC 4PM – 6PM, 6PM – 8PM, 2PM – 4PM, 12PM – 2PM, 10PM – 12 PM, 8AM – 10AM, 6AM – 8AM. ASTP, sedentary time, TLAC and SATP are among top activity derived measures that are highly correlated with multiple other variables. The surrogate for the standard deviation on the 6th PC has low correlation with other activity derived variables, which explains its contribution to the increase in AUC in the forward selection model beyond the conventional activity measures.
+
+Due to high correlation among different  activity summaries, many of these variables contain similar information and often replace each other in the final mortality prediction model. Thus, in practice, we suggest examining a smaller subset of activity derived variables including: TLAC, sedentary and wear time, MVPA, SATP, ASTP,  and the surrogates  the standard deviation of the sixth PC (SD on PC 6).
+
+```{r, out.width='100%'}
+corr_data <- data.frame(Age = data_analysis_ns$Age,
+                        TAC = data_analysis_ns$TAC,
+                        MVPA = data_analysis_ns$MVPA,
+                        ASTP = data_analysis_ns$ASTP,
+                        ST = data_analysis_ns$ST,
+                        TLAC = data_analysis_ns$TLAC,
+                        TLAC_9 = data_analysis_ns$TLAC_9,
+                        TLAC_10 = data_analysis_ns$TLAC_10,
+                        TLAC_8 = data_analysis_ns$TLAC_8,
+                        TLAC_7 = data_analysis_ns$TLAC_7,
+                        TLAC_6 = data_analysis_ns$TLAC_6,
+                        SATP = data_analysis_ns$SATP,
+                        si6 = data_analysis_ns$si6,
+                        TLAC_5 = data_analysis_ns$TLAC_5,
+                        TLAC_11 = data_analysis_ns$TLAC_11,
+                        TLAC_4 = data_analysis_ns$TLAC_4,
+                        TLAC_2 = data_analysis_ns$TLAC_2,
+                        TLAC_12 = data_analysis_ns$TLAC_12,
+                        TLAC_3 = data_analysis_ns$TLAC_3,
+                        TLAC_1 = data_analysis_ns$TLAC_1
+                        )
+for(i in 1:length(s1)){colnames(corr_data)[which(colnames(corr_data) == s1[i])] <- s2[i]}
+colnames(corr_data)[which(colnames(corr_data) == "ST")] <- "Sedentary Time" 
+colnames(corr_data)[which(colnames(corr_data) == "si6")] <- "SD on PC 6 (surrogate)" 
+
+M=cor(corr_data)
+col <- colorRampPalette(c("red", "white", "blue"))(20)
+
+
+corrplot(M, method="circle", type = "upper", col = col, tl.col = "black", tl.srt = 45, tl.cex = 0.5) 
+
+```
+
+The 5-year mortality prediction model reported in this analysis used cross validated AUC as the forward selection criteria. We examined robustness of our results to using EPIC (Figure 4) and AIC (Figure 5) criteria to enter a new variable into the model. While there is difference in the order in which the variables enter into the model, all 3 criteria approaches select mostly the same top 8 variables for the final model. The notable exception is that neither AIC nor EPIC select TAC into the model. This is likely due to the fact that age and TAC have similar explanatory power and both EPIC/AIC select age first. Then, once age is included in the model, other accelerometry measures explain more of the variability unexplained by age than TAC.  
+
+
+```{r run_epic_fwd, eval=TRUE, echo=FALSE, results='hide'}
+files_auc_fwd <- c("auc_mat_adj_epic.Rds")
+run_epic <- !all(sapply(files_auc_fwd, function(x) file.exists(file.path(getwd(), x))))
+
+if(!run_epic){
+    sapply(files_auc_fwd, function(x) assign(gsub(".Rds","",x), readRDS(file.path(getwd(), x)) , envir=.GlobalEnv))
+}
+
+## variables to consider as linear predictors of 5-year mortality
+ind_vars <- c("Age", "Gender", "Race", "EducationAdult", "SmokeCigs", "DrinkStatus", "BMI_cat",
+              "Diabetes","CHF",  "CHD", "Stroke", "Cancer", "MobilityProblem",
+              "sPC6", "ST", "WT", "MVPA","TAC", "TLAC", "SATP", "ASTP", paste0("TLAC_",c(1:12)))
+
+
+dep_vars <- "yr5_mort"
+```
+
+
+```{r, results='hide', eval=run_epic}
+## Create empty vector for incrementing included variables 
+inc_vars_adj <- c()
+
+## Create empty data frames for storing results.
+## Each of these data frames contains 4 columns which correspond
+##- auc_mat_a
+auc_mat_adj_epic  <-  data.frame("Variable" = rep(NA_character_,length(ind_vars)),
+                           "Cross-Validated AUC" = rep(NA_real_,length(ind_vars)),
+                           "AUC" = rep(NA_real_,length(ind_vars)),
+                           "AIC" = rep(NA_real_,length(ind_vars)),
+                           "EPIC" = rep(NA_real_,length(ind_vars)),
+                           stringsAsFactors = FALSE)
+
+## set the seed so cross-validation results are reproducible
+set.seed(1244)
+## get the training and testing datasets for 10-fold cross validation
+n_folds <- 10
+## split the data to have an (approximately) equal number of alive/died in each training/test dataset
+inx_id_alive <- which(data_analysis$yr5_mort==0)
+inx_id_died  <- which(data_analysis$yr5_mort==1)
+nid_alive    <- length(inx_id_alive)
+nid_died     <- length(inx_id_died)
+
+inx_ls_alive <- split(sample(inx_id_alive, size=nid_alive, replace=FALSE),
+                      rep(1:n_folds,each=ceiling(nid_alive/n_folds))[1:nid_alive])
+inx_ls_died <- split(sample(inx_id_died, size=nid_died, replace=FALSE),
+                     rep(1:n_folds,each=ceiling(nid_died/n_folds))[1:nid_died])
+inx_ls <- lapply(1:n_folds, function(x) c(inx_ls_alive[[x]], inx_ls_died[[x]]))
+rm(list=c("inx_id_alive","inx_id_died","nid_alive","nid_died","inx_ls_alive","inx_ls_died"))
+
+
+## Vector to multiply vector of k-fold cross validated weights by to
+## get an estimate of cross-valided AUC.
+## This accounts for potentially unequal sizes in the test datasets
+k_id <- vapply(inx_ls, length, numeric(1))/nrow(data_analysis)
+
+for(i in 1:length(ind_vars)){
+        ## get a vector containing all variables not already included in the forward prediction
+        exc_vars_adj   <- setdiff(ind_vars, inc_vars_adj)
+
+        ## create empty matrices/vectors to store AUC/AIC results
+        auc_ijk_adj <-  matrix(NA, nrow=length(exc_vars_adj), ncol=n_folds)#store cross-validated AUC
+        aic_ij_adj  <-   epic_ij_adj <- auc_ij_full_adj <-  rep(NA,length(exc_vars_adj))
+
+
+        ## loop over all variables not currently in the model to calcualte their
+        ## improvment to AUC/AIC.
+        for(j in 1:length(exc_vars_adj)){
+                ## current variable to consider
+                var_adj   <- exc_vars_adj[j]
+
+                ## create formulas for current regression using
+                ## all variables previously identified aand the current variable under consideration
+                form_adj   <- paste(c(inc_vars_adj, var_adj), collapse=" +")
+
+                ## fit the model to the full data for calculating AIC
+                fit_adj   <- svyglm(as.formula(paste("yr5_mort ~", form_adj)),
+                                    design=data_analysis_svy_adj, family=quasibinomial())
+ 
+                ## get AIC
+                ## once we have exceeded the design degrees of freedom, we can get
+                ## point estimates for our coefficients, but can no longer calculate AIC
+                if(fit_adj$df.residual > 0){
+                    aic_ij_adj[j]  <- AIC(fit_adj)[2]
+                    epic_ij_adj[j]  <- survey:::extractAIC.svyglm(fit_adj, k=4)[2]
+                }
+
+                ## Calculate weighted and unweighted AUC using the appropriate weights
+                auc_ij_full_adj[j]   <- calc_weighted_AUC(response=predict(fit_adj,type='link'),
+                                                          cutpts=get_ctpts(fit_adj,type='link'),
+                                                          labels=data_analysis$yr5_mort,
+                                                          weights=data_analysis$wtmec4yr_adj_norm)
+
+                ## get cross-validated AUC
+                for(k in 1:n_folds){
+                    ## subset test and training data sets
+                    SEQN_train <- data_analysis$SEQN[-inx_ls[[k]]]
+                    SEQN_test  <- data_analysis$SEQN[inx_ls[[k]]]
+                    data_test <- subset(data_analysis, SEQN %in% SEQN_test)
+                    data_train  <- subset(data_analysis, SEQN %in% SEQN_train)
+
+
+                    ## Fit the appropriate models by subsetting the data.
+                    ## By subsetting the existing svydesign objects instead of creating new svydesign objects,
+                    ## we retain information on the number of PSU/strata in the original study.
+                    fit_adj_cv   <- svyglm(as.formula(paste("yr5_mort ~", form_adj)),
+                                           design=subset(data_analysis_svy_adj, SEQN %in% SEQN_train),
+                                           family=quasibinomial())
+
+
+                    ## Calculate weighted and unweighted AUC using the appropriate weights
+                    auc_ijk_adj[j,k]   <- calc_weighted_AUC(response=predict(fit_adj_cv, newdata=data_test, type='link'),
+                                                            cutpts=get_ctpts(fit_adj_cv,type='link',newdata=data_test),
+                                                            labels=data_test$yr5_mort,
+                                                            weights=data_test$wtmec4yr_adj_norm)
+
+                    rm(list=c("data_train","data_test","SEQN_train","SEQN_test",
+                              paste0("fit_",c("adj") ,"_cv")))
+                }
+
+
+
+                #print(j)
+                rm(list=c(paste0("fit_",c("adj")),
+                          paste0("form_",c("adj")),
+                          paste0("var_",c("adj")),
+                          "k"))
+        }
+
+        ## average across the k-folds using a weighted average of the number of individuals in each test set
+        #these are the survey weighted cross-validated AUC
+        auc_ij_adj   <- auc_ijk_adj %*% k_id
+
+        ## combine results for this iteration
+        auc_j_adj   <- data.frame(exc_vars_adj, auc_ij_adj, auc_ij_full_adj,
+                                   aic_ij_adj, epic_ij_adj,
+                                   stringsAsFactors = FALSE)
+
+        ## identify which variable is associated with the min epic
+        ind.criteria <- which(colnames(auc_j_adj) == "epic_ij_adj")
+        #break the loop if selection criteria value is NA 
+        if (all(is.na(auc_j_adj[,ind.criteria]))) break
+        auc_mat_adj_epic[i,]   <- auc_j_adj[which.min(auc_j_adj[,ind.criteria]),]
+
+        ## Create matrices which communicate the predictive power of  all univariate regressions.
+        ## These are used to create Table 4 in the manuscript.
+        if(i == 1){
+            auc_mat_1_adj   <- auc_j_adj[rev(order(auc_j_adj[,2])),]
+        }
+
+        ## Add in our "best" variable to our list of variabels included in the analysis
+        inc_vars_adj   <- c(inc_vars_adj, auc_mat_adj_epic[i,1])
+    
+
+        ## at the end of each iteration, print out the current
+        ## adjusted survey weight results
+        print(paste(i, " Independent variable finished"))
+        print(auc_mat_adj_epic[1:i,]);
+        rm(list=c(paste0("auc_j_",c("adj")),
+                  paste0("auc_ij_",c("adj")),
+                  paste0("auc_ijk_",c("adj")),
+                  paste0("auc_ij_full_",c("adj")),
+                  paste0("aic_ij_",c("adj")),
+                  paste0("epic_ij_",c("adj")),
+                  "j"))
+}
+rm(list=c("inx_ls",
+          paste0("inc_vars_",c("adj")),
+          paste0("exc_vars_",c("adj")),
+          "i","n_folds","k_id"))
+saveRDS(auc_mat_adj_epic, "auc_mat_adj_epic.Rds")
+```
+
+```{r, fig.height=6, fig.width=8, eval = TRUE}
+## the number of predictors identified by AIC, EPIC and AUC
+inx_svy_adj_aic     <- which(auc_mat_adj_epic$AIC == min(auc_mat_adj_epic$AIC, na.rm=TRUE))
+inx_svy_adj_epic     <- which(auc_mat_adj_epic$EPIC == min(auc_mat_adj_epic$EPIC, na.rm=TRUE))
+inx_svy_adj_auc     <- which(auc_mat_adj_epic$Cross.Validated.AUC == max(auc_mat_adj_epic$Cross.Validated.AUC, na.rm=TRUE))
+#save final formula
+final_formula <- paste0(auc_mat_adj_epic[1:inx_svy_adj_epic,1] ,collapse="+")
+#replace some variables names
+auc_mat_adj_epic$Variable[which(auc_mat_adj_epic$Variable == "ST")] <- "Sedentary time"
+auc_mat_adj_epic$Variable[which(auc_mat_adj_epic$Variable == "MobilityProblem")] <- "Mobility problem"
+auc_mat_adj_epic$Variable[which(auc_mat_adj_epic$Variable == "BMI_cat")] <- "BMI"
+auc_mat_adj_epic$Variable[which(auc_mat_adj_epic$Variable == "EducationAdult")] <- "Education"
+auc_mat_adj_epic$Variable[which(auc_mat_adj_epic$Variable == "WT")] <- "Wear time"
+auc_mat_adj_epic$Variable[which(auc_mat_adj_epic$Variable == "DrinkStatus")] <- "Drinking Status"
+auc_mat_adj_epic$Variable[which(auc_mat_adj_epic$Variable == "SmokeCigs")] <- "Smoking Status"
+auc_mat_adj_epic$Variable[which(auc_mat_adj_epic$Variable == "sPC6")] <- "SD on PC 6 (surrogate)"
+
+#replace TLAC 2-hour chunk names
+times <- c("12AM-2AM", "2AM-4AM", "4AM-6AM", "6AM-8AM", "8AM-10AM", "10AM-12PM",
+           "12PM-2PM", "2PM-4PM", "4PM-6PM", "6PM-8PM", "8PM-10PM", "10PM-12AM")
+s1 <- paste0("TLAC_", c(1:12))
+s2 <- paste("TLAC", times)
+for(i in 1:length(s1)){auc_mat_adj_epic$Variable[which(auc_mat_adj_epic$Variable == s1[i])] <- s2[i]}
+
+#select complete cases only for the plot
+cut_auc_mat_adj_epic <- auc_mat_adj_epic[complete.cases(auc_mat_adj_epic),]
+cut_auc_mat_adj_epic$Variable <- factor(cut_auc_mat_adj_epic$Variable, cut_auc_mat_adj_epic$Variable)
+
+
+
+all=cbind.data.frame(Variable = cut_auc_mat_adj_epic$Variable,
+                     AUC = cut_auc_mat_adj_epic$Cross.Validated.AUC*1850,
+                     AIC = cut_auc_mat_adj_epic$AIC,
+                     EPIC = cut_auc_mat_adj_epic$EPIC)
+
+
+melt_all <- melt(all)
+act_vars <- c("SD on PC 6 (surrogate)", "Sedentary time", "Wear time", "MVPA","TAC", "TLAC", "SATP", "ASTP", s2)
+colour_act <- ifelse(melt_all$Variable %in% act_vars, 'red','black')
+
+p <- ggplot(melt_all, aes(x = Variable,group=variable))
+p <- p + geom_line(aes(y = value,color = variable),size = 0.7,linetype="solid")+
+  scale_y_continuous(sec.axis = sec_axis(~./1850, name = ""))+
+  scale_x_discrete(breaks =  cut_auc_mat_adj_epic$Variable)+
+  geom_point(aes(y=value),size=0.7)+ 
+  theme_bw()+
+  theme(legend.title = element_blank(), legend.position = c(0.9, 0.8), 
+        axis.text.x = element_text(angle = 60, hjust = 1, colour = colour_act))+
+  geom_point(data=melt_all[which(melt_all$Variable == auc_mat_adj_epic$Variable[inx_svy_adj_aic] & melt_all$variable == "AIC"),],
+             aes(x=Variable, y=value), colour="green", size=5) +
+  geom_point(data=melt_all[which(melt_all$Variable == auc_mat_adj_epic$Variable[inx_svy_adj_auc] & melt_all$variable == "AUC"),],
+             aes(x=Variable, y=value), colour="red", size=5) +
+  geom_point(data=melt_all[which(melt_all$Variable == auc_mat_adj_epic$Variable[inx_svy_adj_epic] & melt_all$variable == "EPIC"),],
+             aes(x=Variable, y=value), colour="blue", size=5)+
+  xlab("")+
+  ylab("")+
+  ggtitle("Figure 4. EPIC Forward Selection Criteria")
+p
+
+```
+
+
+
+
+
+
+```{r run_aic_fwd, eval=TRUE, echo=FALSE, results='hide'}
+files_auc_fwd <- c("auc_mat_adj_aic.Rds")
+run_aic <- !all(sapply(files_auc_fwd, function(x) file.exists(file.path(getwd(), x))))
+
+if(!run_aic){
+    sapply(files_auc_fwd, function(x) assign(gsub(".Rds","",x), readRDS(file.path(getwd(), x)) , envir=.GlobalEnv))
+}
+
+## variables to consider as linear predictors of 5-year mortality
+ind_vars <- c("Age", "Gender", "Race", "EducationAdult", "SmokeCigs", "DrinkStatus", "BMI_cat",
+              "Diabetes","CHF",  "CHD", "Stroke", "Cancer", "MobilityProblem",
+              "sPC6", "ST", "WT", "MVPA","TAC", "TLAC", "SATP", "ASTP", paste0("TLAC_",c(1:12)))
+
+
+dep_vars <- "yr5_mort"
+```
+
+
+```{r, results='hide', eval=run_aic}
+## Create empty vector for incrementing included variables 
+inc_vars_adj <- c()
+
+## Create empty data frames for storing results.
+## Each of these data frames contains 4 columns which correspond
+##- auc_mat_a
+auc_mat_adj_aic  <-  data.frame("Variable" = rep(NA_character_,length(ind_vars)),
+                           "Cross-Validated AUC" = rep(NA_real_,length(ind_vars)),
+                           "AUC" = rep(NA_real_,length(ind_vars)),
+                           "AIC" = rep(NA_real_,length(ind_vars)),
+                           "EPIC" = rep(NA_real_,length(ind_vars)),
+                           stringsAsFactors = FALSE)
+
+## set the seed so cross-validation results are reproducible
+set.seed(1244)
+## get the training and testing datasets for 10-fold cross validation
+n_folds <- 10
+## split the data to have an (approximately) equal number of alive/died in each training/test dataset
+inx_id_alive <- which(data_analysis$yr5_mort==0)
+inx_id_died  <- which(data_analysis$yr5_mort==1)
+nid_alive    <- length(inx_id_alive)
+nid_died     <- length(inx_id_died)
+
+inx_ls_alive <- split(sample(inx_id_alive, size=nid_alive, replace=FALSE),
+                      rep(1:n_folds,each=ceiling(nid_alive/n_folds))[1:nid_alive])
+inx_ls_died <- split(sample(inx_id_died, size=nid_died, replace=FALSE),
+                     rep(1:n_folds,each=ceiling(nid_died/n_folds))[1:nid_died])
+inx_ls <- lapply(1:n_folds, function(x) c(inx_ls_alive[[x]], inx_ls_died[[x]]))
+rm(list=c("inx_id_alive","inx_id_died","nid_alive","nid_died","inx_ls_alive","inx_ls_died"))
+
+
+## Vector to multiply vector of k-fold cross validated weights by to
+## get an estimate of cross-valided AUC.
+## This accounts for potentially unequal sizes in the test datasets
+k_id <- vapply(inx_ls, length, numeric(1))/nrow(data_analysis)
+
+for(i in 1:length(ind_vars)){
+        ## get a vector containing all variables not already included in the forward prediction
+        exc_vars_adj   <- setdiff(ind_vars, inc_vars_adj)
+
+        ## create empty matrices/vectors to store AUC/AIC results
+        auc_ijk_adj <-  matrix(NA, nrow=length(exc_vars_adj), ncol=n_folds)#store cross-validated AUC
+        aic_ij_adj  <-   epic_ij_adj <- auc_ij_full_adj <-  rep(NA,length(exc_vars_adj))
+
+
+        ## loop over all variables not currently in the model to calcualte their
+        ## improvment to AUC/AIC.
+        for(j in 1:length(exc_vars_adj)){
+                ## current variable to consider
+                var_adj   <- exc_vars_adj[j]
+
+                ## create formulas for current regression using
+                ## all variables previously identified aand the current variable under consideration
+                form_adj   <- paste(c(inc_vars_adj, var_adj), collapse=" +")
+
+                ## fit the model to the full data for calculating AIC
+                fit_adj   <- svyglm(as.formula(paste("yr5_mort ~", form_adj)),
+                                    design=data_analysis_svy_adj, family=quasibinomial())
+ 
+                ## get AIC
+                ## once we have exceeded the design degrees of freedom, we can get
+                ## point estimates for our coefficients, but can no longer calculate AIC
+                if(fit_adj$df.residual > 0){
+                    aic_ij_adj[j]  <- AIC(fit_adj)[2]
+                    epic_ij_adj[j]  <- survey:::extractAIC.svyglm(fit_adj, k=4)[2]
+                }
+
+                ## Calculate weighted and unweighted AUC using the appropriate weights
+                auc_ij_full_adj[j]   <- calc_weighted_AUC(response=predict(fit_adj,type='link'),
+                                                          cutpts=get_ctpts(fit_adj,type='link'),
+                                                          labels=data_analysis$yr5_mort,
+                                                          weights=data_analysis$wtmec4yr_adj_norm)
+
+                ## get cross-validated AUC
+                for(k in 1:n_folds){
+                    ## subset test and training data sets
+                    SEQN_train <- data_analysis$SEQN[-inx_ls[[k]]]
+                    SEQN_test  <- data_analysis$SEQN[inx_ls[[k]]]
+                    data_test <- subset(data_analysis, SEQN %in% SEQN_test)
+                    data_train  <- subset(data_analysis, SEQN %in% SEQN_train)
+
+
+                    ## Fit the appropriate models by subsetting the data.
+                    ## By subsetting the existing svydesign objects instead of creating new svydesign objects,
+                    ## we retain information on the number of PSU/strata in the original study.
+                    fit_adj_cv   <- svyglm(as.formula(paste("yr5_mort ~", form_adj)),
+                                           design=subset(data_analysis_svy_adj, SEQN %in% SEQN_train),
+                                           family=quasibinomial())
+
+
+                    ## Calculate weighted and unweighted AUC using the appropriate weights
+                    auc_ijk_adj[j,k]   <- calc_weighted_AUC(response=predict(fit_adj_cv, newdata=data_test, type='link'),
+                                                            cutpts=get_ctpts(fit_adj_cv,type='link',newdata=data_test),
+                                                            labels=data_test$yr5_mort,
+                                                            weights=data_test$wtmec4yr_adj_norm)
+
+                    rm(list=c("data_train","data_test","SEQN_train","SEQN_test",
+                              paste0("fit_",c("adj") ,"_cv")))
+                }
+
+
+
+                #print(j)
+                rm(list=c(paste0("fit_",c("adj")),
+                          paste0("form_",c("adj")),
+                          paste0("var_",c("adj")),
+                          "k"))
+        }
+
+        ## average across the k-folds using a weighted average of the number of individuals in each test set
+        #these are the survey weighted cross-validated AUC
+        auc_ij_adj   <- auc_ijk_adj %*% k_id
+
+        ## combine results for this iteration
+        auc_j_adj   <- data.frame(exc_vars_adj, auc_ij_adj, auc_ij_full_adj,
+                                   aic_ij_adj, epic_ij_adj,
+                                   stringsAsFactors = FALSE)
+
+        ## identify which variable is associated with the min epic
+        ind.criteria <- which(colnames(auc_j_adj) == "aic_ij_adj")
+        #break the loop if selection criteria value is NA 
+        if (all(is.na(auc_j_adj[,ind.criteria]))) break
+        auc_mat_adj_aic[i,]   <- auc_j_adj[which.min(auc_j_adj[,ind.criteria]),]
+
+        ## Create matrices which communicate the predictive power of  all univariate regressions.
+        ## These are used to create Table 4 in the manuscript.
+        if(i == 1){
+            auc_mat_1_adj   <- auc_j_adj[rev(order(auc_j_adj[,2])),]
+        }
+
+        ## Add in our "best" variable to our list of variabels included in the analysis
+        inc_vars_adj   <- c(inc_vars_adj, auc_mat_adj_aic[i,1])
+    
+
+        ## at the end of each iteration, print out the current
+        ## adjusted survey weight results
+        print(paste(i, " Independent variable finished"))
+        print(auc_mat_adj_aic[1:i,]);
+        rm(list=c(paste0("auc_j_",c("adj")),
+                  paste0("auc_ij_",c("adj")),
+                  paste0("auc_ijk_",c("adj")),
+                  paste0("auc_ij_full_",c("adj")),
+                  paste0("aic_ij_",c("adj")),
+                  paste0("epic_ij_",c("adj")),
+                  "j"))
+}
+rm(list=c("inx_ls",
+          paste0("inc_vars_",c("adj")),
+          paste0("exc_vars_",c("adj")),
+          "i","n_folds","k_id"))
+saveRDS(auc_mat_adj_aic, "auc_mat_adj_aic.Rds")
+```
+
+```{r, fig.height=6, fig.width=8, eval = TRUE}
+## the number of predictors identified by AIC, EPIC and AUC
+inx_svy_adj_aic     <- which(auc_mat_adj_aic$AIC == min(auc_mat_adj_aic$AIC, na.rm=TRUE))
+inx_svy_adj_epic     <- which(auc_mat_adj_aic$EPIC == min(auc_mat_adj_aic$EPIC, na.rm=TRUE))
+inx_svy_adj_auc     <- which(auc_mat_adj_aic$Cross.Validated.AUC == max(auc_mat_adj_aic$Cross.Validated.AUC, na.rm=TRUE))
+#save final formula
+final_formula <- paste0(auc_mat_adj_aic[1:inx_svy_adj_aic,1] ,collapse="+")
+#replace some variables names
+auc_mat_adj_aic$Variable[which(auc_mat_adj_aic$Variable == "ST")] <- "Sedentary time"
+auc_mat_adj_aic$Variable[which(auc_mat_adj_aic$Variable == "MobilityProblem")] <- "Mobility problem"
+auc_mat_adj_aic$Variable[which(auc_mat_adj_aic$Variable == "BMI_cat")] <- "BMI"
+auc_mat_adj_aic$Variable[which(auc_mat_adj_aic$Variable == "EducationAdult")] <- "Education"
+auc_mat_adj_aic$Variable[which(auc_mat_adj_aic$Variable == "WT")] <- "Wear time"
+auc_mat_adj_aic$Variable[which(auc_mat_adj_aic$Variable == "DrinkStatus")] <- "Drinking Status"
+auc_mat_adj_aic$Variable[which(auc_mat_adj_aic$Variable == "SmokeCigs")] <- "Smoking Status"
+auc_mat_adj_aic$Variable[which(auc_mat_adj_aic$Variable == "sPC6")] <- "SD on PC 6 (surrogate)"
+
+#replace TLAC 2-hour chunk names
+times <- c("12AM-2AM", "2AM-4AM", "4AM-6AM", "6AM-8AM", "8AM-10AM", "10AM-12PM",
+           "12PM-2PM", "2PM-4PM", "4PM-6PM", "6PM-8PM", "8PM-10PM", "10PM-12AM")
+s1 <- paste0("TLAC_", c(1:12))
+s2 <- paste("TLAC", times)
+for(i in 1:length(s1)){auc_mat_adj_aic$Variable[which(auc_mat_adj_aic$Variable == s1[i])] <- s2[i]}
+
+#select complete cases only for the plot
+cut_auc_mat_adj_aic <- auc_mat_adj_aic[complete.cases(auc_mat_adj_aic),]
+cut_auc_mat_adj_aic$Variable <- factor(cut_auc_mat_adj_aic$Variable, cut_auc_mat_adj_aic$Variable)
+
+
+
+all=cbind.data.frame(Variable = cut_auc_mat_adj_aic$Variable,
+                     AUC = cut_auc_mat_adj_aic$Cross.Validated.AUC*1850,
+                     AIC = cut_auc_mat_adj_aic$AIC,
+                     EPIC = cut_auc_mat_adj_aic$EPIC)
+
+
+melt_all <- melt(all)
+act_vars <- c("SD on PC 6 (surrogate)", "Sedentary time", "Wear time", "MVPA","TAC", "TLAC", "SATP", "ASTP", s2)
+colour_act <- ifelse(melt_all$Variable %in% act_vars, 'red','black')
+
+p <- ggplot(melt_all, aes(x = Variable,group=variable))
+p <- p + geom_line(aes(y = value,color = variable),size = 0.7,linetype="solid")+
+  scale_y_continuous(sec.axis = sec_axis(~./1850, name = ""))+
+  scale_x_discrete(breaks =  cut_auc_mat_adj_aic$Variable)+
+  geom_point(aes(y=value),size=0.7)+ 
+  theme_bw()+
+  theme(legend.title = element_blank(), legend.position = c(0.9, 0.8), 
+        axis.text.x = element_text(angle = 60, hjust = 1, colour = colour_act))+
+  geom_point(data=melt_all[which(melt_all$Variable == auc_mat_adj_aic$Variable[inx_svy_adj_aic] & melt_all$variable == "AIC"),],
+             aes(x=Variable, y=value), colour="green", size=5) +
+  geom_point(data=melt_all[which(melt_all$Variable == auc_mat_adj_aic$Variable[inx_svy_adj_auc] & melt_all$variable == "AUC"),],
+             aes(x=Variable, y=value), colour="red", size=5) +
+  geom_point(data=melt_all[which(melt_all$Variable == auc_mat_adj_aic$Variable[inx_svy_adj_epic] & melt_all$variable == "EPIC"),],
+             aes(x=Variable, y=value), colour="blue", size=5)+
+  xlab("")+
+  ylab("")+
+  ggtitle("Figure 5. \nAIC Forward Selection Criteria")
+p
+
+```
+
+## References
+
+1. Thomas Lumley, Alastair Scott; AIC and BIC for modeling with complex survey data, _Journal of Survey Statistics and Methodology_, Volume 3, Issue 1, 1 March 2015, Pages 1-18, https://doi.org/10.1093/jssam/smu021
+
+2. Leroux A. : rnhanesdata: NHANES Accelerometry Data Pipeline. URL:https://github.com/andrew-leroux/rnhanesdata. R package version 1.0.
