@@ -29,7 +29,7 @@ pckgs <- c("knitr","kableExtra",   ## packages used for creating Table 1
            "ggplot2", "gridExtra",            ## packages for plotting 
            "corrplot",                        ## for correlation plot
            "reshape2",                        ## for transforming data long -> wide and wide -> long           
-           "magrittr","dplyr","plyr",         ## packages for merging/transforming data
+           "magrittr","plyr","dplyr",         ## packages for merging/transforming data
            "survey",                          ## package used for analyzing complex survey data in R
            "survival",                        ## package used for analyzing survival data in R
            "mgcv", "refund",                  ## packages used for smoothing/fpca
@@ -57,21 +57,29 @@ We start by downloading NHANES 2003-2004 and 2005-2006 cohorts' information, pro
 # file is saved. 
 dir_tmp <- file.path(getwd(), "tmp_dat_vignette")
 
-if(!dir.exists(dir_tmp)){
-    dir.create(dir_tmp)
-    ## download the lab measurement data for the cohort 2003-2004
-    # Cholesterol - Total & HDL: LBXTC and LBXHDD
-    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/L13_C.XPT", destfile = file.path(dir_tmp,"L13_C.XPT"))
-    # Blood Pressure: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
-    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/BPX_C.XPT", destfile = file.path(dir_tmp,"BPX_C.XPT"))
-
-    ## download the lab measurement data for the cohort 2005-2006
-    # Total Cholesterol: LBXTC
-    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/TCHOL_D.XPT", destfile = file.path(dir_tmp,"TCHOL_D.XPT"))
-    # HDL Cholesterol: LBDHDD
-    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/HDL_D.XPT", destfile = file.path(dir_tmp,"HDL_D.XPT"))
-    # Blood Pressure, up to 4 measurements per person: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
-    download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/BPX_D.XPT", destfile = file.path(dir_tmp,"BPX_D.XPT"))
+if (!dir.exists(dir_tmp)){
+  dir.create(dir_tmp, showWarnings = FALSE)
+  dl_file = function(url) {
+    bn = basename(url) 
+    destfile = file.path(dir_tmp, bn)
+    if (!file.exists(destfile)) {
+      out = download.file(url, destfile = destfile)
+    }
+    stopifnot(file.exists(destfile))
+  }
+  ## download the lab measurement data for the cohort 2003-2004
+  # Cholesterol - Total & HDL: LBXTC and LBXHDD
+  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/L13_C.XPT")
+  # Blood Pressure: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
+  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/BPX_C.XPT")
+  
+  ## download the lab measurement data for the cohort 2005-2006
+  # Total Cholesterol: LBXTC
+  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/TCHOL_D.XPT")
+  # HDL Cholesterol: LBDHDD
+  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/HDL_D.XPT")
+  # Blood Pressure, up to 4 measurements per person: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
+  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/BPX_D.XPT")
 }
 
 
@@ -82,10 +90,11 @@ varnames <- c("LBXTC","LBXHDD","LBDHDD",           ## 1. cholesterol. Note LBXHD
 
 
 ## load and merge the lab data
-lab_data <- process_covar(varnames=varnames,localpath=dir_tmp)
+lab_data <- process_covar(varnames = varnames,localpath=dir_tmp)
 
 ## change column name for cholesterol variable that changed names
-colnames(lab_data$Covariate_C)[colnames(lab_data$Covariate_C) == "LBXHDD"] <- "LBDHDD"
+lab_data$Covariate_C = lab_data$Covariate_C %>% 
+  rename(LBDHDD = LBXHDD)
 
 ## combine waves
 CVMarkers <- bind_rows(lab_data$Covariate_C, lab_data$Covariate_D)
@@ -104,8 +113,9 @@ data("Covariate_C");data("Covariate_D")
 
 ## re-code activity counts which are considered "non-wear" to be 0
 ## this doesn't impact many data points, most estimated non-wear times correspond to 0 counts
-PAXINTEN_C[,paste0("MIN",1:1440)] <- PAXINTEN_C[,paste0("MIN",1:1440)]*Flags_C[,paste0("MIN",1:1440)]
-PAXINTEN_D[,paste0("MIN",1:1440)] <- PAXINTEN_D[,paste0("MIN",1:1440)]*Flags_D[,paste0("MIN",1:1440)]
+col_vars = paste0("MIN",1:1440)
+PAXINTEN_C[, col_vars] <- PAXINTEN_C[, col_vars]*Flags_C[, col_vars]
+PAXINTEN_D[, col_vars] <- PAXINTEN_D[, col_vars]*Flags_D[, col_vars]
 
 ## Merge covariate, mortality, and accelerometry data
 ## note that both PAXINTEN_* and Covariate_* have a column
@@ -124,6 +134,7 @@ AllFlags_D <- left_join(Flags_D, Mortality_2011_D, by = "SEQN") %>%
 
 ## clean up the workspace for memory purposes
 rm(list=c(paste0(c("PAXINTEN_", "Covariate_","Mortality_2011_","Flags_"),rep(LETTERS[3:4],each=4))))
+gc()
 
 ## combine data for the two waves
 AllAct   <- bind_rows(AllAct_C,AllAct_D)
@@ -134,7 +145,8 @@ AllAct <- left_join(AllAct, CVMarkers, by = "SEQN")
 AllFlags <- left_join(AllFlags, CVMarkers, by = "SEQN")
 
 ## clean up the workspace again
-rm(list=c("AllAct_C","AllAct_D","AllFlags_C","AllFlags_D","CVMarkers"))
+rm(list=c("AllAct_C","AllAct_D","AllFlags_C","AllFlags_D","CVMarkers"));
+gc()
 ```
 
 3. Create new factor covariates from NHANES questionnaire, which will be used in the prediction model. 
@@ -142,8 +154,9 @@ In addition, calculate average systolic blood pressure using the 4 measurements 
 
 ```{r create_factor_vars, echo=TRUE}
 ## Code year 5 mortality, NAs for individuals with follow up less than 5 years and alive
-AllAct$yr5_mort <- AllFlags$yr5_mort <- as.integer(ifelse(AllAct$permth_exm/12 <= 5 & AllAct$mortstat == 1, 1,
-                                                          ifelse(AllAct$permth_exm/12 < 5 & AllAct$mortstat == 0, NA, 0))
+AllAct$yr5_mort <- AllFlags$yr5_mort <- as.integer(
+  ifelse(AllAct$permth_exm/12 <= 5 & AllAct$mortstat == 1, 1,
+         ifelse(AllAct$permth_exm/12 < 5 & AllAct$mortstat == 0, NA, 0))
                                                     )
 ## Create Age in years using the age at examination (i.e. when participants wore the device)
 AllAct$Age <- AllFlags$Age <- AllAct$RIDAGEEX/12
@@ -168,8 +181,7 @@ AllAct$DrinkStatus[is.na(AllAct$DrinkStatus)] <- AllFlags$DrinkStatus[is.na(AllA
 
 
 # systolic blood pressure calculation 
-AllAct$SYS <- AllFlags$SYS <-  round(apply(AllAct[,c("BPXSY1","BPXSY2","BPXSY3", "BPXSY4")],
-                            1,mean, na.rm= T))
+AllAct$SYS <- AllFlags$SYS <-  round( rowMeans(AllAct[,c("BPXSY1","BPXSY2","BPXSY3", "BPXSY4")], na.rm = TRUE))
 
 ## Re-order columns so that activity and wear/non-wear flags are the last 1440 columns of our two
 ## data matrices. This is a personal preference and is absolutely not necessary.
@@ -186,37 +198,15 @@ rm(list=c("act_cols","oth_cols"))
 ```{r calculate_accel_features, echo = TRUE}
 ## Assign just the activity and wear/non-wear flag data to matrices.
 ## This makes computing the features faster but is technically required.
-act_mat  <- as.matrix(AllAct[,paste0("MIN",1:1440)])
-flag_mat <- as.matrix(AllFlags[,paste0("MIN",1:1440)])
+act_mat  <- AllAct[,paste0("MIN",1:1440)]
 
 ## replace NAs with 0s
 act_mat[is.na(act_mat)]   <- 0
-flag_mat[is.na(flag_mat)] <- 0
-
 
 AllAct$TAC   <- AllFlags$TAC   <- rowSums(act_mat)
-AllAct$TLAC  <- AllFlags$TLAC  <- rowSums(log(1+act_mat))
-AllAct$WT    <- AllFlags$WT    <- rowSums(flag_mat)
+AllAct$TLAC  <- AllFlags$TLAC  <- rowSums(log(1 + act_mat))
 AllAct$ST    <- AllFlags$ST    <- rowSums(act_mat < 100)
 AllAct$MVPA  <- AllFlags$MVPA  <- rowSums(act_mat >= 2020)
-
-## calculate fragmentation measures
-bout_mat <- apply(act_mat >= 100, 1, function(x){
-                        mat <- rle(x)
-                        sed <- mat$lengths[which(mat$values == FALSE)]
-                        act <- mat$length[mat$values == TRUE]
-
-                        sed <- ifelse(length(sed) == 0, NA, mean(sed))
-                        act <- ifelse(length(act) == 0, NA, mean(act))
-                        c(sed,act)
-                    })
-
-AllAct$SBout <- AllFlags$SBout <- bout_mat[1,]
-AllAct$ABout <- AllFlags$ABout <- bout_mat[2,]
-AllAct$SATP  <- AllFlags$SATP  <- 1/AllAct$SBout
-AllAct$ASTP  <- AllFlags$ASTP  <- 1/AllAct$ABout
-
-
 
 # compute total log activity count in each 2-hr window, 
 # 2 hour (120 minutes) binning window 
@@ -226,12 +216,40 @@ nt   <- floor(1440/tlen)
 inx_col_ls <- split(1:1440, rep(1:nt,each=tlen))
 Act_2hr    <- sapply(inx_col_ls, function(x) rowSums(log(1+act_mat[,x,drop=FALSE])))
 colnames(Act_2hr) <- paste0("TLAC_",c(1:12))
+rm(list=c("tlen","nt","inx_col_ls"))
+
+act_mat = act_mat >= 100
+## calculate fragmentation measures
+bout_mat <- apply(act_mat, 1, function(x){
+                        mat <- rle(x)
+                        sed <- mat$lengths[which(mat$values == FALSE)]
+                        act <- mat$length[mat$values == TRUE]
+
+                        sed <- ifelse(length(sed) == 0, NA, mean(sed))
+                        act <- ifelse(length(act) == 0, NA, mean(act))
+                        c(sed,act)
+                    })
+rm(act_mat)
+
+AllAct$SBout <- AllFlags$SBout <- bout_mat[1,]
+AllAct$ABout <- AllFlags$ABout <- bout_mat[2,]
+AllAct$SATP  <- AllFlags$SATP  <- 1/AllAct$SBout
+AllAct$ASTP  <- AllFlags$ASTP  <- 1/AllAct$ABout
+
+rm(bout_mat)
+
+flag_mat <- AllFlags[,paste0("MIN",1:1440)]
+flag_mat[is.na(flag_mat)] <- 0
+AllAct$WT    <- AllFlags$WT    <- rowSums(flag_mat)
+
+rm(flag_mat)
+
 
 
 AllAct   <- cbind(AllAct, Act_2hr)
 AllFlags <- cbind(AllFlags, Act_2hr)
 
-rm(list=c("tlen","nt","inx_col_ls","Act_2hr","act_mat","flag_mat","bout_mat"))
+rm(list=c("Act_2hr"))
 ```
 
 5. Exclude participants who were: 1) younger than 50 years old, or 85 and older at the time they wore the accelerometer (10, 859 participants); 2) missing BMI or education predictor variables (41 participants); 3) had fewer than 3 days of data with at least 10 hours of estimated wear time (517 participants); 4) missing mortality information (16 participants); 5) alive with follow up less than 5 years (17 participants); 6) missing systolic blood pressure, total cholesterol or HDL cholesterol  measurements (293 participants).  Table 1 below displays number of participants with missing data for all pairwise combinations of variables with missing data. 
@@ -240,14 +258,17 @@ rm(list=c("tlen","nt","inx_col_ls","Act_2hr","act_mat","flag_mat","bout_mat"))
 ```{r exclusion_criteria}
 ## make dataframe with one row per individual to create table 1.
 ## Remove columns associated with activity to avoid any confusion.
-table_dat <- AllAct[!duplicated(AllAct$SEQN),-which(colnames(AllAct) %in% c(paste0("MIN",1:1440),
-                                                                            "TAC","TLAC","WT","ST","MVPA",
-                                                                            "SBout","ABout","SATP","ASTP", paste0("TLAC_",1:12)))]
+cn = colnames(AllAct)
+drop_cn = c(paste0("MIN",1:1440), "TAC","TLAC","WT","ST","MVPA", 
+   "SBout","ABout","SATP","ASTP", 
+   paste0("TLAC_",1:12))
+table_dat <- AllAct[!duplicated(AllAct$SEQN), setdiff(cn, drop_cn)]
 
 ## subset based on our age inclusion/exclusion criteria
 ## note that individuals age 85 and over are coded as NA
 #number of individuals excluded due to subset selection
-table_dat <- subset(table_dat, !(Age < 50 | is.na(Age)))
+table_dat <- table_dat %>% 
+  filter(!(Age < 50 | is.na(Age)))
 
 ## get the SEQN (id variable) associated with individuals with fewer than 3 days accelerometer wear time
 ## with at least 10 hours OR had their data quality/device calibration flagged by NHANES
@@ -292,7 +313,8 @@ rm(list=c("i","j","names_spaced"))
 ## add in column indicating exclusion:
 ##   Exclude = 1 indicates an individual does not meet our inclusion criteria
 ##   Exclude = 0 indicates an individual does meet our inclusion criteria
-eval(parse(text=paste0("table_dat$Exclude <- as.integer(", paste0(criteria_vec,collapse="|"), ")")))
+eval(parse(text = paste0("table_dat$Exclude <- as.integer(", 
+                         paste0(criteria_vec,collapse="|"), ")")))
 ```
 
 
@@ -301,7 +323,8 @@ eval(parse(text=paste0("table_dat$Exclude <- as.integer(", paste0(criteria_vec,c
 ```{r final_data_set}
 ## Create our dataset for analysis with one row per subject
 ## containing only those subjects who meet our inclusion criteria.
-data_analysis  <- subset(table_dat, Exclude == 0)
+data_analysis  <- table_dat %>% 
+  filter(Exclude == 0)
 ## get adjusted survey weights using the reweight_accel function
 data_analysis  <- reweight_accel(data_analysis)
 
@@ -330,7 +353,7 @@ rm(list=c("AllAct","AllFlags","i","criteria_vec","nms_rm","tab_miss","act_var_nm
 8. Get log(count +1) activity  data in a matrix format and conduct functional Principal Component analysis (fPCA)  using the fpca.face() function with 50 knots in the *refund* package in R. 
 
 ```{r estimate_fpca, echo = TRUE}
-Act <- as.matrix(log(1+Act_Analysis[,paste0("MIN",1:1440)]))
+Act <- log(1 + Act_Analysis[,paste0("MIN",1:1440)])
 Act[is.na(Act)] <- 0
 fpca_fit <- fpca.face(Act,knots=50)
 ```
@@ -971,7 +994,8 @@ msp <- function(vars, data,cont_round = 1){
   for(i in 1:length(idx)){
     x = data[,idx[i]]
     if(vars[i] == "Gender"){
-      t1 = count(x)
+      # t1 = count(x)
+      t1 = plyr::count(x)
       name = t1$x
       prop = round(t1$freq/sum(t1$freq)*100,1)
       t1$freq = paste0(t1$freq," (",prop,"%)")
@@ -979,13 +1003,15 @@ msp <- function(vars, data,cont_round = 1){
       t1 = data.frame(freq = t1[,-1], row.names = name)
       res = rbind(res,header,t1)
     } else if(is.factor(x) & length(levels(x))==2){
-      yes = count(x)$freq[2]
+      # yes = count(x)$freq[2]
+      yes = plyr::count(x)$freq[2]
       yes.prop = round(yes/length(x)*100,1)
       t1 = paste0(yes," (",yes.prop,"%)")
       t1 = data.frame(freq = t1, row.names = vars[i])
       res = rbind(res,t1)
     } else if(is.factor(x) & length(levels(x)) > 2){
-      t1 = count(x)
+      # t1 = count(x)
+      t1 = plyr::count(x)
       name = t1$x
       prop = round(t1$freq/sum(t1$freq)*100,1)
       t1$freq = paste0(t1$freq," (",prop,"%)")
