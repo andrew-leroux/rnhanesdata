@@ -355,6 +355,7 @@ rm(list=c("AllAct","AllFlags","i","criteria_vec","nms_rm","tab_miss","act_var_nm
 ```{r estimate_fpca, echo = TRUE}
 Act <- log(1 + Act_Analysis[,paste0("MIN",1:1440)])
 Act[is.na(Act)] <- 0
+Act = as.matrix(Act)
 fpca_fit <- fpca.face(Act,knots=50)
 ```
 
