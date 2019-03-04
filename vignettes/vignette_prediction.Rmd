@@ -11,7 +11,28 @@ vignette: >
 ---
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(warning=FALSE, message=FALSE, echo = FALSE,fig.align='center')
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE,
+  echo = FALSE,
+  fig.align = 'center'
+)
+library(knitr)
+library(kableExtra)
+library(devtools)
+library(prettydoc)
+library(ggplot2)
+library(gridExtra)
+library(corrplot)
+library(reshape2)
+library(magrittr)
+library(plyr)
+library(dplyr)
+library(survey)
+library(survival)
+library(mgcv)
+library(refund)
+library(rnhanesdata)
 ```
 
 
