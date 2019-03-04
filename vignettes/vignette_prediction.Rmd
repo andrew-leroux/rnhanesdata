@@ -159,14 +159,16 @@ gc()
 
 ## combine data for the two waves
 AllAct   <- bind_rows(AllAct_C,AllAct_D)
+rm(list = c("AllAct_C","AllAct_D"))
 AllFlags <- bind_rows(AllFlags_C,AllFlags_D)
+rm(list = c("AllFlags_C","AllFlags_D"))
 
 #merge with cardiovascular markers 
 AllAct <- left_join(AllAct, CVMarkers, by = "SEQN")
 AllFlags <- left_join(AllFlags, CVMarkers, by = "SEQN")
 
 ## clean up the workspace again
-rm(list=c("AllAct_C","AllAct_D","AllFlags_C","AllFlags_D","CVMarkers"));
+rm(list = "CVMarkers");
 gc()
 ```
 
@@ -241,15 +243,19 @@ rm(list=c("tlen","nt","inx_col_ls"))
 
 act_mat = act_mat >= 100
 ## calculate fragmentation measures
-bout_mat <- apply(act_mat, 1, function(x){
+get_sed_act = function(x){
                         mat <- rle(x)
-                        sed <- mat$lengths[which(mat$values == FALSE)]
-                        act <- mat$length[mat$values == TRUE]
+                        sed <- mat$lengths[!mat$values]
+                        act <- mat$lengths[mat$values]
 
                         sed <- ifelse(length(sed) == 0, NA, mean(sed))
                         act <- ifelse(length(act) == 0, NA, mean(act))
-                        c(sed,act)
-                    })
+                        c(sed, act)
+}
+bout_mat = matrix(nrow = nrow(act_mat), ncol = 2)
+for (i in seq(nrow(act_mat))) {
+  bout_mat[i, ] = get_sed_act(act_mat[i, ])
+}
 rm(act_mat)
 
 AllAct$SBout <- AllFlags$SBout <- bout_mat[1,]
