@@ -245,6 +245,7 @@ act_mat = act_mat >= 100
 ## calculate fragmentation measures
 get_sed_act = function(x){
                         mat <- rle(x)
+                        rm(x)
                         sed <- mat$lengths[!mat$values]
                         act <- mat$lengths[mat$values]
 
