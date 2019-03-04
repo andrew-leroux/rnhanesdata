@@ -253,9 +253,9 @@ get_sed_act = function(x){
                         act <- ifelse(length(act) == 0, NA, mean(act))
                         c(sed, act)
 }
-bout_mat = matrix(nrow = nrow(act_mat), ncol = 2)
+bout_mat = matrix(nrow = 2, ncol = nrow(act_mat))
 for (i in seq(nrow(act_mat))) {
-  bout_mat[i, ] = get_sed_act(act_mat[i, ])
+  bout_mat[, i] = get_sed_act(act_mat[i, ])
 }
 rm(act_mat)
 
