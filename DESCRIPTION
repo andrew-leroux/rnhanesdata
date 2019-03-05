@@ -5,17 +5,30 @@ Version: 1.0
 Author: Andrew Leroux [aut, cre]
 	Ciprian Crainiceanu[aut, cre]
 Maintainer: Andrew Leroux <aleroux2@jhu.edu>
-Description: A data package for processed NHANES accelerometry data with accompanying processing pipeline code.
+Description: A data package for processed NHANES accelerometry data with 
+    accompanying processing pipeline code.
 Depends:
     R (>= 3.4.0), accelerometry (>= 3.1.2), haven (>= 1.1.0)
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Suggests: knitr,
-    rmarkdown, kableExtra,prettydoc,devtools,
-    gridExtra, corrplot,ggplot2, reshape2, magrittr, dplyr,
-    survey, survival, mgcv, refund
+    rmarkdown, 
+    kableExtra,
+    prettydoc,
+    devtools,
+    gridExtra, 
+    corrplot,
+    ggplot2, 
+    reshape2, 
+    magrittr, 
+    plyr, 
+    dplyr,
+    survey, 
+    survival, 
+    mgcv, 
+    refund
 VignetteBuilder: knitr
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 URL: https://github.com/andrew-leroux/rnhanesdata
 BugReports: https://github.com/andrew-leroux/rnhanesdata/issues
