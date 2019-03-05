@@ -961,7 +961,7 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
         if(!all(as.vector(as.matrix(flags))) %in% c(0,1,NA)){
                 stop("Wear/non-wear flags need to be either 0 (non-wear), 1 (wear), or NA (missing)")
         }
-        flag_nonwear <- rowSums(flags[, act_cols], na.rm = TRUE) < threshold_lower
+        flag_nonwear <- rowSums(flags, na.rm = TRUE) < threshold_lower
         rm(flags)
 
 

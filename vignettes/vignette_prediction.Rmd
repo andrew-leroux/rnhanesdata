@@ -275,7 +275,6 @@ rm(list=c("Act_2hr"))
 
 
 ```{r exclusion_criteria}
-stop("it")
 ## make dataframe with one row per individual to create table 1.
 ## Remove columns associated with activity to avoid any confusion.
 cn = colnames(AllAct)
