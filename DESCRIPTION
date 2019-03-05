@@ -4,6 +4,9 @@ Title: NHANES Accelerometry Data Pipeline
 Version: 1.0
 Author: Andrew Leroux [aut, cre]
 	Ciprian Crainiceanu[aut, cre]
+	Ekaterina Smirnova [aut]
+	Quy Cao [aut]
+	John Muschelli [ctb]
 Maintainer: Andrew Leroux <aleroux2@jhu.edu>
 Description: A data package for processed NHANES accelerometry data with 
     accompanying processing pipeline code.
@@ -12,22 +15,23 @@ Depends:
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-Suggests: knitr,
-    rmarkdown, 
+Suggests: 
+    knitr,
+    rmarkdown,
     kableExtra,
     prettydoc,
     devtools,
-    gridExtra, 
+    gridExtra,
     corrplot,
-    ggplot2, 
-    reshape2, 
-    magrittr, 
-    plyr, 
+    ggplot2,
+    reshape2,
+    magrittr,
     dplyr,
-    survey, 
-    survival, 
-    mgcv, 
-    refund
+    survey,
+    survival,
+    mgcv,
+    refund,
+    covr
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 URL: https://github.com/andrew-leroux/rnhanesdata
