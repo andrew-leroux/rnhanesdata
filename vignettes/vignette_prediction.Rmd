@@ -319,7 +319,9 @@ nms_rm         <- unique(c(Act_Analysis$SEQN[-which(Act_Analysis$SEQN %in% names
                            setdiff(AllAct$SEQN, Act_Analysis$SEQN))
                           )
 rm(list=c("AllAct"))
+```
 
+```{r exclusion_criteria3_run}
 
 ## Additional inclusion/exclusion criteria.
 ## Aside from mortality or accelerometer weartime, the only missingness is in
@@ -348,7 +350,9 @@ rownames(tab_miss) <- colnames(tab_miss) <- names_spaced
 kable(data.frame(tab_miss),format = "html", caption = "Table 1: Missing data patterns", col.names = names_spaced) %>%
   kable_styling("striped", full_width = F)
 rm(list=c("i","j","names_spaced"))
+```
 
+```{r exclusion_criteria4_run}
                   
 ## add in column indicating exclusion:
 ##   Exclude = 1 indicates an individual does not meet our inclusion criteria
