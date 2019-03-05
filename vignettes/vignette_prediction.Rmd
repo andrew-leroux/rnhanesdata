@@ -17,22 +17,6 @@ knitr::opts_chunk$set(
   echo = FALSE,
   fig.align = 'center'
 )
-library(knitr)
-library(kableExtra)
-library(devtools)
-library(prettydoc)
-library(ggplot2)
-library(gridExtra)
-library(corrplot)
-library(reshape2)
-library(magrittr)
-library(plyr)
-library(dplyr)
-library(survey)
-library(survival)
-library(mgcv)
-library(refund)
-library(rnhanesdata)
 ```
 
 
@@ -42,7 +26,7 @@ We access the prediction performance of objective physical activity  measures an
 
 The following packages will be used in this vignette to provide illustration of NHANES 5-year mortality prediction model. 
 
-```{r Paths, results = FALSE, echo = TRUE}
+```{r Paths, results = 'hide', echo = TRUE}
 
 pckgs <- c("knitr","kableExtra",   ## packages used for creating Table 1
            "devtools",                        ## package used to download R packages stored on GitHub
