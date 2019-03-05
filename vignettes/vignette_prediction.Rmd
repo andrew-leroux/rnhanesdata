@@ -294,13 +294,15 @@ table_dat <- table_dat %>%
 ## get the SEQN (id variable) associated with individuals with fewer than 3 days accelerometer wear time
 ## with at least 10 hours OR had their data quality/device calibration flagged by NHANES
 keep_inx       <- exclude_accel(AllAct, AllFlags)
-Act_Analysis   <- AllAct[keep_inx,]
 Flags_Analysis <- AllFlags[keep_inx,]
+rm(list="AllFlags")
+
+Act_Analysis   <- AllAct[keep_inx,]
 rm(list=c("keep_inx"))
 nms_rm         <- unique(c(Act_Analysis$SEQN[-which(Act_Analysis$SEQN %in% names(table(Act_Analysis$SEQN))[table(Act_Analysis$SEQN)>=3])],
                            setdiff(AllAct$SEQN, Act_Analysis$SEQN))
                           )
-rm(list=c("AllAct", "AllFlags"))
+rm(list=c("AllAct"))
 
 
 ## Additional inclusion/exclusion criteria.

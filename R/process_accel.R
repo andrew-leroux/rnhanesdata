@@ -957,6 +957,7 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
         if(!identical(act[,-act_cols], flags[,-act_cols])){
             stop("One or more columns of the act and flags do not match. Please double check that these two dataframes are identical except for the activity count and wear/non-wear columns")
         }
+        act = act[, c("PAXSTAT", "PAXCAL")]
         flags = flags[,act_cols]
         if(!all(as.vector(as.matrix(flags))) %in% c(0,1,NA)){
                 stop("Wear/non-wear flags need to be either 0 (non-wear), 1 (wear), or NA (missing)")
