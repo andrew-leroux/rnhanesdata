@@ -15,7 +15,6 @@ Depends:
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-<<<<<<< HEAD
 Suggests: 
     knitr,
     rmarkdown,
@@ -33,24 +32,6 @@ Suggests:
     mgcv,
     refund,
     covr
-=======
-Suggests: knitr,
-    rmarkdown, 
-    kableExtra,
-    prettydoc,
-    devtools,
-    gridExtra, 
-    corrplot,
-    ggplot2, 
-    reshape2, 
-    magrittr, 
-    plyr, 
-    dplyr,
-    survey, 
-    survival, 
-    mgcv, 
-    refund
->>>>>>> 256a87e6aa9d60a87471fda8449d28f1570861af
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 URL: https://github.com/andrew-leroux/rnhanesdata
