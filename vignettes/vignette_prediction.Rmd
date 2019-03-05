@@ -224,7 +224,10 @@ inx_col_ls <- split(1:1440, rep(1:nt,each=tlen))
 Act_2hr    <- sapply(inx_col_ls, function(x) rowSums(log(1+act_mat[,x,drop=FALSE])))
 colnames(Act_2hr) <- paste0("TLAC_",c(1:12))
 rm(list=c("tlen","nt","inx_col_ls"))
+```
 
+
+```{r calculate_accel_features2, echo = TRUE}
 act_mat = act_mat >= 100
 ## calculate fragmentation measures
 get_sed_act = function(x){
@@ -242,22 +245,26 @@ for (i in seq(nrow(act_mat))) {
   bout_mat[, i] = get_sed_act(act_mat[i, ])
 }
 rm(act_mat)
+```
 
+```{r calculate_accel_features3, echo = TRUE}
 AllAct$SBout <- AllFlags$SBout <- bout_mat[1,]
 AllAct$ABout <- AllFlags$ABout <- bout_mat[2,]
 AllAct$SATP  <- AllFlags$SATP  <- 1/AllAct$SBout
 AllAct$ASTP  <- AllFlags$ASTP  <- 1/AllAct$ABout
 
 rm(bout_mat)
+```
 
+```{r calculate_accel_features4, echo = TRUE}
 flag_mat <- AllFlags[,paste0("MIN",1:1440)]
 flag_mat[is.na(flag_mat)] <- 0
 AllAct$WT    <- AllFlags$WT    <- rowSums(flag_mat)
 
 rm(flag_mat)
+```
 
-
-
+```{r calculate_accel_features5, echo = TRUE}
 AllAct   <- cbind(AllAct, Act_2hr)
 AllFlags <- cbind(AllFlags, Act_2hr)
 
