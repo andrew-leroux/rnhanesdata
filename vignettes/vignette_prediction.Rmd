@@ -284,7 +284,7 @@ drop_cn = c(paste0("MIN",1:1440), "TAC","TLAC","WT","ST","MVPA",
             "SBout","ABout","SATP","ASTP", 
             paste0("TLAC_",1:12))
 table_dat <- AllAct %>% 
-  select(SEQN, Age, BMI_cat, EducationAdult, 
+  select(SEQN, yr5_mort, Age, BMI_cat, EducationAdult, 
          SmokeCigs, DrinkStatus,
          Diabetes, CHF, CHD, Stroke, 
          Cancer, MobilityProblem,
@@ -422,7 +422,7 @@ for(k in 1:6){
 
 ```{r fpca_plot, fig.width = 10, fig.height = 6}
 #11. Plot first 6 principal components.
-sd_pcs <- apply(fpca_fit$scores,2,sd)[1:8]
+sd_pcs <- apply(fpca_fit$scores[, 1:8],2,sd)
 inx_plot <- c(1:1440)[seq(1,1440,by=20)]
 textscale <- 1.5
 par(mfrow=c(2,3),las=1,mar=c(5.1,6.1,2.1,2.1))
