@@ -281,13 +281,18 @@ rm(list = c("Act_2hr"))
 ## Remove columns associated with activity to avoid any confusion.
 cn = colnames(AllAct)
 drop_cn = c(paste0("MIN",1:1440), "TAC","TLAC","WT","ST","MVPA", 
-   "SBout","ABout","SATP","ASTP", 
-   paste0("TLAC_",1:12))
+            "SBout","ABout","SATP","ASTP", 
+            paste0("TLAC_",1:12))
 table_dat <- AllAct %>% 
-  select(SEQN, Age, BMI_cat, EducationAdult,  eligstat, mortstat, permth_exm,
+  select(SEQN, Age, BMI_cat, EducationAdult, 
+         SmokeCigs, DrinkStatus,
+         Diabetes, CHF, CHD, Stroke, 
+         Cancer, MobilityProblem,
+         eligstat, mortstat, permth_exm,
          ucod_leading, SYS, LBXTC, LBDHDD,
          # survey weights
-          SDDSRVYR, WTMEC2YR, WTINT2YR)
+         SDDSRVYR, WTMEC2YR, WTINT2YR, 
+         SDMVPSU,  SDMVSTRA)  
 table_dat <- table_dat[!duplicated(table_dat$SEQN), ]
 
 ## subset based on our age inclusion/exclusion criteria
