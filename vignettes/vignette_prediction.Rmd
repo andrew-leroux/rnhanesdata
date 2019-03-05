@@ -834,7 +834,7 @@ calc_weighted_AUC <- function(response, labels, cutpts, weights=NULL){
 files_auc_fwd <- c("auc_mat_1_adj.Rds","auc_mat_adj.Rds","data_analysis_ns.Rds","data_analysis_svy_adj.Rds")
 run_auc <- !all(sapply(files_auc_fwd, function(x) file.exists(file.path(getwd(), x))))
 
-if(!run_auc){
+if (!run_auc) {
     sapply(files_auc_fwd, function(x) assign(gsub(".Rds","",x), readRDS(file.path(getwd(), x)) , envir=.GlobalEnv))
 }
 
