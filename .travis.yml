@@ -1,6 +1,7 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
+sudo: required
 cache: packages
 warnings_are_errors: true
 
@@ -23,9 +24,27 @@ before_install:
   - cat DESCRIPTION
   - export PACKAGE_NAME=`package_name`
   - export RCHECK_DIR=${PACKAGE_NAME}.Rcheck
-  - export rundir=$PWD;
 
 script:
-  - Rscript -e "devtools::install_github('muschellij2/rnhnanesdata', dependencies = TRUE)"
-  - cd vignettes && Rscript -e "rmarkdown::render('vignette_prediction.Rmd')"
-  - cd $rundir
+  - travis_wait 100 R CMD build ${R_BUILD_ARGS} .
+  - rm -f travis_wait*.log
+  - PKG_TARBALL=$(ls -1t *.tar.gz | head -n 1)
+  - travis_wait 100 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? ;
+  - echo ${CHECK_RET};
+  - if [[ $CHECK_RET -ne 0 ]];
+    then
+      echo "R CMD check failed";
+      check_fail;
+      exit 1;
+    fi
+  - rm -f travis_wait*.log
+  - check_fail
+  - check_warnings
+
+after_success:
+  - cat ${RCHECK_DIR}/00install.out
+  - cat ${RCHECK_DIR}/00check.log
+
+after_failure:
+  - cat ${RCHECK_DIR}/00install.out
+  - cat ${RCHECK_DIR}/00check.log
