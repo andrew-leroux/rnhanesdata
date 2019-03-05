@@ -42,6 +42,7 @@ pckgs <- c("knitr","kableExtra",   ## packages used for creating Table 1
            )
 sapply(pckgs, function(x) require(x,character.only=TRUE,quietly=TRUE))
 rm(list=c("pckgs"))
+library(rnhanesdata)
 ```
 
 
