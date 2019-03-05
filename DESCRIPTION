@@ -26,6 +26,7 @@ Suggests:
     ggplot2,
     reshape2,
     magrittr,
+    plyr,
     dplyr,
     survey,
     survival,
