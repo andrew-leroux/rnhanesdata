@@ -200,6 +200,9 @@ AllFlags <- AllFlags[,c(oth_cols,act_cols)]
 rm(list=c("act_cols","oth_cols"))
 ```
 
+```{r make_keep_inx, echo = FALSE}
+keep_inx       <- exclude_accel(AllAct, AllFlags)
+```
 
 4. Calculate daily activity summary measures: total activity count (TAC), total log activity count (TLAC),  total accelerometer wear time (WT), total minutes of moderate/vigorous physical activity (MVPA),  sedentary/sleep/non-wear to active transition probability (SATP$_{sl/nw}$), and active to sedentary/sleep/non-wear transition probability (ASTP$_{sl/nw}$). In addition, compute total log activity count summary measures (TLAC_1, TLAC_2, …, TLAC_12) in each 2-hr window, i.e. 12AM-2AM, 2AM-4AM, 4AM-6AM, etc. Note, there is one individual with 501 minutes recorded as NA. These missing data occur on the last day they wore the device for the last 501 minutes of the day. We impute these missing data with 0.
 
@@ -262,6 +265,7 @@ AllAct$WT    <- AllFlags$WT    <- rowSums(AllFlags[,paste0("MIN",1:1440)], na.rm
 # rm(flag_mat)
 ```
 
+
 ```{r calculate_accel_features5, echo = TRUE}
 AllAct   <- cbind(AllAct, Act_2hr)
 AllFlags <- cbind(AllFlags, Act_2hr)
@@ -288,10 +292,13 @@ table_dat <- table_dat %>%
   filter(!(Age < 50 | is.na(Age)))
 ```
 
-```{r exclusion_criteria2}
+```{r exclusion_criteria2, eval = FALSE}
 ## get the SEQN (id variable) associated with individuals with fewer than 3 days accelerometer wear time
 ## with at least 10 hours OR had their data quality/device calibration flagged by NHANES
 keep_inx       <- exclude_accel(AllAct, AllFlags)
+```
+
+```{r exclusion_criteria2_run}
 Flags_Analysis <- AllFlags[keep_inx,]
 rm(list="AllFlags")
 
