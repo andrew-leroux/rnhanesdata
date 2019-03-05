@@ -275,6 +275,7 @@ rm(list=c("Act_2hr"))
 
 
 ```{r exclusion_criteria}
+stop("it")
 ## make dataframe with one row per individual to create table 1.
 ## Remove columns associated with activity to avoid any confusion.
 cn = colnames(AllAct)
@@ -288,16 +289,19 @@ table_dat <- AllAct[!duplicated(AllAct$SEQN), setdiff(cn, drop_cn)]
 #number of individuals excluded due to subset selection
 table_dat <- table_dat %>% 
   filter(!(Age < 50 | is.na(Age)))
+```
 
+```{r exclusion_criteria2}
 ## get the SEQN (id variable) associated with individuals with fewer than 3 days accelerometer wear time
 ## with at least 10 hours OR had their data quality/device calibration flagged by NHANES
 keep_inx       <- exclude_accel(AllAct, AllFlags)
 Act_Analysis   <- AllAct[keep_inx,]
 Flags_Analysis <- AllFlags[keep_inx,]
+rm(list=c("keep_inx"))
 nms_rm         <- unique(c(Act_Analysis$SEQN[-which(Act_Analysis$SEQN %in% names(table(Act_Analysis$SEQN))[table(Act_Analysis$SEQN)>=3])],
                            setdiff(AllAct$SEQN, Act_Analysis$SEQN))
                           )
-rm(list=c("keep_inx"))
+rm(list=c("AllAct", "AllFlags"))
 
 
 ## Additional inclusion/exclusion criteria.
@@ -365,7 +369,7 @@ for(i in act_var_nms){
 }
 
 ## clean up the workspace
-rm(list=c("AllAct","AllFlags","i","criteria_vec","nms_rm","tab_miss","act_var_nms"))
+rm(list=c("i","criteria_vec","nms_rm","tab_miss","act_var_nms"))
 ```
 
 

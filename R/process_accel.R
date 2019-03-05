@@ -957,14 +957,15 @@ exclude_accel <- function(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE, 
         if(!identical(act[,-act_cols], flags[,-act_cols])){
             stop("One or more columns of the act and flags do not match. Please double check that these two dataframes are identical except for the activity count and wear/non-wear columns")
         }
-
-        if(!all(as.vector(as.matrix(flags[,act_cols]))) %in% c(0,1,NA)){
-            stop("Wear/non-wear flags need to be either 0 (non-wear), 1 (wear), or NA (missing)")
+        flags = flags[,act_cols]
+        if(!all(as.vector(as.matrix(flags))) %in% c(0,1,NA)){
+                stop("Wear/non-wear flags need to be either 0 (non-wear), 1 (wear), or NA (missing)")
         }
+        flag_nonwear <- rowSums(flags[, act_cols], na.rm = TRUE) < threshold_lower
+        rm(flags)
 
 
         stopifnot(all(is.finite(act$PAXSTAT),is.finite(act$PAXCAL)))
-        flag_nonwear <- rowSums(flags[, act_cols], na.rm = TRUE) < threshold_lower
 
         cond <- c("flag_nonwear", "!(act$PAXSTAT %in% 1)","!(act$PAXCAL %in% 1)")[c(TRUE, rm_PAXSTAT, rm_PAXCAL)]
         cond <- paste(cond, collapse="|")
