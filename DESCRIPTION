@@ -6,6 +6,7 @@ Author: Andrew Leroux [aut, cre]
 	Ciprian Crainiceanu[aut, cre]
 	Ekaterina Smirnova [aut]
 	Quy Cao [aut]
+	John Muschelli [ctb]
 Maintainer: Andrew Leroux <aleroux2@jhu.edu>
 Description: A data package for processed NHANES accelerometry data with 
     accompanying processing pipeline code.
