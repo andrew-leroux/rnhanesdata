@@ -258,18 +258,15 @@ rm(bout_mat)
 ```
 
 ```{r calculate_accel_features4, echo = TRUE}
-flag_mat <- AllFlags[,paste0("MIN",1:1440)]
-flag_mat[is.na(flag_mat)] <- 0
-AllAct$WT    <- AllFlags$WT    <- rowSums(flag_mat)
-
-rm(flag_mat)
+AllAct$WT    <- AllFlags$WT    <- rowSums(AllFlags[,paste0("MIN",1:1440)], na.rm = TRUE)
+# rm(flag_mat)
 ```
 
 ```{r calculate_accel_features5, echo = TRUE}
 AllAct   <- cbind(AllAct, Act_2hr)
 AllFlags <- cbind(AllFlags, Act_2hr)
 
-rm(list=c("Act_2hr"))
+rm(list = c("Act_2hr"))
 ```
 
 5. Exclude participants who were: 1) younger than 50 years old, or 85 and older at the time they wore the accelerometer (10, 859 participants); 2) missing BMI or education predictor variables (41 participants); 3) had fewer than 3 days of data with at least 10 hours of estimated wear time (517 participants); 4) missing mortality information (16 participants); 5) alive with follow up less than 5 years (17 participants); 6) missing systolic blood pressure, total cholesterol or HDL cholesterol  measurements (293 participants).  Table 1 below displays number of participants with missing data for all pairwise combinations of variables with missing data. 
