@@ -1,6 +1,7 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
+sudo: required
 cache: packages
 warnings_are_errors: true
 
@@ -32,10 +33,10 @@ script:
   - echo ${CHECK_RET};
   - if [[ $CHECK_RET -ne 0 ]];
     then
-      echo "R CMD check failed"; 
-      check_fail; 
-      exit 1; 
-    fi    
+      echo "R CMD check failed";
+      check_fail;
+      exit 1;
+    fi
   - rm -f travis_wait*.log
   - check_fail
   - check_warnings
