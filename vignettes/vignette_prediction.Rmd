@@ -214,7 +214,9 @@ keep_inx       <- exclude_accel(AllAct, AllFlags)
 act_mat  <- AllAct[,paste0("MIN",1:1440)]
 
 ## replace NAs with 0s
-act_mat[is.na(act_mat)]   <- 0
+for (icol in seq(ncol(act_mat))) {
+  act_mat[, icol][is.na(act_mat[, icol])]   <- 0
+}
 
 AllAct$TAC   <- AllFlags$TAC   <- rowSums(act_mat)
 AllAct$TLAC  <- AllFlags$TLAC  <- rowSums(log(1 + act_mat))
