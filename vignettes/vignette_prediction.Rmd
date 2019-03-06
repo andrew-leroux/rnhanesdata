@@ -212,6 +212,7 @@ keep_inx       <- exclude_accel(AllAct, AllFlags)
 ## Assign just the activity and wear/non-wear flag data to matrices.
 ## This makes computing the features faster but is technically required.
 act_mat  <- AllAct[,paste0("MIN",1:1440)]
+act_mat = as.matrix(act_mat)
 
 ## replace NAs with 0s
 for (icol in seq(ncol(act_mat))) {
