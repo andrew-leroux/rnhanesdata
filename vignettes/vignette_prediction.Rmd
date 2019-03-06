@@ -1335,7 +1335,7 @@ dep_vars <- "yr5_mort"
 ```
 
 
-```{r, results='hide', eval=run_epic}
+```{r run_epic_1, results='hide', eval=run_epic}
 ## Create empty vector for incrementing included variables 
 inc_vars_adj <- c()
 
@@ -1365,7 +1365,9 @@ inx_ls_died <- split(sample(inx_id_died, size=nid_died, replace=FALSE),
                      rep(1:n_folds,each=ceiling(nid_died/n_folds))[1:nid_died])
 inx_ls <- lapply(1:n_folds, function(x) c(inx_ls_alive[[x]], inx_ls_died[[x]]))
 rm(list=c("inx_id_alive","inx_id_died","nid_alive","nid_died","inx_ls_alive","inx_ls_died"))
+```
 
+```{r run_epic_2, results='hide', eval=run_epic}
 
 ## Vector to multiply vector of k-fold cross validated weights by to
 ## get an estimate of cross-valided AUC.
