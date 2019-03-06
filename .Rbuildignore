@@ -1,3 +1,6 @@
+^pkgdown$
+^_pkgdown\.yml$
+^docs$
 ^vignettes/Fig1\.jpg$
 ^vignettes/*\.Rds$
 ^vignettes/tmp_dat_vignette/*$
