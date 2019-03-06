@@ -677,7 +677,7 @@ p.pc <- p.pc +
                     axis.title = element_text( size = 10, colour = "black", face = "bold"))+xlab("")+ylab("") +ggtitle("Figure 1a.\nThe first two Principle Components")
 
 grid.arrange(p.pc, p.act, ncol=2, nrow = 1)
-rm(list=c("df_labs","df.act","df.act.m","df1","df2","p.pc","p.act","ind.pc1","ind.pc2"))
+rm(list=c("df.act","df.act.m","df1","df2","p.pc","p.act","ind.pc1","ind.pc2"))
 ```
 
 
