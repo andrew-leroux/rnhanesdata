@@ -7,10 +7,14 @@ init:
         Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
         Import-Module '..\appveyor-tool.ps1'
 
-install:
-  - ps: Bootstrap
-  - ps: (new-object net.webclient).DownloadFile('https://github.com/muschellij2/neuroc_dependencies/raw/master/JAGS-4.2.0-Rtools33.exe', 'C:\projects\JAGS-4.2.0.exe')
+platform: x64
 
+install:
+  ps: Bootstrap
+
+environment:
+  global:
+    USE_RTOOLS: true
 
 cache:
   - C:\RLibrary
