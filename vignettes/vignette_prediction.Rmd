@@ -333,13 +333,13 @@ rm(list="AllFlags")
 ```
 
 ```{r exclusion_criteria2_run}
-
 Act_Analysis   <- AllAct[keep_inx,]
 rm(list=c("keep_inx"))
 nms_rm         <- unique(c(Act_Analysis$SEQN[-which(Act_Analysis$SEQN %in% names(table(Act_Analysis$SEQN))[table(Act_Analysis$SEQN)>=3])],
                            setdiff(AllAct$SEQN, Act_Analysis$SEQN))
                           )
 rm(list=c("AllAct"))
+gc()
 ```
 
 ```{r exclusion_criteria3_run}
@@ -370,7 +370,7 @@ rownames(tab_miss) <- colnames(tab_miss) <- names_spaced
 ## view missing data pattern
 kable(data.frame(tab_miss),format = "html", caption = "Table 1: Missing data patterns", col.names = names_spaced) %>%
   kable_styling("striped", full_width = F)
-rm(list=c("i","j","names_spaced"))
+rm(list=c("i","j","names_spaced","tab_miss"))
 ```
 
 ```{r exclusion_criteria4_run}
@@ -549,6 +549,7 @@ kable(df, caption = "Table 2: Final backward selection model estimated coefficie
 
 rm(list=c("epic_vec","i","model_vec","exc_vars","ind_vars","var_vec",
           "inc_vars","backward_model","fit_logistic_pca","df"))
+gc()
 ```
 
 
@@ -577,7 +578,7 @@ s6  <- rowMeans(Act[,t6a])-rowMeans(Act[,t6b])
 data_analysis$sPC6 <- vapply(data_analysis$SEQN, function(x) sd(s6[Act_Analysis$SEQN == x]), numeric(1))
 # cor(data_analysis$sPC6,data_analysis$si6)
 rm(list=c("t6a","t6b","s6"))
-
+gc()
 ```
 
 11. Replace the significant PC based measures with corresponding surrogate variables. This step is done to improve the interpretability and comparability (across studies) of results. For those unfamiliar with principal component analysis, reading the section "Intuition behind fPCA" below may be helpful in understanding this step further. 
@@ -676,7 +677,7 @@ p.pc <- p.pc +
                     axis.title = element_text( size = 10, colour = "black", face = "bold"))+xlab("")+ylab("") +ggtitle("Figure 1a.\nThe first two Principle Components")
 
 grid.arrange(p.pc, p.act, ncol=2, nrow = 1)
-
+rm(list=c("df_labs","df.act","df.act.m","df1","df2","p.pc","p.act","ind.pc1","ind.pc2"))
 ```
 
 
@@ -690,6 +691,7 @@ The first PC (solid blue line) captures `r 100*round((fpca_fit$evalues/sum(fpca_
 #extract each day's scores on first and second PC for  subject 21009 (red line) and 21039 (blue line)
 df <- fpca_fit$scores[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s),c(1:2)]
 rm(fpca_fit)
+gc()
 df <- data.frame(SEQN = Act_Analysis$SEQN[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s)],
                  WEEK = Act_Analysis$WEEK[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s)],
                  PC1 = df[,1], PC2 = df[,2], 
@@ -720,6 +722,7 @@ Of course, things are more complicated once we start interpreting every componen
 #extract each day's activity data  for these subjects
 df.act <- Act[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s),]
 rm(list = c("Act", "Act_Analysis"))
+gc()
 #smooth these data
 for(i in 1:nrow(df.act)){
   df.act[i,] <- gam(df.act[i,]~s(x,k=30))$fitted.values
@@ -796,7 +799,7 @@ p.fn.s2 <- p.fn.s2 +
                     axis.title = element_text( size = 10, colour = "black", face = "bold"))+xlab("")+ylab("")+ylim(range(df.act))+ggtitle("Figure 2b. \nDaily activity profiles for subject 21039")
   
 grid.arrange(p.fn.s1, p.fn.s2, ncol=2, nrow = 1)
-
+rm(list=c("p.fn.s1","p.fn.s2","df2","df.act","p.fn","df","df.act","SEQN_3","SEQN_l","SEQN_s","x"))
 ```
 
 ```{r}
@@ -810,6 +813,7 @@ col3 <- c(
 ress <- data.frame(Result = col1, Interpretation = col2, Surrogates = col3)
 kable(ress,format = "html", caption = "Table 3: Interpretation of the results of FPCA") %>%
   kable_styling("striped", full_width = F)
+rm(ress)
 ```
 
 
