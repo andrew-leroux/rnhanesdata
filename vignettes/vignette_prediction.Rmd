@@ -328,9 +328,11 @@ table_dat = table_dat %>%
 keep_inx       <- exclude_accel(AllAct, AllFlags)
 ```
 
-```{r exclusion_criteria2_run}
-Flags_Analysis <- AllFlags[keep_inx,]
+```{r, echo = FALSE}
 rm(list="AllFlags")
+```
+
+```{r exclusion_criteria2_run}
 
 Act_Analysis   <- AllAct[keep_inx,]
 rm(list=c("keep_inx"))
@@ -395,7 +397,7 @@ data_analysis  <- reweight_accel(data_analysis)
 ## Since we've already removed the "bad" days from Act_Analysis and Act_Flags,
 ## we need only subset based on subject ID now
 Act_Analysis   <- subset(Act_Analysis, SEQN %in% data_analysis$SEQN)
-Flags_Analysis <- subset(Flags_Analysis, SEQN %in% data_analysis$SEQN)
+
 ```
 
 7. Calculate subject specific averages of the accelerometry features using only the "good" days of data.
@@ -713,6 +715,7 @@ Of course, things are more complicated once we start interpreting every componen
 #plot activity data
 #extract each day's activity data  for these subjects
 df.act <- Act[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s),]
+rm(Act_Analysis)
 #smooth these data
 for(i in 1:nrow(df.act)){
   df.act[i,] <- gam(df.act[i,]~s(x,k=30))$fitted.values
