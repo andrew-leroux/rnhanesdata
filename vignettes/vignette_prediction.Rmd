@@ -17,6 +17,20 @@ knitr::opts_chunk$set(
   echo = FALSE,
   fig.align = 'center'
 )
+library("knitr")
+library("kableExtra")
+library("devtools")
+library("ggplot2")
+library("gridExtra")
+library("corrplot")
+library("reshape2")
+library("magrittr")
+library("plyr")
+library("dplyr")
+library("survey")
+library("mgcv")
+library("refund")
+library("rnhanesdata")
 ```
 
 
@@ -26,23 +40,22 @@ We access the prediction performance of objective physical activity  measures an
 
 The following packages will be used in this vignette to provide illustration of NHANES 5-year mortality prediction model. 
 
-```{r Paths, results = 'hide', echo = TRUE}
 
-pckgs <- c("knitr","kableExtra",   ## packages used for creating Table 1
-           "devtools",                        ## package used to download R packages stored on GitHub
-           "prettydoc",                       ## for fancy vignette style
-           "ggplot2", "gridExtra",            ## packages for plotting 
-           "corrplot",                        ## for correlation plot
-           "reshape2",                        ## for transforming data long -> wide and wide -> long           
-           "magrittr","plyr","dplyr",         ## packages for merging/transforming data
-           "survey",                          ## package used for analyzing complex survey data in R
-           "survival",                        ## package used for analyzing survival data in R
-           "mgcv", "refund",                  ## packages used for smoothing/fpca
-           "rnhanesdata"                      ## nhanes accelerometry data pacakge
-           )
-sapply(pckgs, function(x) require(x,character.only=TRUE,quietly=TRUE))
-rm(list=c("pckgs"))
-library(rnhanesdata)
+```{r Paths, echo = TRUE,eval=FALSE}
+library("knitr")
+library("kableExtra")
+library("devtools")
+library("ggplot2")
+library("gridExtra")
+library("corrplot")
+library("reshape2")
+library("magrittr")
+library("plyr")
+library("dplyr")
+library("survey")
+library("mgcv")
+library("refund")
+library("rnhanesdata")
 ```
 
 
