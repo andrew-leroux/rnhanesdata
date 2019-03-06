@@ -1,5 +1,4 @@
 vignettes/Fig1.jpg
-vignettes/*.Rds
 vignettes/tmp_dat_vignette/*
 tmp_dat_vignette/
 .Rproj.user
