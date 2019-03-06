@@ -61,32 +61,34 @@ We start by downloading NHANES 2003-2004 and 2005-2006 cohorts' information, pro
 # A better solution would be to use the tempdir() function, but this can lead to issues with compiling the markdown 
 # document. As a result, here we use the current working directory, which, when compiled, is the directory where the .Rmd
 # file is saved. 
-dir_tmp <- file.path(getwd(), "tmp_dat_vignette")
+# dir_tmp <- file.path(getwd(), "tmp_dat_vignette")
+dir_tmp = tempfile()
+dir.create(dir_tmp)
 
 if (!dir.exists(dir_tmp)){
   dir.create(dir_tmp, showWarnings = FALSE)
-  dl_file = function(url) {
-    bn = basename(url) 
-    destfile = file.path(dir_tmp, bn)
-    if (!file.exists(destfile)) {
-      out = download.file(url, destfile = destfile, mode="wb")
-    }
-    stopifnot(file.exists(destfile))
-  }
-  ## download the lab measurement data for the cohort 2003-2004
-  # Cholesterol - Total & HDL: LBXTC and LBXHDD
-  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/L13_C.XPT")
-  # Blood Pressure: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
-  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/BPX_C.XPT")
-  
-  ## download the lab measurement data for the cohort 2005-2006
-  # Total Cholesterol: LBXTC
-  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/TCHOL_D.XPT")
-  # HDL Cholesterol: LBDHDD
-  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/HDL_D.XPT")
-  # Blood Pressure, up to 4 measurements per person: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
-  dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/BPX_D.XPT")
 }
+dl_file = function(url) {
+  bn = basename(url) 
+  destfile = file.path(dir_tmp, bn)
+  if (!file.exists(destfile)) {
+    out = download.file(url, destfile = destfile, mode="wb")
+  }
+  stopifnot(file.exists(destfile))
+}
+## download the lab measurement data for the cohort 2003-2004
+# Cholesterol - Total & HDL: LBXTC and LBXHDD
+dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/L13_C.XPT")
+# Blood Pressure: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
+dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/BPX_C.XPT")
+
+## download the lab measurement data for the cohort 2005-2006
+# Total Cholesterol: LBXTC
+dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/TCHOL_D.XPT")
+# HDL Cholesterol: LBDHDD
+dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/HDL_D.XPT")
+# Blood Pressure, up to 4 measurements per person: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4
+dl_file("https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/BPX_D.XPT")
 
 
 varnames <- c("LBXTC","LBXHDD","LBDHDD",           ## 1. cholesterol. Note LBXHDD and LBDHDD are the same variable, 
