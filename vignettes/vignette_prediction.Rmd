@@ -294,7 +294,7 @@ drop_cn = c(paste0("MIN",1:1440), "TAC","TLAC","WT","ST","MVPA",
 #          SDDSRVYR, WTMEC2YR, WTINT2YR, 
 #          SDMVPSU,  SDMVSTRA)  
 table_dat <- AllAct[!duplicated(AllAct$SEQN),
-                       setdiff(colnames(AllAct), cn)]
+                       setdiff(colnames(AllAct), drop_cn)]
 
 ## subset based on our age inclusion/exclusion criteria
 ## note that individuals age 85 and over are coded as NA
