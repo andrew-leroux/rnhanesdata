@@ -1,3 +1,4 @@
+vignettes/*.html
 vignettes/Fig1.jpg
 vignettes/tmp_dat_vignette/*
 tmp_dat_vignette/
