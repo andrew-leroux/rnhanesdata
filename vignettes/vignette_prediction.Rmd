@@ -390,13 +390,15 @@ eval(parse(text = paste0("table_dat$Exclude <- as.integer(",
 ## containing only those subjects who meet our inclusion criteria.
 data_analysis  <- table_dat %>% 
   filter(Exclude == 0)
+rm(table_dat)
 ## get adjusted survey weights using the reweight_accel function
 data_analysis  <- reweight_accel(data_analysis)
 
 ## Get activity/flag data for only those included participants AND days.
 ## Since we've already removed the "bad" days from Act_Analysis and Act_Flags,
 ## we need only subset based on subject ID now
-Act_Analysis   <- subset(Act_Analysis, SEQN %in% data_analysis$SEQN)
+Act_Analysis   <- Act_Analysis %>% 
+  filter(SEQN %in% data_analysis$SEQN)
 
 ```
 
@@ -507,6 +509,7 @@ for(i in 1:length(ind_vars)){
 backward_model <- model_vec[which(diff(epic_vec) > 0) + 1][1]
 fit_logistic_pca <- svyglm(as.formula(paste("yr5_mort ~", backward_model)), design=data_analysis_svy,
                            family=quasibinomial())
+rm(list = "data_analysis_svy")
 ```
 
 
@@ -545,7 +548,7 @@ kable(df, caption = "Table 2: Final backward selection model estimated coefficie
   kable_styling("striped", full_width = F) #p-values 
 
 rm(list=c("epic_vec","i","model_vec","exc_vars","ind_vars","var_vec",
-          "inc_vars","data_analysis_svy","backward_model","fit_logistic_pca","df"))
+          "inc_vars","backward_model","fit_logistic_pca","df"))
 ```
 
 
@@ -664,7 +667,7 @@ p.pc <- p.pc +
                       labels = c("12 am", "8 am", "12 pm", "5 pm", "8 pm"))+
   scale_linetype_manual(values=c("solid", "dashed"))+
   scale_color_manual(values=c("blue", "lightslateblue"))+
-  theme_bw()+ theme(legend.title = element_blank(),
+  theme_bw() + theme(legend.title = element_blank(),
                     legend.position = c(0.12, 0.95),
                     legend.key.height=unit(0.5,"line"),
                     legend.text=element_text(size=7, colour = "black", face="bold"),
@@ -686,6 +689,7 @@ The first PC (solid blue line) captures `r 100*round((fpca_fit$evalues/sum(fpca_
 #####################################
 #extract each day's scores on first and second PC for  subject 21009 (red line) and 21039 (blue line)
 df <- fpca_fit$scores[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s),c(1:2)]
+rm(fpca_fit)
 df <- data.frame(SEQN = Act_Analysis$SEQN[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s)],
                  WEEK = Act_Analysis$WEEK[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s)],
                  PC1 = df[,1], PC2 = df[,2], 
@@ -715,7 +719,7 @@ Of course, things are more complicated once we start interpreting every componen
 #plot activity data
 #extract each day's activity data  for these subjects
 df.act <- Act[Act_Analysis$SEQN %in% c(SEQN_l, SEQN_s),]
-rm(Act_Analysis)
+rm(list = c("Act", "Act_Analysis"))
 #smooth these data
 for(i in 1:nrow(df.act)){
   df.act[i,] <- gam(df.act[i,]~s(x,k=30))$fitted.values
@@ -1202,7 +1206,9 @@ times <- c("12AM-2AM", "2AM-4AM", "4AM-6AM", "6AM-8AM", "8AM-10AM", "10AM-12PM",
            "12PM-2PM", "2PM-4PM", "4PM-6PM", "6PM-8PM", "8PM-10PM", "10PM-12AM")
 s1 <- paste0("TLAC_", c(1:12))
 s2 <- paste("TLAC", times)
-for(i in 1:length(s1)){auc_mat_adj$Variable[which(auc_mat_adj$Variable == s1[i])] <- s2[i]}
+for(i in 1:length(s1)){
+  auc_mat_adj$Variable[which(auc_mat_adj$Variable == s1[i])] <- s2[i]
+  }
 
 #select complete cases only for the plot
 cut_auc_mat_adj <- auc_mat_adj[complete.cases(auc_mat_adj),]
@@ -1279,6 +1285,7 @@ s2 <- paste("TLAC", times)
 for(i in 1:length(s1)){rownames(df)[which(rownames(df) == s1[i])] <- s2[i]}
 
 ci.final <- confint(fit_final,  level = 0.95, method = "likelihood")
+rm(fit_final)
 
 #exponentiate to convert estimated coefficients into odds ratio
 #exponentiate to convert estimated coefficients into odds ratio
@@ -1288,8 +1295,8 @@ df <- cbind(df, round(df2,3))
 
 ## selected using the adjusted survey weight model
 kable(df,caption = "Table 6: Estimated final model coefficients with corresponding standard errors and significance values") %>%  
-  kable_styling("striped", full_width = F)
-
+  kable_styling("striped", full_width = FALSE)
+rm(df)
 ```
 
 
@@ -1330,7 +1337,7 @@ col <- colorRampPalette(c("red", "white", "blue"))(20)
 
 
 corrplot(M, method="circle", type = "upper", col = col, tl.col = "black", tl.srt = 45, tl.cex = 0.5) 
-
+rm(data_analysis_ns)
 ```
 
 The 5-year mortality prediction model reported in this analysis used cross validated AUC as the forward selection criteria. We examined robustness of our results to using EPIC (Figure 4) and AIC (Figure 5) criteria to enter a new variable into the model. While there is difference in the order in which the variables enter into the model, all 3 criteria approaches select mostly the same top 8 variables for the final model. The notable exception is that neither AIC nor EPIC select TAC into the model. This is likely due to the fact that age and TAC have similar explanatory power and both EPIC/AIC select age first. Then, once age is included in the model, other accelerometry measures explain more of the variability unexplained by age than TAC.  
@@ -1745,6 +1752,8 @@ rm(list=c("inx_ls",
           paste0("inc_vars_",c("adj")),
           paste0("exc_vars_",c("adj")),
           "i","n_folds","k_id"))
+rm(list = "data_analysis")
+rm(list= "data_analysis_svy_adj")
 saveRDS(auc_mat_adj_aic, "auc_mat_adj_aic.Rds")
 ```
 
@@ -1778,13 +1787,13 @@ cut_auc_mat_adj_aic$Variable <- factor(cut_auc_mat_adj_aic$Variable, cut_auc_mat
 
 
 
-all=cbind.data.frame(Variable = cut_auc_mat_adj_aic$Variable,
+melt_all=cbind.data.frame(Variable = cut_auc_mat_adj_aic$Variable,
                      AUC = cut_auc_mat_adj_aic$Cross.Validated.AUC*1850,
                      AIC = cut_auc_mat_adj_aic$AIC,
                      EPIC = cut_auc_mat_adj_aic$EPIC)
 
 
-melt_all <- melt(all)
+melt_all <- melt(melt_all)
 act_vars <- c("SD on PC 6 (surrogate)", "Sedentary time", "Wear time", "MVPA","TAC", "TLAC", "SATP", "ASTP", s2)
 colour_act <- ifelse(melt_all$Variable %in% act_vars, 'red','black')
 
