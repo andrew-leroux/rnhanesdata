@@ -20,8 +20,10 @@ Defaults to NULL.}
 \value{
 This function will return a list with number of elements less than or equal to the number of waves of data specified by the "waves"
 argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
-indicated by the localpath argument; or available in the data package. Each element of the list returned is a data frame
-with columns:
+indicated by the localpath argument; or available in the data package. Because the mortality data provided changes from year-to-year, the columns of each
+element will depend on the release year.
+
+For the 2011 release year data, each element of the list returned is a data frame with columns:
 
 \itemize{
    \item{SEQN:}{ Unique subject identifier}
@@ -66,13 +68,15 @@ with columns:
      \item{mortscrce_dcl:}{ mortality source: data collection}
 
 }
+
+For the 2015 release year data, only the first 8 columns described above are provided.
 }
 \description{
 This function creates a clean mortality dataset which can be combined with data from the
 NHANES 2003-2004/2005-2006 waves.
 }
 \details{
-As of writing, this function has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.
+As of writing, this function has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.devtools::check(args = "--as-cran")
 The raw data comes in the form of a vector of strings, with each string associated with on participant.
 Assuming mortality releases for other waves use the same format, this function.
 As future mortality data are released, we will update the package with both the processed and raw mortality data for the NHANES 2003-2006 waves.

@@ -443,7 +443,7 @@ process_flags <- function(x, days_distinct=FALSE, window=90L, tol=2L, tol_upper=
 #'
 #' @details
 #'
-#' As of writing, this function has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.
+#' As of writing, this function has only been tested on the 2011 release for the 2003-2004 and 2005-2006 NHANES mortality data.devtools::check(args = "--as-cran")
 #' The raw data comes in the form of a vector of strings, with each string associated with on participant.
 #' Assuming mortality releases for other waves use the same format, this function.
 #' As future mortality data are released, we will update the package with both the processed and raw mortality data for the NHANES 2003-2006 waves.
@@ -524,7 +524,8 @@ process_flags <- function(x, days_distinct=FALSE, window=90L, tol=2L, tol_upper=
 #'    Hyattsville, Maryland. (Available at the following address: http://www.cdc.gov/nchs/data_access/data_linkage/mortality.htm
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar
-#' @importFrom readr read_fwf
+#'
+#' @importFrom readr read_fwf fwf_cols
 #'
 #'
 #' @export
