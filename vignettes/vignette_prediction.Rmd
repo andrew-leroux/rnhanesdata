@@ -413,7 +413,7 @@ for(i in act_var_nms){
 }
 
 ## clean up the workspace
-rm(list=c("i","criteria_vec","nms_rm","tab_miss","act_var_nms"))
+rm(list=c("i","criteria_vec","nms_rm","act_var_nms"))
 ```
 
 
@@ -677,7 +677,7 @@ p.pc <- p.pc +
                     axis.title = element_text( size = 10, colour = "black", face = "bold"))+xlab("")+ylab("") +ggtitle("Figure 1a.\nThe first two Principle Components")
 
 grid.arrange(p.pc, p.act, ncol=2, nrow = 1)
-rm(list=c("df.act","df.act.m","df1","df2","p.pc","p.act","ind.pc1","ind.pc2"))
+rm(list=c("df.act","df.act.m","df1","p.pc","p.act","ind.pc1","ind.pc2"))
 ```
 
 

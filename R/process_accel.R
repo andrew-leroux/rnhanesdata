@@ -455,8 +455,10 @@ process_flags <- function(x, days_distinct=FALSE, window=90L, tol=2L, tol_upper=
 #'
 #' This function will return a list with number of elements less than or equal to the number of waves of data specified by the "waves"
 #' argument. The exact number of elements returned will depend on whether all files specified by the user are found in either: 1) the local directory
-#' indicated by the localpath argument; or available in the data package. Each element of the list returned is a data frame
-#' with columns:
+#' indicated by the localpath argument; or available in the data package. Because the mortality data provided changes from year-to-year, the columns of each
+#' element will depend on the release year.
+#'
+#' For the 2011 release year data, each element of the list returned is a data frame with columns:
 #'
 #' \itemize{
 #'    \item{SEQN:}{ Unique subject identifier}
@@ -502,6 +504,8 @@ process_flags <- function(x, days_distinct=FALSE, window=90L, tol=2L, tol_upper=
 #'
 #' }
 #'
+#' For the 2015 release year data, only the first 8 columns described above are provided.
+#'
 #' @examples
 #' library("rnhanesdata")
 #'
@@ -520,6 +524,7 @@ process_flags <- function(x, days_distinct=FALSE, window=90L, tol=2L, tol_upper=
 #'    Hyattsville, Maryland. (Available at the following address: http://www.cdc.gov/nchs/data_access/data_linkage/mortality.htm
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar
+#' @importFrom readr read_fwf
 #'
 #'
 #' @export
@@ -551,78 +556,49 @@ process_mort <- function(waves=c("C","D"),
         ret <- c()
         pb <- txtProgressBar(min=0, max=length(waves_mort), style=3)
         for(i in seq_along(waves_mort)){
-                raw.data = readLines(filepath[i])
 
-                N = length(raw.data)
+            out.name <- paste0("Mortality_", mort_release_yr, "_",  waves[i])
+            if(mort_release_yr == 2011){
+                out <- read_fwf(file=filepath[i],
+                                    col_types = "iiiiddciiiiiii",
+                                    fwf_cols(SEQN = c(1,14),
+                                             eligstat = c(15,15),
+                                             mortstat = c(16,16),
+                                             causeavl = c(17,17),
+                                             permth_exm = c(47,49),
+                                             permth_int = c(44,46),
+                                             ucod_leading = c(18,20),
+                                             diabetes_mcod = c(21,21),
+                                             hyperten_mcod = c(22,22),
+                                             mortsrce_ndi = c(50,50),
+                                             mortsrce_cms = c(51,51),
+                                             mortsrce_ssa = c(52,52),
+                                             mortsrce_dc = c(53,53),
+                                             mortsrce_dcl = c(54,54)
+                                    ),
+                                    na = c(" ","")
+                            )
 
-                seqn = NULL
-                eligstat = NULL
-                mortstat = NULL
-                causeavl = NULL
-                ucod_leading = NULL
-                diabetes = NULL
-                hyperten = NULL
+            }
 
-                permth_int = NULL
-                permth_exm = NULL
-                mortsrce_ndi = NULL
-                mortsrce_cms = NULL
-                mortsrce_ssa = NULL
-                mortsrce_dc = NULL
-                mortsrce_dcl= NULL
+            if(mort_release_yr == 2015){
+                out <- read_fwf(file=filepath[i],
+                                col_types = "iiiiicii",
+                                fwf_cols(SEQN = c(1,14),
+                                         eligstat = c(15,15),
+                                         mortstat = c(16,16),
+                                         permth_exm = c(46,48),
+                                         permth_int = c(43,45),
+                                         ucod_leading = c(17,19),
+                                         diabetes_mcod = c(20,20),
+                                         hyperten_mcod = c(21,21)
+                                    ),
+                                    na = c(".","")
+                    )
 
-
-                for (j in 1:N){
-
-                        seqn = c(seqn,substr(raw.data[j],1,5))
-                        eligstat = c(eligstat,as.numeric(substr(raw.data[j],15,15)))
-                        mortstat = c(mortstat,as.numeric(substr(raw.data[j],16,16)))
-                        causeavl = c(causeavl,as.numeric(substr(raw.data[j],17,17)))
-                        ucod_leading = c(ucod_leading,substr(raw.data[j],18,20))
-                        diabetes = c(diabetes,as.numeric(substr(raw.data[j],21,21)))
-                        hyperten = c(hyperten,as.numeric(substr(raw.data[j],22,22)))
-
-                        permth_int = c(permth_int,as.numeric(substr(raw.data[j],44,46)))
-                        permth_exm = c(permth_exm,as.numeric(substr(raw.data[j],47,49)))
-
-                        mortsrce_ndi = c(mortsrce_ndi,substr(raw.data[j],50,50))
-                        mortsrce_cms = c(mortsrce_cms,substr(raw.data[j],51,51))
-                        mortsrce_ssa = c(mortsrce_ssa,substr(raw.data[j],52,52))
-                        mortsrce_dc = c(mortsrce_dc,substr(raw.data[j],53,53))
-                        mortsrce_dcl = c(mortsrce_dcl,substr(raw.data[j],54,54))
-
-                }
-
-
-                ucod_leading                   <- trimws(ucod_leading)
-                ucod_leading[ucod_leading==""] <- NA
-
-                out.name <- paste0("Mortality_", mort_release_yr, "_",  waves[i])
-                out <- data.frame("SEQN"=as.integer(seqn),
-                                  "eligstat"=as.integer(eligstat),
-                                  "mortstat"=as.integer(mortstat),
-                                  "causeavl"=as.integer(causeavl),
-                                  "permth_exm"=permth_exm,
-                                  "permth_int"=permth_int,
-                                  "ucod_leading"=ucod_leading,
-                                  "diabetes_mcod"=as.integer(diabetes),
-                                  "hyperten_mcod"=as.integer(hyperten),
-                                  "mortsrce_ndi"=as.integer(mortsrce_ndi),
-                                  "mortsrce_cms"=as.integer(mortsrce_cms),
-                                  "mortsrce_ssa"=as.integer(mortsrce_ssa),
-                                  "mortsrce_dc"=as.integer(mortsrce_dc),
-                                  "mortsrce_dcl"=as.integer(mortsrce_dcl),
-                                  stringsAsFactors=FALSE)
-
-
-                ret[[out.name]] <- out
-
-                rm(list=c("out","out.name","seqn","eligstat","mortstat","causeavl","permth_exm","permth_int",
-                          "ucod_leading","diabetes","hyperten","j","raw.data",
-                          paste0("mortsrce_",c("ndi","cms","ssa","dc","dcl")))
-                   )
-
-                setTxtProgressBar(pb, i)
+            }
+            ret[[out.name]] <- data.frame(out)
+            setTxtProgressBar(pb, i)
         }
 
         ret
