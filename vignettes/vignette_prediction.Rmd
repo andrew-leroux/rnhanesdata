@@ -27,6 +27,7 @@ library("reshape2")
 library("magrittr")
 library("plyr")
 library("dplyr")
+library("PredictABEL")
 library("survey")
 library("mgcv")
 library("refund")
@@ -54,6 +55,7 @@ library("reshape2")
 library("magrittr")
 library("plyr")
 library("dplyr")
+library("PredictABEL")
 library("survey")
 library("mgcv")
 library("refund")
@@ -1435,12 +1437,10 @@ k_id <- vapply(inx_ls, length, numeric(1))/nrow(data_analysis)
 Cross validated AUC in the non-PA model is `r round(auc_ij_adj_noPA, 3)`
 
 ```{r, eval = TRUE}
-#library(rnicens)
-library(PredictABEL)
 reclassification(data = data_analysis, 
                  cOutcome=which(names(data_analysis) == "yr5_mort"), 
                  predrisk1 = predict(fit_svy_noPA, type = "response"), #risks of the non-activity based model
-                 predrisk2 = predict(fit_final, type = "response"), #risks for our final model
+                 predrisk2 = predict(fit_final, type = "response"),    #risks for our final model
                  cutoff = c(0, 0.3, 0.5, 1))
 ```
 

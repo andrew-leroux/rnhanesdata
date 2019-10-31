@@ -1,7 +1,7 @@
 Package: rnhanesdata
 Type: Package
 Title: NHANES Accelerometry Data Pipeline
-Version: 1.01
+Version: 1.02
 Author: Andrew Leroux [aut, cre]
 	Ciprian Crainiceanu[aut, cre]
 	Ekaterina Smirnova [aut]
@@ -32,7 +32,8 @@ Suggests:
     survival,
     mgcv,
     refund,
-    covr
+    covr,
+    PredictABEL
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 URL: https://github.com/andrew-leroux/rnhanesdata
