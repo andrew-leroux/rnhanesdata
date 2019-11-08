@@ -11,7 +11,7 @@ If you want to build the package vignettes (recommended), you'll want to run the
 
 ```{r}
 #install.package("devtools")
-devtools::install_github("andrew-leroux/rnhanesdata", build = TRUE, 
+devtools::install_github("andrew-leroux/rnhanesdata", build_vignettes = TRUE, 
                          build_opts = c("--no-resave-data", "--no-manual"))
 ```
 
