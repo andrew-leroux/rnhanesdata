@@ -4,8 +4,14 @@
 \alias{process_flags}
 \title{Process wear/non-wear flags for NHANES 2003-2004 and 2005-2006 accelerometry data}
 \usage{
-process_flags(x, days_distinct = FALSE, window = 90L, tol = 2L,
-  tol_upper = 99L, ...)
+process_flags(
+  x,
+  days_distinct = FALSE,
+  window = 90L,
+  tol = 2L,
+  tol_upper = 99L,
+  ...
+)
 }
 \arguments{
 \item{x}{A list with each element corresponding to a data matrix of activity counts in the 1440+ format with 7 rows per individual. Each element of x should be named, and each

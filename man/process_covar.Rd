@@ -4,13 +4,16 @@
 \alias{process_covar}
 \title{Merge non-accelerometry data for NHANES waves}
 \usage{
-process_covar(waves = c("C", "D"), varnames = c("SDDSRVYR", "WTMEC2YR",
-  "WTINT2YR", "SDMVPSU", "SDMVSTRA", "RIDAGEMN", "RIDAGEEX", "RIDRETH1",
-  "RIAGENDR", "BMXWT", "BMXHT", "BMXBMI", "DMDEDUC2", "ALQ101", "ALQ110",
-  "ALQ120Q", "ALQ120U", "ALQ130", "SMQ020", "SMD030", "SMQ040", "MCQ220",
-  "MCQ160F", "MCQ160B", "MCQ160C", "PFQ049", "PFQ054", "PFQ057", "PFQ059",
-  "PFQ061B", "PFQ061C", "DIQ010"), localpath = NULL,
-  extractAll = FALSE)
+process_covar(
+  waves = c("C", "D"),
+  varnames = c("SDDSRVYR", "WTMEC2YR", "WTINT2YR", "SDMVPSU", "SDMVSTRA", "RIDAGEMN",
+    "RIDAGEEX", "RIDRETH1", "RIAGENDR", "BMXWT", "BMXHT", "BMXBMI", "DMDEDUC2", "ALQ101",
+    "ALQ110", "ALQ120Q", "ALQ120U", "ALQ130", "SMQ020", "SMD030", "SMQ040", "MCQ220",
+    "MCQ160F", "MCQ160B", "MCQ160C", "PFQ049", "PFQ054", "PFQ057", "PFQ059", "PFQ061B",
+    "PFQ061C", "DIQ010"),
+  localpath = NULL,
+  extractAll = FALSE
+)
 }
 \arguments{
 \item{waves}{character vector with entries of (capitalized) letter of the alphabet corresponding to the

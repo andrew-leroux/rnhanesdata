@@ -4,8 +4,12 @@
 \alias{reweight_accel}
 \title{Reweight NHANES accelerometry data}
 \usage{
-reweight_accel(data, return_unadjusted_wts = TRUE, age_bks = c(0, 1, 3,
-  6, 12, 16, 20, 30, 40, 50, 60, 70, 80, 85, Inf), right = FALSE)
+reweight_accel(
+  data,
+  return_unadjusted_wts = TRUE,
+  age_bks = c(0, 1, 3, 6, 12, 16, 20, 30, 40, 50, 60, 70, 80, 85, Inf),
+  right = FALSE
+)
 }
 \arguments{
 \item{data}{Data frame to with survey weights to be re-weighted. Should not contain any duplicated participants. That is, each row

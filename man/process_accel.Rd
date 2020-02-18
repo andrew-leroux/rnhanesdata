@@ -4,9 +4,14 @@
 \alias{process_accel}
 \title{Process NHANES 2003-2004 and 2005-2006 accelerometry data}
 \usage{
-process_accel(names_accel_xpt = c("PAXRAW_C", "PAXRAW_D"),
-  local = FALSE, localpath = NULL, urls = NULL, zipped = TRUE,
-  check_data = FALSE)
+process_accel(
+  names_accel_xpt = c("PAXRAW_C", "PAXRAW_D"),
+  local = FALSE,
+  localpath = NULL,
+  urls = NULL,
+  zipped = TRUE,
+  check_data = FALSE
+)
 }
 \arguments{
 \item{names_accel_xpt}{A character vector of names for the zipped raw files. These should be of the form PAXRAW_\* where \* corresponds to the
@@ -73,11 +78,12 @@ library("rnhanesdata")
 ## download and process the data directly from the cdc
 ## the first element of accel_ls corresponds to PAXINTEN_C and
 ## the second element of accel_ls corresponds to PAXINTEN_D
-accel_ls <- process_accel(names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
-                          local=FALSE,
-                          urls=urls=c("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAXRAW_C.ZIP",
-                                      "https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/PAXRAW_D.ZIP")
-                         )
+accel_ls <- process_accel(
+        names_accel_xpt = c("PAXRAW_C","PAXRAW_D"),
+        local=FALSE,
+        urls= c("https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/PAXRAW_C.ZIP",
+                "https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/PAXRAW_D.ZIP")
+)
 
 ## check to see that the data processed using the process_accel function
 ## are identical to the processed data included in the package

@@ -4,8 +4,7 @@
 \alias{process_mort}
 \title{Process mortality data for NHANES 2003-2004 and 2005-2006 waves}
 \usage{
-process_mort(waves = c("C", "D"), mort_release_yr = 2011,
-  localpath = NULL)
+process_mort(waves = c("C", "D"), mort_release_yr = 2011, localpath = NULL)
 }
 \arguments{
 \item{waves}{Character vector indicating the waves . Defaults to a vector with "C" and "D", corresponding to the 2003-2004 and 2005-2006 waves.}
