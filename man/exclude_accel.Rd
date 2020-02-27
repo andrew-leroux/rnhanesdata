@@ -4,8 +4,13 @@
 \alias{exclude_accel}
 \title{Remove days with too few/too much weartime and NHANES data quality flags.}
 \usage{
-exclude_accel(act, flags, threshold_lower = 600, rm_PAXSTAT = TRUE,
-  rm_PAXCAL = TRUE)
+exclude_accel(
+  act,
+  flags,
+  threshold_lower = 600,
+  rm_PAXSTAT = TRUE,
+  rm_PAXCAL = TRUE
+)
 }
 \arguments{
 \item{act}{Activity data matrix. Should contain, at a minimum, the columns: SEQN, PAXCAL, PAXSTAT, WEEKDAY, SDDSRVYR. In addition,

@@ -8,3 +8,6 @@ tmp_dat_vignette/
 .Rhistory
 .RData
 .Ruserdata
+vignettes/Fig*.jpg
+vignettes/*.tiff
+

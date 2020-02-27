@@ -8,21 +8,25 @@
 
 <title>Remove days with too few/too much weartime and NHANES data quality flags. — exclude_accel • rnhanesdata</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,11 +34,12 @@
 
 
 
-<meta property="og:title" content="Remove days with too few/too much weartime and NHANES data quality flags. — exclude_accel" />
 
+<meta property="og:title" content="Remove days with too few/too much weartime and NHANES data quality flags. — exclude_accel" />
 <meta property="og:description" content="This function subsets accelerometry data by total wear/non-wear time criteria, as well as
 NHANES data quality flags." />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -46,6 +51,7 @@ NHANES data quality flags." />
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
 
 
   </head>
@@ -64,7 +70,7 @@ NHANES data quality flags." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rnhanesdata</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2</span>
       </span>
     </div>
 
@@ -72,7 +78,7 @@ NHANES data quality flags." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,11 +101,10 @@ NHANES data quality flags." />
   </ul>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/andrew-leroux/rnhanesdata">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -110,6 +115,7 @@ NHANES data quality flags." />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -121,15 +127,18 @@ NHANES data quality flags." />
     </div>
 
     <div class="ref-description">
-    
     <p>This function subsets accelerometry data by total wear/non-wear time criteria, as well as
 NHANES data quality flags.</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>exclude_accel</span>(<span class='no'>act</span>, <span class='no'>flags</span>, <span class='kw'>threshold_lower</span> <span class='kw'>=</span> <span class='fl'>600</span>, <span class='kw'>rm_PAXSTAT</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>rm_PAXCAL</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
-    
+    <pre class="usage"><span class='fu'>exclude_accel</span>(
+  <span class='no'>act</span>,
+  <span class='no'>flags</span>,
+  <span class='kw'>threshold_lower</span> <span class='kw'>=</span> <span class='fl'>600</span>,
+  <span class='kw'>rm_PAXSTAT</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>rm_PAXCAL</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -157,12 +166,11 @@ at least 10 hours of weartime.</p></td>
       <td><p>Logical value indicating whether to remove based on the accelerometer calibration indicator variable PAXCAL. Defaults to TRUE.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>This function returns a numeric vector containing the indices of days which were identified as "good". These indices can be used to subset
 the accelerometry data as desired. An illustration is provided in the examples.</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Fundamentally, all this function does is check to see if a day has a user specified amount  of estimated  total wear time (ignoring timing of wear)
@@ -171,21 +179,19 @@ Because this function doesn't actually use the activity count data, it's not tec
 the activity data matrix to be included and checking that subject-days are identical between the activity and wear/non-wear flag matrices adds a layer of
 protection against subsetting or sorting one data matrix but not the other.</p>
 <p>This function ignores missing data. Missing values to not count toward (or against) wear time.</p>
-    
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Hart, Teresa L et al. “How Many Days of Monitoring Predict Physical Activity and Sedentary Behaviour in Older Adults?”
 The International Journal of Behavioral Nutrition and Physical Activity 8 (2011): 62. PMC. Web. 10 Oct. 2018.</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='st'>"rnhanesdata"</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='st'>"rnhanesdata"</span>)
 
 <span class='co'>## remove all days with fewer than 10 hours of wear time in the 2003-2004 accelerometry data</span>
 <span class='co'>## and exclude all days with data quality/calibration flags</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='st'>"PAXINTEN_C"</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='st'>"Flags_C"</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"PAXINTEN_C"</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"Flags_C"</span>)
 
 <span class='co'>## obtain indices for "good" days using the default threshold of at least 10 hours of weartime</span>
 <span class='no'>keep_inx</span> <span class='kw'>&lt;-</span> <span class='fu'>exclude_accel</span>(<span class='kw'>act</span> <span class='kw'>=</span> <span class='no'>PAXINTEN_C</span>, <span class='kw'>flags</span> <span class='kw'>=</span> <span class='no'>Flags_C</span>)
@@ -195,10 +201,10 @@ The International Journal of Behavioral Nutrition and Physical Activity 8 (2011)
 
 <span class='co'>## check that all remaining days have at least 10 hours of wear</span>
 <span class='co'>## and there are no data quality issues as flagged by the PAXSTAT and PAXCAL variables</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/summary'>summary</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/colSums'>rowSums</a></span>(<span class='no'>flags_good_C</span>[,<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='st'>"MIN"</span>,<span class='fl'>1</span>:<span class='fl'>1440</span>)], <span class='kw'>na.rm</span><span class='kw'>=</span><span class='fl'>TRUE</span>))</div><div class='output co'>#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#&gt;     600     754     854     875     950    1440 </div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/table'>table</a></span>(<span class='no'>flags_good_C</span>$<span class='no'>PAXSTAT</span>)</div><div class='output co'>#&gt; 
+<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span>(<span class='no'>flags_good_C</span>[,<span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"MIN"</span>,<span class='fl'>1</span>:<span class='fl'>1440</span>)], <span class='kw'>na.rm</span><span class='kw'>=</span><span class='fl'>TRUE</span>))</div><div class='output co'>#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#&gt;     600     754     854     875     950    1440 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span>(<span class='no'>flags_good_C</span>$<span class='no'>PAXSTAT</span>)</div><div class='output co'>#&gt; 
 #&gt;     1 
-#&gt; 32806 </div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/table'>table</a></span>(<span class='no'>flags_good_C</span>$<span class='no'>PAXCAL</span>)</div><div class='output co'>#&gt; 
+#&gt; 32806 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span>(<span class='no'>flags_good_C</span>$<span class='no'>PAXCAL</span>)</div><div class='output co'>#&gt; 
 #&gt;     1 
 #&gt; 32806 </div><div class='input'>
 </div></pre>
@@ -207,18 +213,15 @@ The International Journal of Behavioral Nutrition and Physical Activity 8 (2011)
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-
       <li><a href="#references">References</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -226,13 +229,16 @@ The International Journal of Behavioral Nutrition and Physical Activity 8 (2011)
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

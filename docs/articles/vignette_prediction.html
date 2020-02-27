@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The predictive performance of objective activity measures derived from accelerometry data for 5-year all-cause mortality in NHANES • rnhanesdata</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="The predictive performance of objective activity measures derived from accelerometry data for 5-year all-cause mortality in NHANES">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -30,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rnhanesdata</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2</span>
       </span>
     </div>
 
@@ -38,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -64,7 +65,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/andrew-leroux/rnhanesdata">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -77,7 +78,8 @@
 <!--/.navbar -->
 
       
-      </header><script src="vignette_prediction_files/kePrint-0.0.1/kePrint.js"></script><div class="row">
+
+      </header><script src="vignette_prediction_files/header-attrs-2.0.7/header-attrs.js"></script><script src="vignette_prediction_files/kePrint-0.0.1/kePrint.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>The predictive performance of objective activity measures derived from accelerometry data for 5-year all-cause mortality in NHANES</h1>
@@ -90,236 +92,243 @@
 
     
     
-<p>We access the prediction performance of objective physical activity measures and their ranking relative to other established predictors of 5-year all-cause mortality in the US. In this analysis, we use participants between 50 and 85 years old from the 2003-2004 and 2005-2006 samples of the National Health and Nutritional Examination Survey (NHANES, n=2969, number of deaths in 5 years=294) who wore a hip-worn accelerometer in the free living environment for up to 7 days.</p>
-<p>#Prerequisites</p>
+<p>We access the prediction performance of objective physical activity measures and their ranking relative to other established predictors of 5-year all-cause mortality in the US. In this analysis, we use participants between 50 and 85 years old from the 2003-2004 and 2005-2006 samples of the National Health and Nutritional Examination Survey (NHANES, n=2978, number of deaths in 5 years=297) who wore a hip-worn accelerometer in the free living environment for up to 7 days.</p>
+<p><strong>Note: the html file displays only partial R code neccesary to illustrate the functions and arguments used to execute the analysis. Full code is available in the corresponding .Rmd file.</strong></p>
+<div id="prerequisites" class="section level1">
+<h1 class="hasAnchor">
+<a href="#prerequisites" class="anchor"></a>Prerequisites</h1>
 <p>The following packages will be used in this vignette to provide illustration of NHANES 5-year mortality prediction model.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"knitr"</span>)</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"kableExtra"</span>)</a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"devtools"</span>)</a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"ggplot2"</span>)</a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"gridExtra"</span>)</a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"corrplot"</span>)</a>
-<a class="sourceLine" id="cb1-7" title="7"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"reshape2"</span>)</a>
-<a class="sourceLine" id="cb1-8" title="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"magrittr"</span>)</a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"plyr"</span>)</a>
-<a class="sourceLine" id="cb1-10" title="10"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"dplyr"</span>)</a>
-<a class="sourceLine" id="cb1-11" title="11"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"survey"</span>)</a>
-<a class="sourceLine" id="cb1-12" title="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"mgcv"</span>)</a>
-<a class="sourceLine" id="cb1-13" title="13"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"refund"</span>)</a>
-<a class="sourceLine" id="cb1-14" title="14"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(<span class="st">"rnhanesdata"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"knitr"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"kableExtra"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"devtools"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"ggplot2"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"gridExtra"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"corrplot"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"reshape2"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"magrittr"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"plyr"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"dplyr"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"PredictABEL"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"survey"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"mgcv"</span>)</span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"refund"</span>)</span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"rnhanesdata"</span>)</span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">RNGkind</a></span>(<span class="dt">sample.kind=</span><span class="st">"Rounding"</span>)</span></code></pre></div>
 <div id="nhanes-2003-2004-and-2005-2006-5-year-mortality-model-data-selection" class="section level2">
 <h2 class="hasAnchor">
 <a href="#nhanes-2003-2004-and-2005-2006-5-year-mortality-model-data-selection" class="anchor"></a>NHANES 2003-2004 and 2005-2006 5-year mortality model data selection</h2>
-<p>We start by downloading NHANES 2003-2004 and 2005-2006 cohorts’ information, processing data and combining survey weights for the two cohorts using R package <em>rnhanesdata</em> (Leroux, 2018). Items 1 - 11 illustrate processing steps we performed to obtain the subset of NHANES data that meets this analysis criteria, and derive activity summaries. These steps produce an R object called “data_analysis”, which is used in 5-year mortality prediction model. For simplicity of presentation, we suppress code printout at each step, which can be changed by setting echo = TRUE in the R chunk option (e.g., {r, echo = TRUE}).</p>
+<p>We start by downloading NHANES 2003-2004 and 2005-2006 cohorts’ information, processing data and combining survey weights for the two cohorts using R package <em>rnhanesdata</em> (Leroux, 2018). Items 1 - 11 illustrate processing steps we performed to obtain the subset of NHANES data that meets this analysis criteria, and derive activity summaries. These steps produce an R object called “data_analysis”, which is used in 5-year mortality prediction model. **For simplicity of presentation, we suppress code printout at each step, which can be changed by setting echo = TRUE in the R chunk option (e.g., {r, echo = TRUE}). Full code is available in the vignette_prediction.Rmd file*</p>
 <ol style="list-style-type: decimal">
 <li>Download and process NHANES lab measurements from the 2 cohorts: systolic blood pressure readings, total cholesterol, and HDL cholesterol. These data are saved in the temporary directory, which is then removed once the covariates information is processed. Blood pressure is recorded up to 4 times here for each participant. The data collection procedure and description of cholesterol and blood pressure variables is available at <a href="https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Examination&amp;CycleBeginYear=2003" class="uri">https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Examination&amp;CycleBeginYear=2003</a> for the wave 2003-2004 and at <a href="https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Examination&amp;CycleBeginYear=2005" class="uri">https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Examination&amp;CycleBeginYear=2005</a> for the wave 2005-2006.</li>
 </ol>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># Create a (local) temporary directory </span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="co"># where lab measurement (cholesterol, blood presure) data will be downloaded from the CDC website </span></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="co"># and then loaded into R. These files need to be downloaded separately as </span></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="co"># the raw files associated with these lab measurements are not included in the rnhanesdata package.</span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="co"># Note that this way of creating a temporary directory is a bit "hacky". </span></a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="co"># A better solution would be to use the tempdir() function, but this can lead to issues with compiling the markdown </span></a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="co"># document. As a result, here we use the current working directory, which, when compiled, is the directory where the .Rmd</span></a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="co"># file is saved. </span></a>
-<a class="sourceLine" id="cb2-9" title="9"><span class="co"># dir_tmp &lt;- file.path(getwd(), "tmp_dat_vignette")</span></a>
-<a class="sourceLine" id="cb2-10" title="10">dir_tmp =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/tempfile">tempfile</a></span>()</a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files2">dir.create</a></span>(dir_tmp)</a>
-<a class="sourceLine" id="cb2-12" title="12"></a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files2">dir.exists</a></span>(dir_tmp)){</a>
-<a class="sourceLine" id="cb2-14" title="14">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files2">dir.create</a></span>(dir_tmp, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb2-15" title="15">}</a>
-<a class="sourceLine" id="cb2-16" title="16">dl_file =<span class="st"> </span><span class="cf">function</span>(url) {</a>
-<a class="sourceLine" id="cb2-17" title="17">  bn =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/basename">basename</a></span>(url) </a>
-<a class="sourceLine" id="cb2-18" title="18">  destfile =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/file.path">file.path</a></span>(dir_tmp, bn)</a>
-<a class="sourceLine" id="cb2-19" title="19">  <span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files">file.exists</a></span>(destfile)) {</a>
-<a class="sourceLine" id="cb2-20" title="20">    out =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/download.file">download.file</a></span>(url, <span class="dt">destfile =</span> destfile, <span class="dt">mode=</span><span class="st">"wb"</span>)</a>
-<a class="sourceLine" id="cb2-21" title="21">  }</a>
-<a class="sourceLine" id="cb2-22" title="22">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/stopifnot">stopifnot</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files">file.exists</a></span>(destfile))</a>
-<a class="sourceLine" id="cb2-23" title="23">}</a>
-<a class="sourceLine" id="cb2-24" title="24"><span class="co">## download the lab measurement data for the cohort 2003-2004</span></a>
-<a class="sourceLine" id="cb2-25" title="25"><span class="co"># Cholesterol - Total &amp; HDL: LBXTC and LBXHDD</span></a>
-<a class="sourceLine" id="cb2-26" title="26"><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/L13_C.XPT"</span>)</a>
-<a class="sourceLine" id="cb2-27" title="27"><span class="co"># Blood Pressure: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4</span></a>
-<a class="sourceLine" id="cb2-28" title="28"><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/BPX_C.XPT"</span>)</a>
-<a class="sourceLine" id="cb2-29" title="29"></a>
-<a class="sourceLine" id="cb2-30" title="30"><span class="co">## download the lab measurement data for the cohort 2005-2006</span></a>
-<a class="sourceLine" id="cb2-31" title="31"><span class="co"># Total Cholesterol: LBXTC</span></a>
-<a class="sourceLine" id="cb2-32" title="32"><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/TCHOL_D.XPT"</span>)</a>
-<a class="sourceLine" id="cb2-33" title="33"><span class="co"># HDL Cholesterol: LBDHDD</span></a>
-<a class="sourceLine" id="cb2-34" title="34"><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/HDL_D.XPT"</span>)</a>
-<a class="sourceLine" id="cb2-35" title="35"><span class="co"># Blood Pressure, up to 4 measurements per person: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4</span></a>
-<a class="sourceLine" id="cb2-36" title="36"><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/BPX_D.XPT"</span>)</a>
-<a class="sourceLine" id="cb2-37" title="37"></a>
-<a class="sourceLine" id="cb2-38" title="38"></a>
-<a class="sourceLine" id="cb2-39" title="39">varnames &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"LBXTC"</span>,<span class="st">"LBXHDD"</span>,<span class="st">"LBDHDD"</span>,           <span class="co">## 1. cholesterol. Note LBXHDD and LBDHDD are the same variable, </span></a>
-<a class="sourceLine" id="cb2-40" title="40">                                                   <span class="co">##    but different names for 2003-2004 and 2005-2006 cohorts</span></a>
-<a class="sourceLine" id="cb2-41" title="41">              <span class="st">"BPXSY1"</span>,<span class="st">"BPXSY2"</span>,<span class="st">"BPXSY3"</span>, <span class="st">"BPXSY4"</span> <span class="co">## 2. blood pressure measurements</span></a>
-<a class="sourceLine" id="cb2-42" title="42">              )</a>
-<a class="sourceLine" id="cb2-43" title="43"></a>
-<a class="sourceLine" id="cb2-44" title="44"></a>
-<a class="sourceLine" id="cb2-45" title="45"><span class="co">## load and merge the lab data</span></a>
-<a class="sourceLine" id="cb2-46" title="46">lab_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/process_covar.html">process_covar</a></span>(<span class="dt">varnames =</span> varnames,<span class="dt">localpath=</span>dir_tmp)</a>
-<a class="sourceLine" id="cb2-47" title="47"></a>
-<a class="sourceLine" id="cb2-48" title="48"><span class="co">## change column name for cholesterol variable that changed names</span></a>
-<a class="sourceLine" id="cb2-49" title="49">lab_data<span class="op">$</span>Covariate_C =<span class="st"> </span>lab_data<span class="op">$</span>Covariate_C <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb2-50" title="50"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/plyr/topics/rename">rename</a></span>(<span class="dt">LBDHDD =</span> LBXHDD)</a>
-<a class="sourceLine" id="cb2-51" title="51"></a>
-<a class="sourceLine" id="cb2-52" title="52"><span class="co">## combine waves</span></a>
-<a class="sourceLine" id="cb2-53" title="53">CVMarkers &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_rows</a></span>(lab_data<span class="op">$</span>Covariate_C, lab_data<span class="op">$</span>Covariate_D)</a>
-<a class="sourceLine" id="cb2-54" title="54"></a>
-<a class="sourceLine" id="cb2-55" title="55"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(<span class="dt">list=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"lab_data"</span>,<span class="st">"dir_tmp"</span>,<span class="st">"varnames"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Create a (local) temporary directory </span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="co"># where lab measurement (cholesterol, blood presure) data will be downloaded from the CDC website </span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co"># and then loaded into R. These files need to be downloaded separately as </span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co"># the raw files associated with these lab measurements are not included in the rnhanesdata package.</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># Note that this way of creating a temporary directory is a bit "hacky". </span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co"># A better solution would be to use the tempdir() function, but this can lead to issues with compiling the markdown </span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co"># document. As a result, here we use the current working directory, which, when compiled, is the directory where the .Rmd</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co"># file is saved. </span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>dir_tmp =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/tempfile.html">tempfile</a></span>()</span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="kw"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span>(dir_tmp)</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/files2.html">dir.exists</a></span>(dir_tmp)){</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  <span class="kw"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span>(dir_tmp, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb2-14"><a href="#cb2-14"></a>}</span>
+<span id="cb2-15"><a href="#cb2-15"></a>dl_file =<span class="st"> </span><span class="cf">function</span>(url) {</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  bn =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/basename.html">basename</a></span>(url) </span>
+<span id="cb2-17"><a href="#cb2-17"></a>  destfile =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir_tmp, bn)</span>
+<span id="cb2-18"><a href="#cb2-18"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(destfile)) {</span>
+<span id="cb2-19"><a href="#cb2-19"></a>    out =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/download.file.html">download.file</a></span>(url, <span class="dt">destfile =</span> destfile, <span class="dt">mode=</span><span class="st">"wb"</span>)</span>
+<span id="cb2-20"><a href="#cb2-20"></a>  }</span>
+<span id="cb2-21"><a href="#cb2-21"></a>  <span class="kw"><a href="https://rdrr.io/r/base/stopifnot.html">stopifnot</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(destfile))</span>
+<span id="cb2-22"><a href="#cb2-22"></a>}</span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="co">## download the lab measurement data for the cohort 2003-2004</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="co"># Cholesterol - Total &amp; HDL: LBXTC and LBXHDD</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/L13_C.XPT"</span>)</span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co"># Blood Pressure: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2003-2004/BPX_C.XPT"</span>)</span>
+<span id="cb2-28"><a href="#cb2-28"></a></span>
+<span id="cb2-29"><a href="#cb2-29"></a><span class="co">## download the lab measurement data for the cohort 2005-2006</span></span>
+<span id="cb2-30"><a href="#cb2-30"></a><span class="co"># Total Cholesterol: LBXTC</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/TCHOL_D.XPT"</span>)</span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="co"># HDL Cholesterol: LBDHDD</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/HDL_D.XPT"</span>)</span>
+<span id="cb2-34"><a href="#cb2-34"></a><span class="co"># Blood Pressure, up to 4 measurements per person: BPXSY1 , BPXSY2, BPXSY3 and BPXSY4</span></span>
+<span id="cb2-35"><a href="#cb2-35"></a><span class="kw">dl_file</span>(<span class="st">"https://wwwn.cdc.gov/Nchs/Nhanes/2005-2006/BPX_D.XPT"</span>)</span>
+<span id="cb2-36"><a href="#cb2-36"></a></span>
+<span id="cb2-37"><a href="#cb2-37"></a></span>
+<span id="cb2-38"><a href="#cb2-38"></a>varnames &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"LBXTC"</span>,<span class="st">"LBXHDD"</span>,<span class="st">"LBDHDD"</span>,           <span class="co">## 1. cholesterol. Note LBXHDD and LBDHDD are the same variable, </span></span>
+<span id="cb2-39"><a href="#cb2-39"></a>                                                   <span class="co">##    but different names for 2003-2004 and 2005-2006 cohorts</span></span>
+<span id="cb2-40"><a href="#cb2-40"></a>              <span class="st">"BPXSY1"</span>,<span class="st">"BPXSY2"</span>,<span class="st">"BPXSY3"</span>, <span class="st">"BPXSY4"</span> <span class="co">## 2. blood pressure measurements</span></span>
+<span id="cb2-41"><a href="#cb2-41"></a>              )</span>
+<span id="cb2-42"><a href="#cb2-42"></a></span>
+<span id="cb2-43"><a href="#cb2-43"></a></span>
+<span id="cb2-44"><a href="#cb2-44"></a><span class="co">## load and merge the lab data</span></span>
+<span id="cb2-45"><a href="#cb2-45"></a>lab_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/process_covar.html">process_covar</a></span>(<span class="dt">varnames =</span> varnames,<span class="dt">localpath=</span>dir_tmp)</span>
+<span id="cb2-46"><a href="#cb2-46"></a></span>
+<span id="cb2-47"><a href="#cb2-47"></a><span class="co">## change column name for cholesterol variable that changed names</span></span>
+<span id="cb2-48"><a href="#cb2-48"></a>lab_data<span class="op">$</span>Covariate_C =<span class="st"> </span>lab_data<span class="op">$</span>Covariate_C <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-49"><a href="#cb2-49"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyr/man/rename.html">rename</a></span>(<span class="dt">LBDHDD =</span> LBXHDD)</span>
+<span id="cb2-50"><a href="#cb2-50"></a></span>
+<span id="cb2-51"><a href="#cb2-51"></a><span class="co">## combine waves</span></span>
+<span id="cb2-52"><a href="#cb2-52"></a>CVMarkers &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_rows</a></span>(lab_data<span class="op">$</span>Covariate_C, lab_data<span class="op">$</span>Covariate_D)</span>
+<span id="cb2-53"><a href="#cb2-53"></a></span>
+<span id="cb2-54"><a href="#cb2-54"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(<span class="dt">list=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"lab_data"</span>,<span class="st">"dir_tmp"</span>,<span class="st">"varnames"</span>))</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>Load minute-level activity data and combine it with lab measurements, survey sampling data, and mortality data which are included in the <em>rnhanesdata</em> package.</li>
 </ol>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co">## load the data</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"PAXINTEN_C"</span>);<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"PAXINTEN_D"</span>)</a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"Flags_C"</span>);<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"Flags_D"</span>)</a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"Mortality_2011_C"</span>);<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"Mortality_2011_D"</span>)</a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"Covariate_C"</span>);<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"Covariate_D"</span>)</a>
-<a class="sourceLine" id="cb3-6" title="6"></a>
-<a class="sourceLine" id="cb3-7" title="7"><span class="co">## re-code activity counts which are considered "non-wear" to be 0</span></a>
-<a class="sourceLine" id="cb3-8" title="8"><span class="co">## this doesn't impact many data points, most estimated non-wear times correspond to 0 counts</span></a>
-<a class="sourceLine" id="cb3-9" title="9">col_vars =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>)</a>
-<a class="sourceLine" id="cb3-10" title="10">PAXINTEN_C[, col_vars] &lt;-<span class="st"> </span>PAXINTEN_C[, col_vars]<span class="op">*</span>Flags_C[, col_vars]</a>
-<a class="sourceLine" id="cb3-11" title="11">PAXINTEN_D[, col_vars] &lt;-<span class="st"> </span>PAXINTEN_D[, col_vars]<span class="op">*</span>Flags_D[, col_vars]</a>
-<a class="sourceLine" id="cb3-12" title="12"></a>
-<a class="sourceLine" id="cb3-13" title="13"><span class="co">## Merge covariate, mortality, and accelerometry data</span></a>
-<a class="sourceLine" id="cb3-14" title="14"><span class="co">## note that both PAXINTEN_* and Covariate_* have a column</span></a>
-<a class="sourceLine" id="cb3-15" title="15"><span class="co">## called "SDDSRVYR" indicating which NHANES wave the data is associated with.</span></a>
-<a class="sourceLine" id="cb3-16" title="16"><span class="co">## To avoid duplicating this column in the merged data, we add this variable to the "by"</span></a>
-<a class="sourceLine" id="cb3-17" title="17"><span class="co">## argument in left_join()</span></a>
-<a class="sourceLine" id="cb3-18" title="18">AllAct_C &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(PAXINTEN_C, Mortality_<span class="dv">2011</span>_C, <span class="dt">by =</span> <span class="st">"SEQN"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb3-19" title="19"><span class="st">        </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Covariate_C, <span class="dt">by=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SEQN"</span>, <span class="st">"SDDSRVYR"</span>))</a>
-<a class="sourceLine" id="cb3-20" title="20">AllAct_D &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(PAXINTEN_D, Mortality_<span class="dv">2011</span>_D, <span class="dt">by =</span> <span class="st">"SEQN"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb3-21" title="21"><span class="st">        </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Covariate_D, <span class="dt">by=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SEQN"</span>, <span class="st">"SDDSRVYR"</span>))</a>
-<a class="sourceLine" id="cb3-22" title="22"></a>
-<a class="sourceLine" id="cb3-23" title="23">AllFlags_C &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Flags_C, Mortality_<span class="dv">2011</span>_C, <span class="dt">by =</span> <span class="st">"SEQN"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb3-24" title="24"><span class="st">        </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Covariate_C, <span class="dt">by=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SEQN"</span>, <span class="st">"SDDSRVYR"</span>))</a>
-<a class="sourceLine" id="cb3-25" title="25">AllFlags_D &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Flags_D, Mortality_<span class="dv">2011</span>_D, <span class="dt">by =</span> <span class="st">"SEQN"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb3-26" title="26"><span class="st">        </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Covariate_D, <span class="dt">by=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SEQN"</span>, <span class="st">"SDDSRVYR"</span>))</a>
-<a class="sourceLine" id="cb3-27" title="27"></a>
-<a class="sourceLine" id="cb3-28" title="28"><span class="co">## clean up the workspace for memory purposes</span></a>
-<a class="sourceLine" id="cb3-29" title="29"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(<span class="dt">list=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"PAXINTEN_"</span>, <span class="st">"Covariate_"</span>,<span class="st">"Mortality_2011_"</span>,<span class="st">"Flags_"</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(LETTERS[<span class="dv">3</span><span class="op">:</span><span class="dv">4</span>],<span class="dt">each=</span><span class="dv">4</span>))))</a>
-<a class="sourceLine" id="cb3-30" title="30"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/gc">gc</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">## load the data</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"PAXINTEN_C"</span>);<span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"PAXINTEN_D"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"Flags_C"</span>);<span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"Flags_D"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"Mortality_2015_C"</span>);<span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"Mortality_2015_D"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"Covariate_C"</span>);<span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"Covariate_D"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">## re-code activity counts which are considered "non-wear" to be 0</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co">## this doesn't impact many data points, most estimated non-wear times correspond to 0 counts</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>col_vars =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>)</span>
+<span id="cb3-10"><a href="#cb3-10"></a>PAXINTEN_C[, col_vars] &lt;-<span class="st"> </span>PAXINTEN_C[, col_vars]<span class="op">*</span>Flags_C[, col_vars]</span>
+<span id="cb3-11"><a href="#cb3-11"></a>PAXINTEN_D[, col_vars] &lt;-<span class="st"> </span>PAXINTEN_D[, col_vars]<span class="op">*</span>Flags_D[, col_vars]</span>
+<span id="cb3-12"><a href="#cb3-12"></a></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">## Merge covariate, mortality, and accelerometry data</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="co">## note that both PAXINTEN_* and Covariate_* have a column</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="co">## called "SDDSRVYR" indicating which NHANES wave the data is associated with.</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="co">## To avoid duplicating this column in the merged data, we add this variable to the "by"</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="co">## argument in left_join()</span></span>
+<span id="cb3-18"><a href="#cb3-18"></a>AllAct_C &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(PAXINTEN_C, Mortality_<span class="dv">2015</span>_C, <span class="dt">by =</span> <span class="st">"SEQN"</span>) <span class="op">%&gt;%</span></span>
+<span id="cb3-19"><a href="#cb3-19"></a><span class="st">        </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Covariate_C, <span class="dt">by=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"SEQN"</span>, <span class="st">"SDDSRVYR"</span>))</span>
+<span id="cb3-20"><a href="#cb3-20"></a>AllAct_D &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(PAXINTEN_D, Mortality_<span class="dv">2015</span>_D, <span class="dt">by =</span> <span class="st">"SEQN"</span>) <span class="op">%&gt;%</span></span>
+<span id="cb3-21"><a href="#cb3-21"></a><span class="st">        </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Covariate_D, <span class="dt">by=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"SEQN"</span>, <span class="st">"SDDSRVYR"</span>))</span>
+<span id="cb3-22"><a href="#cb3-22"></a></span>
+<span id="cb3-23"><a href="#cb3-23"></a>AllFlags_C &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Flags_C, Mortality_<span class="dv">2015</span>_C, <span class="dt">by =</span> <span class="st">"SEQN"</span>) <span class="op">%&gt;%</span></span>
+<span id="cb3-24"><a href="#cb3-24"></a><span class="st">        </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Covariate_C, <span class="dt">by=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"SEQN"</span>, <span class="st">"SDDSRVYR"</span>))</span>
+<span id="cb3-25"><a href="#cb3-25"></a>AllFlags_D &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Flags_D, Mortality_<span class="dv">2015</span>_D, <span class="dt">by =</span> <span class="st">"SEQN"</span>) <span class="op">%&gt;%</span></span>
+<span id="cb3-26"><a href="#cb3-26"></a><span class="st">        </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(Covariate_D, <span class="dt">by=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"SEQN"</span>, <span class="st">"SDDSRVYR"</span>))</span>
+<span id="cb3-27"><a href="#cb3-27"></a></span>
+<span id="cb3-28"><a href="#cb3-28"></a><span class="co">## clean up the workspace for memory purposes</span></span>
+<span id="cb3-29"><a href="#cb3-29"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(<span class="dt">list=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"PAXINTEN_"</span>, <span class="st">"Covariate_"</span>,<span class="st">"Mortality_2015_"</span>,<span class="st">"Flags_"</span>),<span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(LETTERS[<span class="dv">3</span><span class="op">:</span><span class="dv">4</span>],<span class="dt">each=</span><span class="dv">4</span>))))</span>
+<span id="cb3-30"><a href="#cb3-30"></a><span class="kw"><a href="https://rdrr.io/r/base/gc.html">gc</a></span>()</span></code></pre></div>
 <pre><code>##             used   (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
-## Ncells   1971989  105.4    3991171  213.2         NA   3339292  178.4
-## Vcells 156392454 1193.2  401450284 3062.9      16384 348300019 2657.4</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co">## combine data for the two waves</span></a>
-<a class="sourceLine" id="cb5-2" title="2">AllAct   &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_rows</a></span>(AllAct_C,AllAct_D)</a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(<span class="dt">list =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"AllAct_C"</span>,<span class="st">"AllAct_D"</span>))</a>
-<a class="sourceLine" id="cb5-4" title="4">AllFlags &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_rows</a></span>(AllFlags_C,AllFlags_D)</a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(<span class="dt">list =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"AllFlags_C"</span>,<span class="st">"AllFlags_D"</span>))</a>
-<a class="sourceLine" id="cb5-6" title="6"></a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="co">#merge with cardiovascular markers </span></a>
-<a class="sourceLine" id="cb5-8" title="8">AllAct &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(AllAct, CVMarkers, <span class="dt">by =</span> <span class="st">"SEQN"</span>)</a>
-<a class="sourceLine" id="cb5-9" title="9">AllFlags &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(AllFlags, CVMarkers, <span class="dt">by =</span> <span class="st">"SEQN"</span>)</a>
-<a class="sourceLine" id="cb5-10" title="10"></a>
-<a class="sourceLine" id="cb5-11" title="11"><span class="co">## clean up the workspace again</span></a>
-<a class="sourceLine" id="cb5-12" title="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(<span class="dt">list =</span> <span class="st">"CVMarkers"</span>);</a>
-<a class="sourceLine" id="cb5-13" title="13"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/gc">gc</a></span>()</a></code></pre></div>
+## Ncells   2294163  122.6    4253771  227.2         NA   4253771  227.2
+## Vcells 155995334 1190.2  402500496 3070.9      16384 347203933 2649.0</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">## combine data for the two waves</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>AllAct   &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_rows</a></span>(AllAct_C,AllAct_D)</span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(<span class="dt">list =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"AllAct_C"</span>,<span class="st">"AllAct_D"</span>))</span>
+<span id="cb5-4"><a href="#cb5-4"></a>AllFlags &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_rows</a></span>(AllFlags_C,AllFlags_D)</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(<span class="dt">list =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"AllFlags_C"</span>,<span class="st">"AllFlags_D"</span>))</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#merge with cardiovascular markers </span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>AllAct &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(AllAct, CVMarkers, <span class="dt">by =</span> <span class="st">"SEQN"</span>)</span>
+<span id="cb5-9"><a href="#cb5-9"></a>AllFlags &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">left_join</a></span>(AllFlags, CVMarkers, <span class="dt">by =</span> <span class="st">"SEQN"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10"></a></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co">## clean up the workspace again</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(<span class="dt">list =</span> <span class="st">"CVMarkers"</span>);</span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="kw"><a href="https://rdrr.io/r/base/gc.html">gc</a></span>()</span></code></pre></div>
 <pre><code>##             used   (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
-## Ncells   1969410  105.2    3991171  213.2         NA   3991171  213.2
-## Vcells 157489009 1201.6  401450284 3062.9      16384 401425426 3062.7</code></pre>
+## Ncells   2291628  122.4    4253771  227.2         NA   4253771  227.2
+## Vcells 157091987 1198.6  402500496 3070.9      16384 402498096 3070.9</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>Create new factor covariates from NHANES questionnaire, which will be used in the prediction model. In addition, calculate average systolic blood pressure using the 4 measurements per participant.</li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co">## Code year 5 mortality, NAs for individuals with follow up less than 5 years and alive</span></a>
-<a class="sourceLine" id="cb7-2" title="2">AllAct<span class="op">$</span>yr5_mort &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>yr5_mort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(</a>
-<a class="sourceLine" id="cb7-3" title="3">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(AllAct<span class="op">$</span>permth_exm<span class="op">/</span><span class="dv">12</span> <span class="op">&lt;=</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>AllAct<span class="op">$</span>mortstat <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb7-4" title="4">         <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(AllAct<span class="op">$</span>permth_exm<span class="op">/</span><span class="dv">12</span> <span class="op">&lt;</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>AllAct<span class="op">$</span>mortstat <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="ot">NA</span>, <span class="dv">0</span>))</a>
-<a class="sourceLine" id="cb7-5" title="5">                                                    )</a>
-<a class="sourceLine" id="cb7-6" title="6"><span class="co">## Create Age in years using the age at examination (i.e. when participants wore the device)</span></a>
-<a class="sourceLine" id="cb7-7" title="7">AllAct<span class="op">$</span>Age &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>Age &lt;-<span class="st"> </span>AllAct<span class="op">$</span>RIDAGEEX<span class="op">/</span><span class="dv">12</span></a>
-<a class="sourceLine" id="cb7-8" title="8"></a>
-<a class="sourceLine" id="cb7-9" title="9"><span class="co">## Re-level comorbidities to assign refused/don't know as not having the condition</span></a>
-<a class="sourceLine" id="cb7-10" title="10"><span class="co">## Note that in practice this does not affect many individuals, but it is an assumption we're making.</span></a>
-<a class="sourceLine" id="cb7-11" title="11"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllAct<span class="op">$</span>CHD)    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllFlags<span class="op">$</span>CHD)    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"No"</span>,<span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Yes"</span>))</a>
-<a class="sourceLine" id="cb7-12" title="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllAct<span class="op">$</span>CHF)    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllFlags<span class="op">$</span>CHF)    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"No"</span>,<span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Yes"</span>))</a>
-<a class="sourceLine" id="cb7-13" title="13"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllAct<span class="op">$</span>Stroke) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllFlags<span class="op">$</span>Stroke) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"No"</span>,<span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Yes"</span>))</a>
-<a class="sourceLine" id="cb7-14" title="14"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllAct<span class="op">$</span>Cancer) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllFlags<span class="op">$</span>Cancer) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"No"</span>,<span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Yes"</span>))</a>
-<a class="sourceLine" id="cb7-15" title="15"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllAct<span class="op">$</span>Diabetes) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllFlags<span class="op">$</span>Diabetes) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"No"</span>,<span class="st">"Borderline"</span>, <span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Yes"</span>))</a>
-<a class="sourceLine" id="cb7-16" title="16"></a>
-<a class="sourceLine" id="cb7-17" title="17"></a>
-<a class="sourceLine" id="cb7-18" title="18"><span class="co">## Re-level education to have 3 levels and categorize don't know/refused to be missing</span></a>
-<a class="sourceLine" id="cb7-19" title="19"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllAct<span class="op">$</span>EducationAdult) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllFlags<span class="op">$</span>EducationAdult) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"Less than high school"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Less than 9th grade"</span>, <span class="st">"9-11th grade"</span>),</a>
-<a class="sourceLine" id="cb7-20" title="20">                                                                         <span class="st">"High school"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"High school grad/GED or equivalent"</span>),</a>
-<a class="sourceLine" id="cb7-21" title="21">                                                                         <span class="st">"More than high school"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Some College or AA degree"</span>, <span class="st">"College graduate or above"</span>))</a>
-<a class="sourceLine" id="cb7-22" title="22"></a>
-<a class="sourceLine" id="cb7-23" title="23"><span class="co">## Re-level alcohol consumption to include a level for "missing"</span></a>
-<a class="sourceLine" id="cb7-24" title="24"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllAct<span class="op">$</span>DrinkStatus) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllFlags<span class="op">$</span>DrinkStatus) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(AllAct<span class="op">$</span>DrinkStatus), <span class="st">"Missing alcohol"</span>)</a>
-<a class="sourceLine" id="cb7-25" title="25">AllAct<span class="op">$</span>DrinkStatus[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(AllAct<span class="op">$</span>DrinkStatus)] &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>DrinkStatus[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(AllAct<span class="op">$</span>DrinkStatus)] &lt;-<span class="st"> "Missing alcohol"</span></a>
-<a class="sourceLine" id="cb7-26" title="26"></a>
-<a class="sourceLine" id="cb7-27" title="27"></a>
-<a class="sourceLine" id="cb7-28" title="28"><span class="co"># systolic blood pressure calculation </span></a>
-<a class="sourceLine" id="cb7-29" title="29">AllAct<span class="op">$</span>SYS &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>SYS &lt;-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>( <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowMeans</a></span>(AllAct[,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"BPXSY1"</span>,<span class="st">"BPXSY2"</span>,<span class="st">"BPXSY3"</span>, <span class="st">"BPXSY4"</span>)], <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</a>
-<a class="sourceLine" id="cb7-30" title="30"></a>
-<a class="sourceLine" id="cb7-31" title="31"><span class="co">## Re-order columns so that activity and wear/non-wear flags are the last 1440 columns of our two</span></a>
-<a class="sourceLine" id="cb7-32" title="32"><span class="co">## data matrices. This is a personal preference and is absolutely not necessary.</span></a>
-<a class="sourceLine" id="cb7-33" title="33">act_cols &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(AllAct) <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>))</a>
-<a class="sourceLine" id="cb7-34" title="34">oth_cols &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(AllAct) <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>))</a>
-<a class="sourceLine" id="cb7-35" title="35">AllAct   &lt;-<span class="st"> </span>AllAct[,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(oth_cols,act_cols)]</a>
-<a class="sourceLine" id="cb7-36" title="36">AllFlags &lt;-<span class="st"> </span>AllFlags[,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(oth_cols,act_cols)]</a>
-<a class="sourceLine" id="cb7-37" title="37"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(<span class="dt">list=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"act_cols"</span>,<span class="st">"oth_cols"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">## Code year 5 mortality, NAs for individuals with follow up less than 5 years and alive</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>AllAct<span class="op">$</span>yr5_mort &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>yr5_mort &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(AllAct<span class="op">$</span>permth_exm<span class="op">/</span><span class="dv">12</span> <span class="op">&lt;=</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>AllAct<span class="op">$</span>mortstat <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>,</span>
+<span id="cb7-4"><a href="#cb7-4"></a>         <span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(AllAct<span class="op">$</span>permth_exm<span class="op">/</span><span class="dv">12</span> <span class="op">&lt;</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>AllAct<span class="op">$</span>mortstat <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="ot">NA</span>, <span class="dv">0</span>))</span>
+<span id="cb7-5"><a href="#cb7-5"></a>                                                    )</span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="co">## Create Age in years using the age at examination (i.e. when participants wore the device)</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>AllAct<span class="op">$</span>Age &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>Age &lt;-<span class="st"> </span>AllAct<span class="op">$</span>RIDAGEEX<span class="op">/</span><span class="dv">12</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a></span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-10"><a href="#cb7-10"></a><span class="co">## Re-level comorbidities to assign refused/don't know as not having the condition</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a><span class="co">## Note that in practice this does not affect many individuals, but it is an assumption we're making.</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllAct<span class="op">$</span>CHD)    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllFlags<span class="op">$</span>CHD)    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"No"</span>,<span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Yes"</span>))</span>
+<span id="cb7-13"><a href="#cb7-13"></a><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllAct<span class="op">$</span>CHF)    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllFlags<span class="op">$</span>CHF)    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"No"</span>,<span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Yes"</span>))</span>
+<span id="cb7-14"><a href="#cb7-14"></a><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllAct<span class="op">$</span>Stroke) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllFlags<span class="op">$</span>Stroke) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"No"</span>,<span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Yes"</span>))</span>
+<span id="cb7-15"><a href="#cb7-15"></a><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllAct<span class="op">$</span>Cancer) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllFlags<span class="op">$</span>Cancer) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"No"</span>,<span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Yes"</span>))</span>
+<span id="cb7-16"><a href="#cb7-16"></a><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllAct<span class="op">$</span>Diabetes) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllFlags<span class="op">$</span>Diabetes) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"No"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"No"</span>,<span class="st">"Borderline"</span>, <span class="st">"Refused"</span>,<span class="st">"Don't know"</span>), <span class="st">"Yes"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Yes"</span>))</span>
+<span id="cb7-17"><a href="#cb7-17"></a></span>
+<span id="cb7-18"><a href="#cb7-18"></a></span>
+<span id="cb7-19"><a href="#cb7-19"></a><span class="co">## Re-level education to have 3 levels and categorize don't know/refused to be missing</span></span>
+<span id="cb7-20"><a href="#cb7-20"></a><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllAct<span class="op">$</span>EducationAdult) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllFlags<span class="op">$</span>EducationAdult) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"Less than high school"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Less than 9th grade"</span>, <span class="st">"9-11th grade"</span>),</span>
+<span id="cb7-21"><a href="#cb7-21"></a>                                                                         <span class="st">"High school"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"High school grad/GED or equivalent"</span>),</span>
+<span id="cb7-22"><a href="#cb7-22"></a>                                                                         <span class="st">"More than high school"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Some College or AA degree"</span>, <span class="st">"College graduate or above"</span>))</span>
+<span id="cb7-23"><a href="#cb7-23"></a></span>
+<span id="cb7-24"><a href="#cb7-24"></a><span class="co">## Re-level alcohol consumption to include a level for "missing"</span></span>
+<span id="cb7-25"><a href="#cb7-25"></a><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllAct<span class="op">$</span>DrinkStatus) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllFlags<span class="op">$</span>DrinkStatus) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(AllAct<span class="op">$</span>DrinkStatus), <span class="st">"Missing alcohol"</span>)</span>
+<span id="cb7-26"><a href="#cb7-26"></a>AllAct<span class="op">$</span>DrinkStatus[<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(AllAct<span class="op">$</span>DrinkStatus)] &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>DrinkStatus[<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(AllAct<span class="op">$</span>DrinkStatus)] &lt;-<span class="st"> "Missing alcohol"</span></span>
+<span id="cb7-27"><a href="#cb7-27"></a></span>
+<span id="cb7-28"><a href="#cb7-28"></a></span>
+<span id="cb7-29"><a href="#cb7-29"></a><span class="co"># systolic blood pressure calculation </span></span>
+<span id="cb7-30"><a href="#cb7-30"></a>AllAct<span class="op">$</span>SYS &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>SYS &lt;-<span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/Round.html">round</a></span>( <span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowMeans</a></span>(AllAct[,<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"BPXSY1"</span>,<span class="st">"BPXSY2"</span>,<span class="st">"BPXSY3"</span>, <span class="st">"BPXSY4"</span>)], <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</span>
+<span id="cb7-31"><a href="#cb7-31"></a></span>
+<span id="cb7-32"><a href="#cb7-32"></a><span class="co">## Re-order columns so that activity and wear/non-wear flags are the last 1440 columns of our two</span></span>
+<span id="cb7-33"><a href="#cb7-33"></a><span class="co">## data matrices. This is a personal preference and is absolutely not necessary.</span></span>
+<span id="cb7-34"><a href="#cb7-34"></a>act_cols &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(AllAct) <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>))</span>
+<span id="cb7-35"><a href="#cb7-35"></a>oth_cols &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(AllAct) <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>))</span>
+<span id="cb7-36"><a href="#cb7-36"></a>AllAct   &lt;-<span class="st"> </span>AllAct[,<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(oth_cols,act_cols)]</span>
+<span id="cb7-37"><a href="#cb7-37"></a>AllFlags &lt;-<span class="st"> </span>AllFlags[,<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(oth_cols,act_cols)]</span>
+<span id="cb7-38"><a href="#cb7-38"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(<span class="dt">list=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"act_cols"</span>,<span class="st">"oth_cols"</span>))</span></code></pre></div>
 <ol start="4" style="list-style-type: decimal">
 <li>Calculate daily activity summary measures: total activity count (TAC), total log activity count (TLAC), total accelerometer wear time (WT), total minutes of moderate/vigorous physical activity (MVPA), sedentary/sleep/non-wear to active transition probability (SATP<span class="math inline">\(_{sl/nw}\)</span>), and active to sedentary/sleep/non-wear transition probability (ASTP<span class="math inline">\(_{sl/nw}\)</span>). In addition, compute total log activity count summary measures (TLAC_1, TLAC_2, …, TLAC_12) in each 2-hr window, i.e. 12AM-2AM, 2AM-4AM, 4AM-6AM, etc. Note, there is one individual with 501 minutes recorded as NA. These missing data occur on the last day they wore the device for the last 501 minutes of the day. We impute these missing data with 0.</li>
 </ol>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="co">## Assign just the activity and wear/non-wear flag data to matrices.</span></a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="co">## This makes computing the features faster but is technically required.</span></a>
-<a class="sourceLine" id="cb8-3" title="3">act_mat  &lt;-<span class="st"> </span>AllAct[,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>)]</a>
-<a class="sourceLine" id="cb8-4" title="4">act_mat =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(act_mat)</a>
-<a class="sourceLine" id="cb8-5" title="5"></a>
-<a class="sourceLine" id="cb8-6" title="6"><span class="co">## replace NAs with 0s</span></a>
-<a class="sourceLine" id="cb8-7" title="7"><span class="cf">for</span> (icol <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">ncol</a></span>(act_mat))) {</a>
-<a class="sourceLine" id="cb8-8" title="8">  act_mat[, icol][<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(act_mat[, icol])]   &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb8-9" title="9">}</a>
-<a class="sourceLine" id="cb8-10" title="10"></a>
-<a class="sourceLine" id="cb8-11" title="11">AllAct<span class="op">$</span>TAC   &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>TAC   &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowSums</a></span>(act_mat)</a>
-<a class="sourceLine" id="cb8-12" title="12">AllAct<span class="op">$</span>TLAC  &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>TLAC  &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowSums</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>act_mat))</a>
-<a class="sourceLine" id="cb8-13" title="13">AllAct<span class="op">$</span>ST    &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>ST    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowSums</a></span>(act_mat <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb8-14" title="14">AllAct<span class="op">$</span>MVPA  &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>MVPA  &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowSums</a></span>(act_mat <span class="op">&gt;=</span><span class="st"> </span><span class="dv">2020</span>)</a>
-<a class="sourceLine" id="cb8-15" title="15"></a>
-<a class="sourceLine" id="cb8-16" title="16"><span class="co"># compute total log activity count in each 2-hr window, </span></a>
-<a class="sourceLine" id="cb8-17" title="17"><span class="co"># 2 hour (120 minutes) binning window </span></a>
-<a class="sourceLine" id="cb8-18" title="18">tlen &lt;-<span class="st"> </span><span class="dv">120</span></a>
-<a class="sourceLine" id="cb8-19" title="19">nt   &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">floor</a></span>(<span class="dv">1440</span><span class="op">/</span>tlen)</a>
-<a class="sourceLine" id="cb8-20" title="20"><span class="co"># create a list of indices for binning into 2-hour windows</span></a>
-<a class="sourceLine" id="cb8-21" title="21">inx_col_ls &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/split">split</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">1</span><span class="op">:</span>nt,<span class="dt">each=</span>tlen))</a>
-<a class="sourceLine" id="cb8-22" title="22">Act_2hr    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(inx_col_ls, <span class="cf">function</span>(x) <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowSums</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="dv">1</span><span class="op">+</span>act_mat[,x,<span class="dt">drop=</span><span class="ot">FALSE</span>])))</a>
-<a class="sourceLine" id="cb8-23" title="23"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(Act_2hr) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"TLAC_"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">12</span>))</a>
-<a class="sourceLine" id="cb8-24" title="24"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(<span class="dt">list=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"tlen"</span>,<span class="st">"nt"</span>,<span class="st">"inx_col_ls"</span>))</a></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">act_mat =<span class="st"> </span>act_mat <span class="op">&gt;=</span><span class="st"> </span><span class="dv">100</span></a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="co">## calculate fragmentation measures</span></a>
-<a class="sourceLine" id="cb9-3" title="3">get_sed_act =<span class="st"> </span><span class="cf">function</span>(x){</a>
-<a class="sourceLine" id="cb9-4" title="4">                        mat &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rle">rle</a></span>(x)</a>
-<a class="sourceLine" id="cb9-5" title="5">                        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(x)</a>
-<a class="sourceLine" id="cb9-6" title="6">                        sed &lt;-<span class="st"> </span>mat<span class="op">$</span>lengths[<span class="op">!</span>mat<span class="op">$</span>values]</a>
-<a class="sourceLine" id="cb9-7" title="7">                        act &lt;-<span class="st"> </span>mat<span class="op">$</span>lengths[mat<span class="op">$</span>values]</a>
-<a class="sourceLine" id="cb9-8" title="8"></a>
-<a class="sourceLine" id="cb9-9" title="9">                        sed &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(sed) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="ot">NA</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(sed))</a>
-<a class="sourceLine" id="cb9-10" title="10">                        act &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(act) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="ot">NA</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(act))</a>
-<a class="sourceLine" id="cb9-11" title="11">                        <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(sed, act)</a>
-<a class="sourceLine" id="cb9-12" title="12">}</a>
-<a class="sourceLine" id="cb9-13" title="13">bout_mat =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dt">nrow =</span> <span class="dv">2</span>, <span class="dt">ncol =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(act_mat))</a>
-<a class="sourceLine" id="cb9-14" title="14"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(act_mat))) {</a>
-<a class="sourceLine" id="cb9-15" title="15">  bout_mat[, i] =<span class="st"> </span><span class="kw">get_sed_act</span>(act_mat[i, ])</a>
-<a class="sourceLine" id="cb9-16" title="16">}</a>
-<a class="sourceLine" id="cb9-17" title="17"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(act_mat)</a></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">AllAct<span class="op">$</span>SBout &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>SBout &lt;-<span class="st"> </span>bout_mat[<span class="dv">1</span>,]</a>
-<a class="sourceLine" id="cb10-2" title="2">AllAct<span class="op">$</span>ABout &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>ABout &lt;-<span class="st"> </span>bout_mat[<span class="dv">2</span>,]</a>
-<a class="sourceLine" id="cb10-3" title="3">AllAct<span class="op">$</span>SATP  &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>SATP  &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>AllAct<span class="op">$</span>SBout</a>
-<a class="sourceLine" id="cb10-4" title="4">AllAct<span class="op">$</span>ASTP  &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>ASTP  &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>AllAct<span class="op">$</span>ABout</a>
-<a class="sourceLine" id="cb10-5" title="5"></a>
-<a class="sourceLine" id="cb10-6" title="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(bout_mat)</a></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">AllAct<span class="op">$</span>WT    &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>WT    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowSums</a></span>(AllFlags[,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>)], <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb11-2" title="2"><span class="co"># rm(flag_mat)</span></a></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">AllAct   &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(AllAct, Act_2hr)</a>
-<a class="sourceLine" id="cb12-2" title="2">AllFlags &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(AllFlags, Act_2hr)</a>
-<a class="sourceLine" id="cb12-3" title="3"></a>
-<a class="sourceLine" id="cb12-4" title="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(<span class="dt">list =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Act_2hr"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co">## Assign just the activity and wear/non-wear flag data to matrices.</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="co">## This makes computing the features faster but is technically required.</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>act_mat  &lt;-<span class="st"> </span>AllAct[,<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>)]</span>
+<span id="cb8-4"><a href="#cb8-4"></a>act_mat =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(act_mat)</span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="co">## replace NAs with 0s</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="cf">for</span> (icol <span class="cf">in</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(act_mat))) {</span>
+<span id="cb8-8"><a href="#cb8-8"></a>  act_mat[, icol][<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(act_mat[, icol])]   &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a>}</span>
+<span id="cb8-10"><a href="#cb8-10"></a></span>
+<span id="cb8-11"><a href="#cb8-11"></a>AllAct<span class="op">$</span>TAC   &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>TAC   &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(act_mat)</span>
+<span id="cb8-12"><a href="#cb8-12"></a>AllAct<span class="op">$</span>TLAC  &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>TLAC  &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>act_mat))</span>
+<span id="cb8-13"><a href="#cb8-13"></a>AllAct<span class="op">$</span>ST    &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>ST    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(act_mat <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span>)</span>
+<span id="cb8-14"><a href="#cb8-14"></a>AllAct<span class="op">$</span>MVPA  &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>MVPA  &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(act_mat <span class="op">&gt;=</span><span class="st"> </span><span class="dv">2020</span>)</span>
+<span id="cb8-15"><a href="#cb8-15"></a></span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="co"># compute total log activity count in each 2-hr window, </span></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="co"># 2 hour (120 minutes) binning window </span></span>
+<span id="cb8-18"><a href="#cb8-18"></a>tlen &lt;-<span class="st"> </span><span class="dv">120</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a>nt   &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/Round.html">floor</a></span>(<span class="dv">1440</span><span class="op">/</span>tlen)</span>
+<span id="cb8-20"><a href="#cb8-20"></a><span class="co"># create a list of indices for binning into 2-hour windows</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a>inx_col_ls &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/split.html">split</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>, <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="dv">1</span><span class="op">:</span>nt,<span class="dt">each=</span>tlen))</span>
+<span id="cb8-22"><a href="#cb8-22"></a>Act_2hr    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(inx_col_ls, <span class="cf">function</span>(x) <span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="dv">1</span><span class="op">+</span>act_mat[,x,<span class="dt">drop=</span><span class="ot">FALSE</span>])))</span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(Act_2hr) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"TLAC_"</span>,<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">12</span>))</span>
+<span id="cb8-24"><a href="#cb8-24"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(<span class="dt">list=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"tlen"</span>,<span class="st">"nt"</span>,<span class="st">"inx_col_ls"</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>act_mat =<span class="st"> </span>act_mat <span class="op">&gt;=</span><span class="st"> </span><span class="dv">100</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="co">## calculate fragmentation measures</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>get_sed_act =<span class="st"> </span><span class="cf">function</span>(x){</span>
+<span id="cb9-4"><a href="#cb9-4"></a>                        mat &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/rle.html">rle</a></span>(x)</span>
+<span id="cb9-5"><a href="#cb9-5"></a>                        <span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(x)</span>
+<span id="cb9-6"><a href="#cb9-6"></a>                        sed &lt;-<span class="st"> </span>mat<span class="op">$</span>lengths[<span class="op">!</span>mat<span class="op">$</span>values]</span>
+<span id="cb9-7"><a href="#cb9-7"></a>                        act &lt;-<span class="st"> </span>mat<span class="op">$</span>lengths[mat<span class="op">$</span>values]</span>
+<span id="cb9-8"><a href="#cb9-8"></a></span>
+<span id="cb9-9"><a href="#cb9-9"></a>                        sed &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(sed) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="ot">NA</span>, <span class="kw"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(sed))</span>
+<span id="cb9-10"><a href="#cb9-10"></a>                        act &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(act) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="ot">NA</span>, <span class="kw"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(act))</span>
+<span id="cb9-11"><a href="#cb9-11"></a>                        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(sed, act)</span>
+<span id="cb9-12"><a href="#cb9-12"></a>}</span>
+<span id="cb9-13"><a href="#cb9-13"></a>bout_mat =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="dt">nrow =</span> <span class="dv">2</span>, <span class="dt">ncol =</span> <span class="kw"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span>(act_mat))</span>
+<span id="cb9-14"><a href="#cb9-14"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span>(act_mat))) {</span>
+<span id="cb9-15"><a href="#cb9-15"></a>  bout_mat[, i] =<span class="st"> </span><span class="kw">get_sed_act</span>(act_mat[i, ])</span>
+<span id="cb9-16"><a href="#cb9-16"></a>}</span>
+<span id="cb9-17"><a href="#cb9-17"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(act_mat)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>AllAct<span class="op">$</span>SBout &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>SBout &lt;-<span class="st"> </span>bout_mat[<span class="dv">1</span>,]</span>
+<span id="cb10-2"><a href="#cb10-2"></a>AllAct<span class="op">$</span>ABout &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>ABout &lt;-<span class="st"> </span>bout_mat[<span class="dv">2</span>,]</span>
+<span id="cb10-3"><a href="#cb10-3"></a>AllAct<span class="op">$</span>SATP  &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>SATP  &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>AllAct<span class="op">$</span>SBout</span>
+<span id="cb10-4"><a href="#cb10-4"></a>AllAct<span class="op">$</span>ASTP  &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>ASTP  &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>AllAct<span class="op">$</span>ABout</span>
+<span id="cb10-5"><a href="#cb10-5"></a></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(bout_mat)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>AllAct<span class="op">$</span>WT    &lt;-<span class="st"> </span>AllFlags<span class="op">$</span>WT    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(AllFlags[,<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>)], <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>AllAct   &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(AllAct, Act_2hr)</span>
+<span id="cb12-2"><a href="#cb12-2"></a>AllFlags &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(AllFlags, Act_2hr)</span>
+<span id="cb12-3"><a href="#cb12-3"></a></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(<span class="dt">list =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Act_2hr"</span>))</span></code></pre></div>
 <ol start="5" style="list-style-type: decimal">
 <li>Exclude participants who were: 1) younger than 50 years old, or 85 and older at the time they wore the accelerometer (10, 859 participants); 2) missing BMI or education predictor variables (41 participants); 3) had fewer than 3 days of data with at least 10 hours of estimated wear time (517 participants); 4) missing mortality information (16 participants); 5) alive with follow up less than 5 years (17 participants); 6) missing systolic blood pressure, total cholesterol or HDL cholesterol measurements (293 participants). Table 1 below displays number of participants with missing data for all pairwise combinations of variables with missing data.</li>
 </ol>
+<pre><code>##            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
+## Ncells  2295592 122.6    4253771  227.2         NA   4253771  227.2
+## Vcells 54785818 418.0  463821372 3538.7      16384 577345343 4404.8</code></pre>
 <table class="table table table-striped">
 <caption>
 Table 1: Missing data patterns
@@ -410,7 +419,7 @@ Bad Accel Data
 4
 </td>
 <td style="text-align:right;">
-2
+0
 </td>
 <td style="text-align:right;">
 57
@@ -430,7 +439,7 @@ Mortality
 4
 </td>
 <td style="text-align:right;">
-16
+21
 </td>
 <td style="text-align:right;">
 0
@@ -450,16 +459,16 @@ Follow-up
 0
 </td>
 <td style="text-align:right;">
-2
+0
 </td>
 <td style="text-align:right;">
 0
 </td>
 <td style="text-align:right;">
-17
+0
 </td>
 <td style="text-align:right;">
-1
+0
 </td>
 </tr>
 <tr>
@@ -479,7 +488,7 @@ Lab
 1
 </td>
 <td style="text-align:right;">
-1
+0
 </td>
 <td style="text-align:right;">
 293
@@ -488,14 +497,19 @@ Lab
 </tbody>
 </table>
 <ol start="6" style="list-style-type: decimal">
-<li><p>Create our dataset for analysis, “data_analysis”, with one row per subject containing only those subjects who meet our inclusion criteria.</p></li>
+<li>Create our dataset for analysis, “data_analysis”, with one row per subject containing only those subjects who meet our inclusion criteria.</li>
+</ol>
+<p>Thus, after exclusion ctriteria were applied, the data set contained 2978 subjects. Among these participants, 86 had missing alcohol information; for these participants we introduced the category “Missing Alcohol” and retained them in the dataset.</p>
+<p>Maximum follow-up time in this cohort in years</p>
+<pre><code>## [1] 13.08333</code></pre>
+<ol start="7" style="list-style-type: decimal">
 <li><p>Calculate subject specific averages of the accelerometry features using only the “good” days of data.</p></li>
 <li><p>Get log(count +1) activity data in a matrix format and conduct functional Principal Component analysis (fPCA) using the fpca.face() function with 50 knots in the <em>refund</em> package in R.</p></li>
 </ol>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">Act &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>Act_Analysis[,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>)])</a>
-<a class="sourceLine" id="cb13-2" title="2">Act[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(Act)] &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb13-3" title="3">Act =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(Act)</a>
-<a class="sourceLine" id="cb13-4" title="4">fpca_fit &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/refund/topics/fpca.face">fpca.face</a></span>(Act,<span class="dt">knots=</span><span class="dv">50</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>Act &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>Act_Analysis[,<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MIN"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">1440</span>)])</span>
+<span id="cb15-2"><a href="#cb15-2"></a>Act[<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(Act)] &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>Act =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(Act)</span>
+<span id="cb15-4"><a href="#cb15-4"></a>fpca_fit &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/refund/man/fpca.face.html">fpca.face</a></span>(Act,<span class="dt">knots=</span><span class="dv">50</span>)</span></code></pre></div>
 <ol start="9" style="list-style-type: decimal">
 <li>Retain the first 6 PCs, which explain approximately 57% variability in the daily activity data (the space spanned by the rows of the matrix of non-smoothed log transformed activity counts) and obtain the score for each day on each PC and calculate the mean and standard deviation of these scores for each subject across days.</li>
 </ol>
@@ -503,6 +517,7 @@ Lab
 <ol start="10" style="list-style-type: decimal">
 <li>Identify the PC-specific mean and standard deviation that are significantly associated with 5-year mortality using backward selection logistic model fitted with svyglm() function in R. In this step, the demographic, behavioral and comorbidity variables were included in all models and the selection was conducted on the means and standard deviations of the scores on the 6 PCs (a total of 12 variables) using the compelx survey AIC criteria (Lumley and Scott 2015).</li>
 </ol>
+<p>Note, there are 86 participants with missing alcohol information, which was coded as an additional level of the DrinkStatus variable.</p>
 <table class="table table table-striped">
 <caption>
 Table 2: Final backward selection model estimated coefficients
@@ -532,13 +547,13 @@ OR Upper CL
 Intercept
 </td>
 <td style="text-align:right;">
--7.679
+-7.590
 </td>
 <td style="text-align:right;">
 0.000
 </td>
 <td style="text-align:right;">
-0.000
+0.001
 </td>
 <td style="text-align:right;">
 0.000
@@ -564,7 +579,7 @@ Age
 1.059
 </td>
 <td style="text-align:right;">
-1.109
+1.108
 </td>
 </tr>
 <tr>
@@ -572,19 +587,19 @@ Age
 Former Smoker
 </td>
 <td style="text-align:right;">
-0.525
+0.487
 </td>
 <td style="text-align:right;">
-0.013
+0.021
 </td>
 <td style="text-align:right;">
-1.690
+1.627
 </td>
 <td style="text-align:right;">
-1.112
+1.073
 </td>
 <td style="text-align:right;">
-2.590
+2.485
 </td>
 </tr>
 <tr>
@@ -592,19 +607,19 @@ Former Smoker
 Current Smoker
 </td>
 <td style="text-align:right;">
-0.982
+0.941
 </td>
 <td style="text-align:right;">
 0.000
 </td>
 <td style="text-align:right;">
-2.670
+2.563
 </td>
 <td style="text-align:right;">
-1.865
+1.797
 </td>
 <td style="text-align:right;">
-3.816
+3.648
 </td>
 </tr>
 <tr>
@@ -612,19 +627,19 @@ Current Smoker
 Non-Drinker
 </td>
 <td style="text-align:right;">
-0.553
+0.567
 </td>
 <td style="text-align:right;">
-0.001
+0.000
 </td>
 <td style="text-align:right;">
-1.738
+1.763
 </td>
 <td style="text-align:right;">
-1.259
+1.279
 </td>
 <td style="text-align:right;">
-2.410
+2.440
 </td>
 </tr>
 <tr>
@@ -632,19 +647,19 @@ Non-Drinker
 Heavy Drinker
 </td>
 <td style="text-align:right;">
-1.027
+1.053
 </td>
 <td style="text-align:right;">
-0.003
+0.002
 </td>
 <td style="text-align:right;">
-2.793
+2.866
 </td>
 <td style="text-align:right;">
-1.373
+1.423
 </td>
 <td style="text-align:right;">
-5.476
+5.576
 </td>
 </tr>
 <tr>
@@ -652,19 +667,19 @@ Heavy Drinker
 Missing Alcohol
 </td>
 <td style="text-align:right;">
-0.831
+0.816
 </td>
 <td style="text-align:right;">
-0.063
+0.065
 </td>
 <td style="text-align:right;">
-2.296
+2.261
 </td>
 <td style="text-align:right;">
-0.878
+0.875
 </td>
 <td style="text-align:right;">
-5.337
+5.197
 </td>
 </tr>
 <tr>
@@ -672,19 +687,19 @@ Missing Alcohol
 Underweight
 </td>
 <td style="text-align:right;">
-0.587
+0.597
 </td>
 <td style="text-align:right;">
-0.389
+0.384
 </td>
 <td style="text-align:right;">
-1.799
+1.817
 </td>
 <td style="text-align:right;">
-0.398
+0.400
 </td>
 <td style="text-align:right;">
-6.439
+6.520
 </td>
 </tr>
 <tr>
@@ -695,16 +710,16 @@ Overweight
 -0.554
 </td>
 <td style="text-align:right;">
-0.006
+0.005
 </td>
 <td style="text-align:right;">
 0.575
 </td>
 <td style="text-align:right;">
-0.384
+0.386
 </td>
 <td style="text-align:right;">
-0.859
+0.854
 </td>
 </tr>
 <tr>
@@ -712,19 +727,19 @@ Overweight
 Obese
 </td>
 <td style="text-align:right;">
--0.488
+-0.509
 </td>
 <td style="text-align:right;">
 0.000
 </td>
 <td style="text-align:right;">
-0.614
+0.601
 </td>
 <td style="text-align:right;">
-0.486
+0.478
 </td>
 <td style="text-align:right;">
-0.775
+0.755
 </td>
 </tr>
 <tr>
@@ -732,19 +747,19 @@ Obese
 Diabetes: yes
 </td>
 <td style="text-align:right;">
-0.319
+0.286
 </td>
 <td style="text-align:right;">
-0.123
+0.161
 </td>
 <td style="text-align:right;">
-1.376
+1.331
 </td>
 <td style="text-align:right;">
-0.902
+0.879
 </td>
 <td style="text-align:right;">
-2.069
+1.989
 </td>
 </tr>
 <tr>
@@ -752,19 +767,19 @@ Diabetes: yes
 CHF: yes
 </td>
 <td style="text-align:right;">
-0.859
+0.833
 </td>
 <td style="text-align:right;">
 0.001
 </td>
 <td style="text-align:right;">
-2.361
+2.300
 </td>
 <td style="text-align:right;">
-1.391
+1.356
 </td>
 <td style="text-align:right;">
-3.949
+3.841
 </td>
 </tr>
 <tr>
@@ -772,19 +787,19 @@ CHF: yes
 CHD: yes
 </td>
 <td style="text-align:right;">
-0.046
+0.113
 </td>
 <td style="text-align:right;">
-0.872
+0.671
 </td>
 <td style="text-align:right;">
-1.047
+1.120
 </td>
 <td style="text-align:right;">
-0.582
+0.649
 </td>
 <td style="text-align:right;">
-1.820
+1.879
 </td>
 </tr>
 <tr>
@@ -792,19 +807,19 @@ CHD: yes
 Stroke: yes
 </td>
 <td style="text-align:right;">
-0.338
+0.287
 </td>
 <td style="text-align:right;">
-0.209
+0.299
 </td>
 <td style="text-align:right;">
-1.402
+1.332
 </td>
 <td style="text-align:right;">
-0.806
+0.756
 </td>
 <td style="text-align:right;">
-2.376
+2.279
 </td>
 </tr>
 <tr>
@@ -812,19 +827,19 @@ Stroke: yes
 Cancer: yes
 </td>
 <td style="text-align:right;">
-0.272
+0.273
 </td>
 <td style="text-align:right;">
-0.099
+0.100
 </td>
 <td style="text-align:right;">
-1.313
+1.314
 </td>
 <td style="text-align:right;">
-0.940
+0.939
 </td>
 <td style="text-align:right;">
-1.817
+1.823
 </td>
 </tr>
 <tr>
@@ -832,19 +847,19 @@ Cancer: yes
 Mobility Problem
 </td>
 <td style="text-align:right;">
-0.627
+0.620
 </td>
 <td style="text-align:right;">
 0.001
 </td>
 <td style="text-align:right;">
-1.872
+1.859
 </td>
 <td style="text-align:right;">
-1.278
+1.270
 </td>
 <td style="text-align:right;">
-2.744
+2.719
 </td>
 </tr>
 <tr>
@@ -855,7 +870,7 @@ Total Cholesterol
 -0.003
 </td>
 <td style="text-align:right;">
-0.236
+0.243
 </td>
 <td style="text-align:right;">
 0.997
@@ -872,19 +887,19 @@ Total Cholesterol
 HDL Cholesterol
 </td>
 <td style="text-align:right;">
-0.000
+-0.001
 </td>
 <td style="text-align:right;">
-0.944
+0.840
 </td>
 <td style="text-align:right;">
-1.000
+0.999
 </td>
 <td style="text-align:right;">
-0.990
+0.989
 </td>
 <td style="text-align:right;">
-1.009
+1.008
 </td>
 </tr>
 <tr>
@@ -912,13 +927,13 @@ Systolic Blood Pressure
 mi1
 </td>
 <td style="text-align:right;">
-0.015
+0.014
 </td>
 <td style="text-align:right;">
 0.008
 </td>
 <td style="text-align:right;">
-1.015
+1.014
 </td>
 <td style="text-align:right;">
 1.004
@@ -932,13 +947,13 @@ mi1
 si6
 </td>
 <td style="text-align:right;">
--0.076
+-0.077
 </td>
 <td style="text-align:right;">
 0.000
 </td>
 <td style="text-align:right;">
-0.927
+0.926
 </td>
 <td style="text-align:right;">
 0.888
@@ -949,22 +964,37 @@ si6
 </tr>
 </tbody>
 </table>
+<pre><code>##            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
+## Ncells  2364899 126.3    4253771  227.2         NA   4253771  227.2
+## Vcells 98920329 754.8  371057098 2831.0      16384 577345343 4404.8</code></pre>
+<pre><code>##            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
+## Ncells  2364386 126.3    4253771  227.2         NA   4253771  227.2
+## Vcells 98919605 754.7  296845679 2264.8      16384 577345343 4404.8</code></pre>
 <ol start="11" style="list-style-type: decimal">
 <li>Replace the significant PC based measures with corresponding surrogate variables. This step is done to improve the interpretability and comparability (across studies) of results. For those unfamiliar with principal component analysis, reading the section “Intuition behind fPCA” below may be helpful in understanding this step further.</li>
 </ol>
 <p>Identifying potential surrogate measures is based on (subjective) interpretations involving the shapes of each principal component. Fundamentally, the idea is to use visual inspection of the principal components to identify the “dominant” features of each component. Then, we return to the original data, and calculate a statistic which we believe captures this dominant feature. For example, looking at the upper-left panel of the plot above in Step 10, we see that days which load negatively on the first the first principal component tend to be extremely active, while those who load positively tend to be very inactive. As a result, one reasonable “guess” at a surrogate measure which is highly associated with average first component is simply the total log transformed activity count (TLAC) for that day. If that is true, we would also expect that the average PC1 score within subjects is highly correlated with their average TLAC across days. In our data, average TLAC and average PC1 score are highly (negatively) correlated (<span class="math inline">\(\hat{\rho}\)</span> =-0.87), which is expected based on the sign of the first PC.</p>
-<p>This procedure would then be repeated for each feature identified as potentially predictive. In our application, we are also interested in the standard deviation of PC6. Looking at the bottom-right panel of the plot above in Step 10, we see that there are 6 periods where the contrast is highest between days with positive and negative loadings (i.e. the difference between the <span class="math inline">\(+\)</span> and <span class="math inline">\(-\)</span> curves are largest). One reasonable guess for a statistic which is highly correlated with PC6 score is the difference in average activity during the specific time periods where positive/negative loadings are high/low, respectively. For example, days that load highly on PC6 should, on average, have higher activity during the mid morning (8AM-10AM), late afternoon (3PM-5PM) and late evening (10PM-12AM) and lower activity during the early morning (5AM-7AM), late morning/early afternoon (11AM-1PM), and early evening (6PM-8PM). Since we’re interested in the standard deviation of PC6 score, we calculate the standard deviation of average log-transformed activity counts during these periods as a surrogate measure for <span class="math inline">\(s_{i6}\)</span>. In our analysis, we used all 6 of these time periods and obtained an observed correlation of <span class="math inline">\(\hat{\rho}\)</span> = 0.88, though multiple choices can be explored to see which statistic has the highest correlation with <span class="math inline">\(s_{i6}\)</span>.</p>
+<p>This procedure would then be repeated for each feature identified as potentially predictive. In our application, we are also interested in the standard deviation of PC6. Looking at the bottom-right panel of the plot above in Step 10, we see that there are 6 periods where the contrast is highest between days with positive and negative loadings (i.e. the difference between the <span class="math inline">\(+\)</span> and <span class="math inline">\(-\)</span> curves are largest). One reasonable guess for a statistic which is highly correlated with PC6 score is the difference in average activity during the specific time periods where positive/negative loadings are high/low, respectively. For example, days that load highly on PC6 should, on average, have higher activity during the mid morning (8AM-10AM), late afternoon (3PM-5PM) and late evening (10PM-12AM) and lower activity during the early morning (5AM-7AM), late morning/early afternoon (11AM-1PM), and early evening (6PM-8PM). Since we’re interested in the standard deviation of PC6 score, we calculate the standard deviation of average log-transformed activity counts during these periods as a surrogate measure for <span class="math inline">\(s_{i6}\)</span>. In our analysis, we used all 6 of these time periods and obtained an observed correlation of <span class="math inline">\(\hat{\rho}\)</span> = 0.87, though multiple choices can be explored to see which statistic has the highest correlation with <span class="math inline">\(s_{i6}\)</span>.</p>
 </div>
 <div id="intuition-behind-fpca" class="section level2">
 <h2 class="hasAnchor">
 <a href="#intuition-behind-fpca" class="anchor"></a>Intuition behind fPCA</h2>
 <p>A major problem with PC analysis is that it is not always intuitive and requires a degree of familiarity with matrix algebra and complex trajectories (functional data analysis in statistics speak). While some of these problems are unavoidable given the complexity of the data, we will now provide the needed intuition for understanding both the PCs and the implication of our findings on the original data scale (daily minute-level activity profiles). We will start with explaining the first 2PCs, which are shown in the left-top panel of Figure 1.</p>
 <p><img src="vignette_prediction_files/figure-html/plot_PC_profiles-1.png" width="960" style="display: block; margin: auto;"></p>
+<pre><code>##            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
+## Ncells  2555565 136.5    4253771  227.2         NA   4253771  227.2
+## Vcells 99356889 758.1  296845679 2264.8      16384 577345343 4404.8</code></pre>
 <p>The first PC (solid blue line) captures 22% of the overall variability in the observed daily profiles of activity. It has a distinct shape, with values starting negative between 12AM and 5AM then becoming strongly positive with a peak around 8AM and slowly decreasing but staying positive until 9:30PM, and then becoming negative after 9:30PM. This is exactly what we expected to see. For each subject, we have 3 - 7 days of valid activity data. Individuals with a positive score on this component (a.k.a., positively loaded on the first PC) on a given day will tend to have less activity during the night hours and more activity during the day hours than the average activity across all subject-days. The biggest difference between such a subject’s day and the average daily activity across all subjects is centered on the morning hours (8AM-9AM). In contrast, the second PC (dashed line) captures 14% of the overall variability in the observed daily activity profiles. It starts positive between 12AM and 2AM, then becomes negative between 2AM and 11AM, with a negative peak at 8AM, increases between 11 AM and 8PM, and decreases while staying positive after 8PM. Participants days with positive scores on this component will be more active in the evening than the average individuals dayly activity.</p>
-<p>Now, let us investigate in detail the connection between PCs, scores and individual daily trajectories. The right panel in Figure 1 displays the one day of activity profiles for 3 subjects. Here, we plot the activity data smoothed for each subject and day using thin-plate penalized spline with 30 knots as implemented in the <strong>gam()</strong> function in the <strong>mgcv</strong> package in R. The individual days for subjects 21009 (red line) and 21913 (green line) have overall high activity, which is reflected by the high positive loadings on PC 1 (55.78 and 58.96, respectively). In contrast, the individual day’s activity for subject 21039 (blue line) has lower levels, which is reflected by the negative score on the first PC (-21.12). Subjects 21009 (red line) and 21039 (blue line) are mostly active between 7AM and 9PM and their corresponding scores of the second principal component are negative (-31.14 and -36.08, respectively). Subject 21913 (green line) is however, unusually highly active during night hours (8PM – 2AM) with a highly positive score on the second PC (65.76).</p>
-<p>The last, but not least important interpretation is of means of scores versus standard deviation of scores. In Figure 1, we have displayed three days, one for each subject. However, each subject has multiple days and each day will get a score and a pattern. For example, on days when subject 21009 (red line) is less active the score on PC1 will be lower, even if the general pattern stays the same. Thus, for every subject and PC we obtain a vector of scores; for 21009 (red line) we obtain (38.39, 55.78, 35.46, 60.53, 40.76, 48.48, -21.28) on the first PC, where we showed only the trajectory corresponding to the 3rd day. What we calculate is the mean of these scores, 36.88, and the standard deviation, 27.24. The mean of the scores is relatively easy to interpret, as it represents whether the average of the 7 days is higher or lower on PC1. The standard deviation captures the day-to-day variability of the individual. In this case the mean and standard deviation for subject 21009 (red line) were 36.88 and 27.24, respectively. In contrast, for subject 21039 (blue line), the mean and standard deviation were -19.21 and 5.04, respectively, much smaller than for subject 21009 (red line). This means that both the overall mean and the daily variability around this larger mean are larger for subject 21009 than for subject 21039 (blue line). This is depicted in Figure 2, where we show smoothed activity data for all days for subjects 21009 (Figure 2a red lines) and 21039 (Figure 2b blue lines). Note that the red lines tend to be higher the blue lines and that the blue lines are less variable around their means. We conclude that, in general, average PC1 scores will tend to distinguish between lower and higher activity individuals whose are, on average, more active over the course of days with available activity data. In contrast, average PC2 scores will distinguish between individuals who, on average, have high activity in the morning and low in the evening/night and individuals who, on average, have lower activity intensity in the morning and higher during the evening/nighttime.</p>
+<p>Now, let us investigate in detail the connection between PCs, scores and individual daily trajectories. The right panel in Figure 1 displays the one day of activity profiles for 3 subjects. Here, we plot the activity data smoothed for each subject and day using thin-plate penalized spline with 30 knots as implemented in the <strong>gam()</strong> function in the <strong>mgcv</strong> package in R. The individual days for subjects 21009 (red line) and 21913 (green line) have overall high activity, which is reflected by the high positive loadings on PC 1 (55.89 and 58.75, respectively). In contrast, the individual day’s activity for subject 21039 (blue line) has lower levels, which is reflected by the negative score on the first PC (-21.12). Subjects 21009 (red line) and 21039 (blue line) are mostly active between 7AM and 9PM and their corresponding scores of the second principal component are negative (-30.91 and -36.08, respectively). Subject 21913 (green line) is however, unusually highly active during night hours (8PM - 2AM) with a highly positive score on the second PC (66.05).</p>
+<p>The last, but not least important interpretation is of means of scores versus standard deviation of scores. In Figure 1, we have displayed three days, one for each subject. However, each subject has multiple days and each day will get a score and a pattern. For example, on days when subject 21009 (red line) is less active the score on PC1 will be lower, even if the general pattern stays the same. Thus, for every subject and PC we obtain a vector of scores; for 21009 (red line) we obtain (38.39, 55.89, 35.55, 60.61, 40.91, 48.67, -21.25) on the first PC, where we showed only the trajectory corresponding to the 3rd day. What we calculate is the mean of these scores, 36.97, and the standard deviation, 27.27. The mean of the scores is relatively easy to interpret, as it represents whether the average of the 7 days is higher or lower on PC1. The standard deviation captures the day-to-day variability of the individual. In this case the mean and standard deviation for subject 21009 (red line) were 36.97 and 27.27, respectively. In contrast, for subject 21039 (blue line), the mean and standard deviation were -19.16 and 5.02, respectively, much smaller than for subject 21009 (red line). This means that both the overall mean and the daily variability around this larger mean are larger for subject 21009 than for subject 21039 (blue line). This is depicted in Figure 2, where we show smoothed activity data for all days for subjects 21009 (Figure 2a red lines) and 21039 (Figure 2b blue lines). Note that the red lines tend to be higher the blue lines and that the blue lines are less variable around their means. We conclude that, in general, average PC1 scores will tend to distinguish between lower and higher activity individuals whose are, on average, more active over the course of days with available activity data. In contrast, average PC2 scores will distinguish between individuals who, on average, have high activity in the morning and low in the evening/night and individuals who, on average, have lower activity intensity in the morning and higher during the evening/nighttime.</p>
 <p>Of course, things are more complicated once we start interpreting every component. Instead, in Table 1 we will provide just the interpretation of those components and summaries that were found to be predictive of the outcome.</p>
-<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-4-1.png" width="960" style="display: block; margin: auto;"></p>
+<pre><code>##            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
+## Ncells  2489223 133.0    4253771  227.2         NA   4253771  227.2
+## Vcells 58471841 446.2  237476544 1811.9      16384 577345343 4404.8</code></pre>
+<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-6-1.png" width="960" style="display: block; margin: auto;"></p>
+<pre><code>##            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
+## Ncells  2528266 135.1    4253771  227.2         NA   4253771  227.2
+## Vcells 58648605 447.5  189981236 1449.5      16384 577345343 4404.8</code></pre>
 <table class="table table table-striped">
 <caption>
 Table 3: Interpretation of the results of FPCA
@@ -1007,6 +1037,9 @@ Individuals who are more variable in the start time of their daily activity are 
 </tr>
 </tbody>
 </table>
+<pre><code>##            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
+## Ncells  2489048 133.0    4253771  227.2         NA   4253771  227.2
+## Vcells 58459356 446.1  189981236 1449.5      16384 577345343 4404.8</code></pre>
 </div>
 <div id="mortality-prediction-model" class="section level2">
 <h2 class="hasAnchor">
@@ -1016,7 +1049,7 @@ Individuals who are more variable in the start time of their daily activity are 
 <div id="results" class="section level2">
 <h2 class="hasAnchor">
 <a href="#results" class="anchor"></a>Results</h2>
-<p>Participant characteristics by mortality status are detailed in Table 5. Predictors in Table 5 are ranked according to the AUC criteria in univariate logistic regression models, where each mortality prediction model was fitted with one covariate at a time. For example, TAC (Total activity count) is the most powerful single predictor of the 5-year mortality (AUC = 0.77), the next most predictive variable is Age (AUC = 0.757), and so on. We use cross validated survey weight adjusted AUC (auc_ij_adj column of object auc_mat_1_adj) calculated at the first step of the forward selection process.</p>
+<p>Participant characteristics by mortality status are detailed in Table 5. Predictors in Table 5 are ranked according to the AUC criteria in univariate logistic regression models, where each mortality prediction model was fitted with one covariate at a time. For example, TAC (Total activity count) is the most powerful single predictor of the 5-year mortality (AUC = 0.771), the next most predictive variable is Age (AUC = 0.758), and so on. We use cross validated survey weight adjusted AUC (auc_ij_adj column of object auc_mat_1_adj) calculated at the first step of the forward selection process.</p>
 <table class="table table table-striped">
 <caption>
 Table 3: Demographic and clinical characteristics ranked by their predictive ability in the 5-year mortality model.
@@ -1050,16 +1083,16 @@ AUC
 TAC
 </td>
 <td style="text-align:left;">
-209927.7 (112888.2)
+209786.1 (112911)
 </td>
 <td style="text-align:left;">
-218013 (111831.2)
+217926 (111868.8)
 </td>
 <td style="text-align:left;">
-136362.7 (94487.5)
+136307.9 (94316.3)
 </td>
 <td style="text-align:left;">
-0.77
+0.771
 </td>
 </tr>
 <tr>
@@ -1073,13 +1106,13 @@ Age
 65.9 (9.6)
 </td>
 <td style="text-align:left;">
-65.1 (9.3)
+65 (9.3)
 </td>
 <td style="text-align:left;">
-73.5 (8.9)
+73.4 (8.9)
 </td>
 <td style="text-align:left;">
-0.757
+0.758
 </td>
 </tr>
 <tr>
@@ -1090,7 +1123,7 @@ Age
 MVPA
 </td>
 <td style="text-align:left;">
-13.9 (17.1)
+13.8 (17.1)
 </td>
 <td style="text-align:left;">
 14.7 (17.3)
@@ -1099,7 +1132,7 @@ MVPA
 6.5 (12.1)
 </td>
 <td style="text-align:left;">
-0.748
+0.745
 </td>
 </tr>
 <tr>
@@ -1119,7 +1152,7 @@ ASTP
 0.37 (0.11)
 </td>
 <td style="text-align:left;">
-0.734
+0.733
 </td>
 </tr>
 <tr>
@@ -1130,13 +1163,13 @@ ASTP
 Sedentary time
 </td>
 <td style="text-align:left;">
-1110.5 (108.2)
+1110.6 (108.4)
 </td>
 <td style="text-align:left;">
-1102.5 (104.9)
+1102.4 (105.1)
 </td>
 <td style="text-align:left;">
-1183.6 (110.6)
+1184 (110.5)
 </td>
 <td style="text-align:left;">
 0.728
@@ -1150,16 +1183,16 @@ Sedentary time
 TLAC
 </td>
 <td style="text-align:left;">
-2759 (726.2)
+2758.5 (727.2)
 </td>
 <td style="text-align:left;">
-2811.5 (704.6)
+2811.7 (705.6)
 </td>
 <td style="text-align:left;">
-2281 (746.1)
+2278.7 (744.9)
 </td>
 <td style="text-align:left;">
-0.722
+0.721
 </td>
 </tr>
 <tr>
@@ -1167,19 +1200,19 @@ TLAC
 7
 </td>
 <td style="text-align:left;">
-TLAC 4PM-6PM
+TLAC 12PM-2PM
 </td>
 <td style="text-align:left;">
-374 (114.5)
+402.5 (117.3)
 </td>
 <td style="text-align:left;">
-381.1 (112.1)
+410.2 (113.9)
 </td>
 <td style="text-align:left;">
-309.7 (116.6)
+333.4 (125.3)
 </td>
 <td style="text-align:left;">
-0.694
+0.697
 </td>
 </tr>
 <tr>
@@ -1187,19 +1220,19 @@ TLAC 4PM-6PM
 8
 </td>
 <td style="text-align:left;">
-TLAC 12PM-2PM
+TLAC 4PM-6PM
 </td>
 <td style="text-align:left;">
-402.6 (117.3)
+373.8 (114.7)
 </td>
 <td style="text-align:left;">
-410.2 (113.8)
+381 (112.2)
 </td>
 <td style="text-align:left;">
-333.5 (125.7)
+309.3 (116.4)
 </td>
 <td style="text-align:left;">
-0.692
+0.697
 </td>
 </tr>
 <tr>
@@ -1210,16 +1243,16 @@ TLAC 12PM-2PM
 TLAC 2PM-4PM
 </td>
 <td style="text-align:left;">
-390.7 (119.3)
+390.6 (119.3)
 </td>
 <td style="text-align:left;">
-398.1 (116.6)
+398.1 (116.7)
 </td>
 <td style="text-align:left;">
-323 (121.6)
+323 (121.5)
 </td>
 <td style="text-align:left;">
-0.692
+0.693
 </td>
 </tr>
 <tr>
@@ -1230,16 +1263,16 @@ TLAC 2PM-4PM
 TLAC 6PM-8PM
 </td>
 <td style="text-align:left;">
-313.7 (119.4)
+313.5 (119.3)
 </td>
 <td style="text-align:left;">
-320.7 (118.5)
+320.5 (118.4)
 </td>
 <td style="text-align:left;">
-250.8 (109.1)
+250.7 (108.7)
 </td>
 <td style="text-align:left;">
-0.691
+0.692
 </td>
 </tr>
 <tr>
@@ -1250,16 +1283,16 @@ TLAC 6PM-8PM
 TLAC 10AM-12PM
 </td>
 <td style="text-align:left;">
-403.6 (129.5)
+403.4 (129.8)
 </td>
 <td style="text-align:left;">
-411.1 (127)
+410.9 (127.4)
 </td>
 <td style="text-align:left;">
 335.3 (132.3)
 </td>
 <td style="text-align:left;">
-0.681
+0.682
 </td>
 </tr>
 <tr>
@@ -1270,13 +1303,13 @@ TLAC 10AM-12PM
 Mobility problem
 </td>
 <td style="text-align:left;">
-937 (31.6%)
+940 (31.6%)
 </td>
 <td style="text-align:left;">
-766 (28.6%)
+768 (28.6%)
 </td>
 <td style="text-align:left;">
-171 (58.2%)
+172 (57.9%)
 </td>
 <td style="text-align:left;">
 0.672
@@ -1285,26 +1318,6 @@ Mobility problem
 <tr>
 <td style="text-align:left;">
 13
-</td>
-<td style="text-align:left;">
-SATP
-</td>
-<td style="text-align:left;">
-0.08 (0.02)
-</td>
-<td style="text-align:left;">
-0.08 (0.02)
-</td>
-<td style="text-align:left;">
-0.07 (0.02)
-</td>
-<td style="text-align:left;">
-0.66
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-14
 </td>
 <td style="text-align:left;">
 SD on PC 6 (surrogate)
@@ -1319,7 +1332,27 @@ SD on PC 6 (surrogate)
 0.57 (0.25)
 </td>
 <td style="text-align:left;">
-0.657
+0.661
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:left;">
+SATP
+</td>
+<td style="text-align:left;">
+0.08 (0.02)
+</td>
+<td style="text-align:left;">
+0.08 (0.02)
+</td>
+<td style="text-align:left;">
+0.07 (0.02)
+</td>
+<td style="text-align:left;">
+0.658
 </td>
 </tr>
 <tr>
@@ -1330,16 +1363,16 @@ SD on PC 6 (surrogate)
 TLAC 8AM-10AM
 </td>
 <td style="text-align:left;">
-338.5 (153.8)
+338.5 (154)
 </td>
 <td style="text-align:left;">
-344.7 (153)
+344.7 (153.3)
 </td>
 <td style="text-align:left;">
-282.3 (149.2)
+282.4 (149.3)
 </td>
 <td style="text-align:left;">
-0.63
+0.629
 </td>
 </tr>
 <tr>
@@ -1356,7 +1389,7 @@ Education
 <td style="text-align:left;">
 </td>
 <td style="text-align:left;">
-0.611
+0.612
 </td>
 </tr>
 <tr>
@@ -1366,13 +1399,13 @@ Education
 Less than high school
 </td>
 <td style="text-align:left;">
-940 (31.7%)
+945 (31.7%)
 </td>
 <td style="text-align:left;">
-819 (30.6%)
+822 (30.7%)
 </td>
 <td style="text-align:left;">
-121 (41.2%)
+123 (41.4%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1384,13 +1417,13 @@ Less than high school
 High school
 </td>
 <td style="text-align:left;">
-736 (24.8%)
+739 (24.8%)
 </td>
 <td style="text-align:left;">
-657 (24.6%)
+659 (24.6%)
 </td>
 <td style="text-align:left;">
-79 (26.9%)
+80 (26.9%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1402,13 +1435,13 @@ High school
 More than high school
 </td>
 <td style="text-align:left;">
-1293 (43.6%)
+1294 (43.5%)
 </td>
 <td style="text-align:left;">
-1199 (44.8%)
+1200 (44.8%)
 </td>
 <td style="text-align:left;">
-94 (32%)
+94 (31.6%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1421,13 +1454,13 @@ More than high school
 TLAC 8PM-10PM
 </td>
 <td style="text-align:left;">
-204.7 (121.5)
+204.4 (121.5)
 </td>
 <td style="text-align:left;">
-209 (122.5)
+208.8 (122.6)
 </td>
 <td style="text-align:left;">
-166 (104.4)
+165.4 (104.1)
 </td>
 <td style="text-align:left;">
 0.603
@@ -1436,26 +1469,6 @@ TLAC 8PM-10PM
 <tr>
 <td style="text-align:left;">
 18
-</td>
-<td style="text-align:left;">
-TLAC 6AM-8AM
-</td>
-<td style="text-align:left;">
-166.5 (151)
-</td>
-<td style="text-align:left;">
-170.8 (153.3)
-</td>
-<td style="text-align:left;">
-127.7 (122.2)
-</td>
-<td style="text-align:left;">
-0.594
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-19
 </td>
 <td style="text-align:left;">
 Drinking Status
@@ -1467,7 +1480,7 @@ Drinking Status
 <td style="text-align:left;">
 </td>
 <td style="text-align:left;">
-0.593
+0.602
 </td>
 </tr>
 <tr>
@@ -1477,13 +1490,13 @@ Drinking Status
 Moderate Drinker
 </td>
 <td style="text-align:left;">
-1440 (48.5%)
+1445 (48.5%)
 </td>
 <td style="text-align:left;">
-1341 (50.1%)
+1346 (50.2%)
 </td>
 <td style="text-align:left;">
-99 (33.7%)
+99 (33.3%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1495,13 +1508,13 @@ Moderate Drinker
 Non-Drinker
 </td>
 <td style="text-align:left;">
-1264 (42.6%)
+1266 (42.5%)
 </td>
 <td style="text-align:left;">
 1106 (41.3%)
 </td>
 <td style="text-align:left;">
-158 (53.7%)
+160 (53.9%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1513,13 +1526,13 @@ Non-Drinker
 Heavy Drinker
 </td>
 <td style="text-align:left;">
-180 (6.1%)
+181 (6.1%)
 </td>
 <td style="text-align:left;">
 153 (5.7%)
 </td>
 <td style="text-align:left;">
-27 (9.2%)
+28 (9.4%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1531,15 +1544,35 @@ Heavy Drinker
 Missing alcohol
 </td>
 <td style="text-align:left;">
-85 (2.9%)
+86 (2.9%)
 </td>
 <td style="text-align:left;">
-75 (2.8%)
+76 (2.8%)
 </td>
 <td style="text-align:left;">
 10 (3.4%)
 </td>
 <td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+19
+</td>
+<td style="text-align:left;">
+TLAC 6AM-8AM
+</td>
+<td style="text-align:left;">
+166.7 (151.2)
+</td>
+<td style="text-align:left;">
+171.1 (153.5)
+</td>
+<td style="text-align:left;">
+127 (121.9)
+</td>
+<td style="text-align:left;">
+0.59
 </td>
 </tr>
 <tr>
@@ -1556,7 +1589,7 @@ Smoking Status
 <td style="text-align:left;">
 </td>
 <td style="text-align:left;">
-0.574
+0.586
 </td>
 </tr>
 <tr>
@@ -1566,13 +1599,13 @@ Smoking Status
 Never
 </td>
 <td style="text-align:left;">
-1325 (44.6%)
+1326 (44.5%)
 </td>
 <td style="text-align:left;">
-1235 (46.2%)
+1233 (46%)
 </td>
 <td style="text-align:left;">
-90 (30.6%)
+93 (31.3%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1584,13 +1617,13 @@ Never
 Former
 </td>
 <td style="text-align:left;">
-1141 (38.4%)
+1147 (38.5%)
 </td>
 <td style="text-align:left;">
-1004 (37.5%)
+1010 (37.7%)
 </td>
 <td style="text-align:left;">
-137 (46.6%)
+137 (46.1%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1602,13 +1635,13 @@ Former
 Current
 </td>
 <td style="text-align:left;">
-503 (16.9%)
+505 (17%)
 </td>
 <td style="text-align:left;">
-436 (16.3%)
+438 (16.3%)
 </td>
 <td style="text-align:left;">
-67 (22.8%)
+67 (22.6%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1621,21 +1654,114 @@ Current
 CHF
 </td>
 <td style="text-align:left;">
-166 (5.6%)
+168 (5.6%)
 </td>
 <td style="text-align:left;">
-117 (4.4%)
+119 (4.4%)
 </td>
 <td style="text-align:left;">
-49 (16.7%)
+49 (16.5%)
 </td>
 <td style="text-align:left;">
-0.569
+0.57
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 22
+</td>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+0.559
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+</td>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+1523 (51.1%)
+</td>
+<td style="text-align:left;">
+1331 (49.6%)
+</td>
+<td style="text-align:left;">
+192 (64.6%)
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+</td>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+1455 (48.9%)
+</td>
+<td style="text-align:left;">
+1350 (50.4%)
+</td>
+<td style="text-align:left;">
+105 (35.4%)
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+23
+</td>
+<td style="text-align:left;">
+Diabetes
+</td>
+<td style="text-align:left;">
+518 (17.4%)
+</td>
+<td style="text-align:left;">
+444 (16.6%)
+</td>
+<td style="text-align:left;">
+74 (24.9%)
+</td>
+<td style="text-align:left;">
+0.558
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+24
+</td>
+<td style="text-align:left;">
+Cancer
+</td>
+<td style="text-align:left;">
+455 (15.3%)
+</td>
+<td style="text-align:left;">
+382 (14.2%)
+</td>
+<td style="text-align:left;">
+73 (24.6%)
+</td>
+<td style="text-align:left;">
+0.558
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+25
 </td>
 <td style="text-align:left;">
 BMI
@@ -1647,7 +1773,7 @@ BMI
 <td style="text-align:left;">
 </td>
 <td style="text-align:left;">
-0.56
+0.553
 </td>
 </tr>
 <tr>
@@ -1657,13 +1783,13 @@ BMI
 Normal
 </td>
 <td style="text-align:left;">
-763 (25.7%)
+760 (25.5%)
 </td>
 <td style="text-align:left;">
-666 (24.9%)
+663 (24.7%)
 </td>
 <td style="text-align:left;">
-97 (33%)
+97 (32.7%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1693,13 +1819,13 @@ Underweight
 Overweight
 </td>
 <td style="text-align:left;">
-1144 (38.5%)
+1150 (38.6%)
 </td>
 <td style="text-align:left;">
-1044 (39%)
+1048 (39.1%)
 </td>
 <td style="text-align:left;">
-100 (34%)
+102 (34.3%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1711,106 +1837,13 @@ Overweight
 Obese
 </td>
 <td style="text-align:left;">
-1033 (34.8%)
+1039 (34.9%)
 </td>
 <td style="text-align:left;">
-943 (35.3%)
+948 (35.4%)
 </td>
 <td style="text-align:left;">
-90 (30.6%)
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-23
-</td>
-<td style="text-align:left;">
-Cancer
-</td>
-<td style="text-align:left;">
-456 (15.4%)
-</td>
-<td style="text-align:left;">
-383 (14.3%)
-</td>
-<td style="text-align:left;">
-73 (24.8%)
-</td>
-<td style="text-align:left;">
-0.559
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-24
-</td>
-<td style="text-align:left;">
-Diabetes
-</td>
-<td style="text-align:left;">
-515 (17.3%)
-</td>
-<td style="text-align:left;">
-441 (16.5%)
-</td>
-<td style="text-align:left;">
-74 (25.2%)
-</td>
-<td style="text-align:left;">
-0.556
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-25
-</td>
-<td style="text-align:left;">
-Gender
-</td>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-0.554
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-</td>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:left;">
-1515 (51%)
-</td>
-<td style="text-align:left;">
-1324 (49.5%)
-</td>
-<td style="text-align:left;">
-191 (65%)
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-</td>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:left;">
-1454 (49%)
-</td>
-<td style="text-align:left;">
-1351 (50.5%)
-</td>
-<td style="text-align:left;">
-103 (35%)
+91 (30.6%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1820,19 +1853,19 @@ Female
 26
 </td>
 <td style="text-align:left;">
-Stroke
+CHD
 </td>
 <td style="text-align:left;">
-173 (5.8%)
+244 (8.2%)
 </td>
 <td style="text-align:left;">
-131 (4.9%)
+196 (7.3%)
 </td>
 <td style="text-align:left;">
-42 (14.3%)
+48 (16.2%)
 </td>
 <td style="text-align:left;">
-0.548
+0.552
 </td>
 </tr>
 <tr>
@@ -1840,44 +1873,24 @@ Stroke
 27
 </td>
 <td style="text-align:left;">
-CHD
+Stroke
 </td>
 <td style="text-align:left;">
-242 (8.2%)
+174 (5.8%)
 </td>
 <td style="text-align:left;">
-195 (7.3%)
+132 (4.9%)
 </td>
 <td style="text-align:left;">
-47 (16%)
+42 (14.1%)
 </td>
 <td style="text-align:left;">
-0.548
+0.546
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 28
-</td>
-<td style="text-align:left;">
-TLAC 2AM-4AM
-</td>
-<td style="text-align:left;">
-15.7 (51.9)
-</td>
-<td style="text-align:left;">
-15.4 (52.5)
-</td>
-<td style="text-align:left;">
-18.4 (45.1)
-</td>
-<td style="text-align:left;">
-0.522
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-29
 </td>
 <td style="text-align:left;">
 Race
@@ -1889,7 +1902,7 @@ Race
 <td style="text-align:left;">
 </td>
 <td style="text-align:left;">
-0.514
+0.525
 </td>
 </tr>
 <tr>
@@ -1899,13 +1912,13 @@ Race
 White
 </td>
 <td style="text-align:left;">
-1752 (59%)
+1756 (59%)
 </td>
 <td style="text-align:left;">
-1553 (58.1%)
+1556 (58%)
 </td>
 <td style="text-align:left;">
-199 (67.7%)
+200 (67.3%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1917,13 +1930,13 @@ White
 Mexican American
 </td>
 <td style="text-align:left;">
-533 (18%)
+538 (18.1%)
 </td>
 <td style="text-align:left;">
-500 (18.7%)
+504 (18.8%)
 </td>
 <td style="text-align:left;">
-33 (11.2%)
+34 (11.4%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1953,13 +1966,13 @@ Other Hispanic
 Black
 </td>
 <td style="text-align:left;">
-534 (18%)
+534 (17.9%)
 </td>
 <td style="text-align:left;">
-482 (18%)
+481 (17.9%)
 </td>
 <td style="text-align:left;">
-52 (17.7%)
+53 (17.8%)
 </td>
 <td style="text-align:left;">
 </td>
@@ -1974,7 +1987,7 @@ Other
 94 (3.2%)
 </td>
 <td style="text-align:left;">
-87 (3.3%)
+87 (3.2%)
 </td>
 <td style="text-align:left;">
 7 (2.4%)
@@ -1984,27 +1997,27 @@ Other
 </tr>
 <tr>
 <td style="text-align:left;">
-30
+29
 </td>
 <td style="text-align:left;">
 TLAC 12AM-2AM
 </td>
 <td style="text-align:left;">
-25 (60.2)
+25 (60.1)
 </td>
 <td style="text-align:left;">
 25.1 (61.4)
 </td>
 <td style="text-align:left;">
-24.7 (47.9)
+24.6 (47.7)
 </td>
 <td style="text-align:left;">
-0.509
+0.511
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-31
+30
 </td>
 <td style="text-align:left;">
 TLAC 10PM-12AM
@@ -2016,10 +2029,30 @@ TLAC 10PM-12AM
 86.3 (100.5)
 </td>
 <td style="text-align:left;">
-75.4 (80.9)
+75.3 (80.6)
 </td>
 <td style="text-align:left;">
-0.508
+0.506
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+31
+</td>
+<td style="text-align:left;">
+TLAC 4AM-6AM
+</td>
+<td style="text-align:left;">
+39.1 (83.2)
+</td>
+<td style="text-align:left;">
+39.6 (85.1)
+</td>
+<td style="text-align:left;">
+34.1 (64.1)
+</td>
+<td style="text-align:left;">
+0.504
 </td>
 </tr>
 <tr>
@@ -2027,19 +2060,19 @@ TLAC 10PM-12AM
 32
 </td>
 <td style="text-align:left;">
-TLAC 4AM-6AM
+TLAC 2AM-4AM
 </td>
 <td style="text-align:left;">
-38.8 (82.8)
+15.7 (52)
 </td>
 <td style="text-align:left;">
-39.2 (84.6)
+15.4 (52.7)
 </td>
 <td style="text-align:left;">
-34.5 (64.3)
+18.3 (44.9)
 </td>
 <td style="text-align:left;">
-0.504
+0.5
 </td>
 </tr>
 <tr>
@@ -2050,16 +2083,16 @@ TLAC 4AM-6AM
 Wear time
 </td>
 <td style="text-align:left;">
-878.6 (138.6)
+878.5 (138.5)
 </td>
 <td style="text-align:left;">
-877.1 (134.5)
+877.1 (134.4)
 </td>
 <td style="text-align:left;">
-892.4 (171.4)
+891.7 (170.8)
 </td>
 <td style="text-align:left;">
-0.459
+0.454
 </td>
 </tr>
 </tbody>
@@ -2077,12 +2110,131 @@ Wear time
 </tfoot>
 </table>
 <p>Figure 3 displays the AIC, EPIC, and AUC at each stage of the forward selection procedure when using cross-validated AUC as the selection criteria. The scale for AIC and EPIC is shown on the right y axis, while the scale for AUC is shown on the left y axis. Accelerometry predictors are denoted in red font on the horizontal axis. In addition, the stopping point for the procedure is denoted by the large red dot. The blue and green dots correspond to the model which had the lowest (best) EPIC and AIC values, respectively.</p>
-<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-8-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;"></p>
+<table class="table">
+<caption>
+AUC for the 5-year mortality model
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+Variable
+</th>
+<th style="text-align:right;">
+Cross.Validated.AUC
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+TAC
+</td>
+<td style="text-align:right;">
+0.771
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:right;">
+0.791
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Smoking Status
+</td>
+<td style="text-align:right;">
+0.800
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CHF
+</td>
+<td style="text-align:right;">
+0.811
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Drinking Status
+</td>
+<td style="text-align:right;">
+0.817
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ASTP
+</td>
+<td style="text-align:right;">
+0.823
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mobility problem
+</td>
+<td style="text-align:right;">
+0.828
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:right;">
+0.830
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SD on PC 6 (surrogate)
+</td>
+<td style="text-align:right;">
+0.833
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Diabetes
+</td>
+<td style="text-align:right;">
+0.836
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Education
+</td>
+<td style="text-align:right;">
+0.837
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC 12AM-2AM
+</td>
+<td style="text-align:right;">
+0.838
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stroke
+</td>
+<td style="text-align:right;">
+0.838
+</td>
+</tr>
+</tbody>
+</table>
 <p>Table 6 presents estimated final model coefficients with corresponding standard errors and significance values, according to the complex survey design of NHANES via the svyglm() function. The number of variables used in the model is selected according to across validated AUC criteria. The “adjusted” weights we use for regression analyses are “wtmec4yr_adj_norm”. These weights are calculated using the reweight_accel() function (see ?reweight_accel for help) which re-weights observed participants using age, gender, and ethnicity strata.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="co">## Final model fits using the adjusted survey weights.</span></a>
-<a class="sourceLine" id="cb14-2" title="2">fit_final &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/survey/topics/svyglm">svyglm</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/formula">as.formula</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(<span class="st">"yr5_mort ~"</span>, final_formula )),</a>
-<a class="sourceLine" id="cb14-3" title="3">                        <span class="dt">design=</span>data_analysis_svy_adj,</a>
-<a class="sourceLine" id="cb14-4" title="4">                        <span class="dt">family=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/family">quasibinomial</a></span>())</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="co">## Final model fits using the adjusted survey weights.</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a>fit_final &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/survey/man/svyglm.html">svyglm</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/formula.html">as.formula</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"yr5_mort ~"</span>, final_formula )),</span>
+<span id="cb22-3"><a href="#cb22-3"></a>                        <span class="dt">design=</span>data_analysis_svy_adj,</span>
+<span id="cb22-4"><a href="#cb22-4"></a>                        <span class="dt">family=</span><span class="kw"><a href="https://rdrr.io/r/stats/family.html">quasibinomial</a></span>())</span></code></pre></div>
 <table class="table table table-striped">
 <caption>
 Table 6: Estimated final model coefficients with corresponding standard errors and significance values
@@ -2112,7 +2264,7 @@ OR Upper CL
 Intercept
 </td>
 <td style="text-align:right;">
--8.978
+-9.511
 </td>
 <td style="text-align:right;">
 0.000
@@ -2124,7 +2276,7 @@ Intercept
 0.000
 </td>
 <td style="text-align:right;">
-0.004
+0.001
 </td>
 </tr>
 <tr>
@@ -2132,19 +2284,19 @@ Intercept
 TAC
 </td>
 <td style="text-align:right;">
--0.006
+0.007
 </td>
 <td style="text-align:right;">
-0.985
+0.982
 </td>
 <td style="text-align:right;">
-0.994
+1.007
 </td>
 <td style="text-align:right;">
-0.461
+0.508
 </td>
 <td style="text-align:right;">
-1.930
+1.832
 </td>
 </tr>
 <tr>
@@ -2152,19 +2304,19 @@ TAC
 Age
 </td>
 <td style="text-align:right;">
-0.077
+0.083
 </td>
 <td style="text-align:right;">
 0.000
 </td>
 <td style="text-align:right;">
-1.080
+1.087
 </td>
 <td style="text-align:right;">
-1.056
+1.063
 </td>
 <td style="text-align:right;">
-1.106
+1.112
 </td>
 </tr>
 <tr>
@@ -2172,19 +2324,19 @@ Age
 Former Smoker
 </td>
 <td style="text-align:right;">
-0.369
+0.332
 </td>
 <td style="text-align:right;">
-0.142
+0.176
 </td>
 <td style="text-align:right;">
-1.446
+1.394
 </td>
 <td style="text-align:right;">
-0.850
+0.835
 </td>
 <td style="text-align:right;">
-2.480
+2.345
 </td>
 </tr>
 <tr>
@@ -2192,99 +2344,19 @@ Former Smoker
 Current Smoker
 </td>
 <td style="text-align:right;">
-0.777
+0.797
 </td>
 <td style="text-align:right;">
 0.002
 </td>
 <td style="text-align:right;">
-2.175
+2.219
 </td>
 <td style="text-align:right;">
-1.394
+1.412
 </td>
 <td style="text-align:right;">
-3.385
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Mobility Problem
-</td>
-<td style="text-align:right;">
-0.629
-</td>
-<td style="text-align:right;">
-0.014
-</td>
-<td style="text-align:right;">
-1.876
-</td>
-<td style="text-align:right;">
-1.148
-</td>
-<td style="text-align:right;">
-3.070
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Non-Drinker
-</td>
-<td style="text-align:right;">
-0.575
-</td>
-<td style="text-align:right;">
-0.010
-</td>
-<td style="text-align:right;">
-1.777
-</td>
-<td style="text-align:right;">
-1.167
-</td>
-<td style="text-align:right;">
-2.727
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Heavy Drinker
-</td>
-<td style="text-align:right;">
-0.944
-</td>
-<td style="text-align:right;">
-0.027
-</td>
-<td style="text-align:right;">
-2.570
-</td>
-<td style="text-align:right;">
-1.067
-</td>
-<td style="text-align:right;">
-5.844
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Missing Alcohol
-</td>
-<td style="text-align:right;">
-0.824
-</td>
-<td style="text-align:right;">
-0.083
-</td>
-<td style="text-align:right;">
-2.280
-</td>
-<td style="text-align:right;">
-0.781
-</td>
-<td style="text-align:right;">
-5.782
+3.478
 </td>
 </tr>
 <tr>
@@ -2292,19 +2364,79 @@ Missing Alcohol
 CHF: yes
 </td>
 <td style="text-align:right;">
-0.806
+0.777
 </td>
 <td style="text-align:right;">
-0.009
+0.013
 </td>
 <td style="text-align:right;">
-2.239
+2.175
 </td>
 <td style="text-align:right;">
-1.242
+1.177
 </td>
 <td style="text-align:right;">
-3.949
+3.930
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Non-Drinker
+</td>
+<td style="text-align:right;">
+0.565
+</td>
+<td style="text-align:right;">
+0.010
+</td>
+<td style="text-align:right;">
+1.759
+</td>
+<td style="text-align:right;">
+1.165
+</td>
+<td style="text-align:right;">
+2.677
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heavy Drinker
+</td>
+<td style="text-align:right;">
+0.963
+</td>
+<td style="text-align:right;">
+0.018
+</td>
+<td style="text-align:right;">
+2.620
+</td>
+<td style="text-align:right;">
+1.148
+</td>
+<td style="text-align:right;">
+5.673
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Missing Alcohol
+</td>
+<td style="text-align:right;">
+0.747
+</td>
+<td style="text-align:right;">
+0.106
+</td>
+<td style="text-align:right;">
+2.111
+</td>
+<td style="text-align:right;">
+0.752
+</td>
+<td style="text-align:right;">
+5.193
 </td>
 </tr>
 <tr>
@@ -2312,19 +2444,39 @@ CHF: yes
 ASTP
 </td>
 <td style="text-align:right;">
-0.405
+0.382
 </td>
 <td style="text-align:right;">
-0.018
+0.016
 </td>
 <td style="text-align:right;">
-1.499
+1.465
 </td>
 <td style="text-align:right;">
-1.075
+1.078
 </td>
 <td style="text-align:right;">
-2.093
+1.993
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mobility Problem
+</td>
+<td style="text-align:right;">
+0.546
+</td>
+<td style="text-align:right;">
+0.028
+</td>
+<td style="text-align:right;">
+1.726
+</td>
+<td style="text-align:right;">
+1.057
+</td>
+<td style="text-align:right;">
+2.816
 </td>
 </tr>
 <tr>
@@ -2332,59 +2484,19 @@ ASTP
 Gender: female
 </td>
 <td style="text-align:right;">
--0.694
+-0.648
 </td>
 <td style="text-align:right;">
-0.005
+0.007
 </td>
 <td style="text-align:right;">
-0.500
+0.523
 </td>
 <td style="text-align:right;">
-0.314
+0.332
 </td>
 <td style="text-align:right;">
-0.789
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-High school Education
-</td>
-<td style="text-align:right;">
-0.040
-</td>
-<td style="text-align:right;">
-0.876
-</td>
-<td style="text-align:right;">
-1.041
-</td>
-<td style="text-align:right;">
-0.590
-</td>
-<td style="text-align:right;">
-1.842
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-More than high school Education
-</td>
-<td style="text-align:right;">
--0.190
-</td>
-<td style="text-align:right;">
-0.413
-</td>
-<td style="text-align:right;">
-0.827
-</td>
-<td style="text-align:right;">
-0.497
-</td>
-<td style="text-align:right;">
-1.385
+0.817
 </td>
 </tr>
 <tr>
@@ -2392,99 +2504,19 @@ More than high school Education
 SD on PC 6 (surrogate)
 </td>
 <td style="text-align:right;">
--0.259
+-0.291
 </td>
 <td style="text-align:right;">
-0.009
+0.002
 </td>
 <td style="text-align:right;">
-0.772
+0.748
 </td>
 <td style="text-align:right;">
-0.638
+0.629
 </td>
 <td style="text-align:right;">
-0.928
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Underweight
-</td>
-<td style="text-align:right;">
-0.587
-</td>
-<td style="text-align:right;">
-0.412
-</td>
-<td style="text-align:right;">
-1.799
-</td>
-<td style="text-align:right;">
-0.300
-</td>
-<td style="text-align:right;">
-7.708
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Overweight
-</td>
-<td style="text-align:right;">
--0.566
-</td>
-<td style="text-align:right;">
-0.013
-</td>
-<td style="text-align:right;">
-0.568
-</td>
-<td style="text-align:right;">
-0.365
-</td>
-<td style="text-align:right;">
-0.881
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Obese
-</td>
-<td style="text-align:right;">
--0.448
-</td>
-<td style="text-align:right;">
-0.010
-</td>
-<td style="text-align:right;">
-0.639
-</td>
-<td style="text-align:right;">
-0.458
-</td>
-<td style="text-align:right;">
-0.889
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Cancer: yes
-</td>
-<td style="text-align:right;">
-0.308
-</td>
-<td style="text-align:right;">
-0.100
-</td>
-<td style="text-align:right;">
-1.361
-</td>
-<td style="text-align:right;">
-0.913
-</td>
-<td style="text-align:right;">
-2.003
+0.885
 </td>
 </tr>
 <tr>
@@ -2492,31 +2524,961 @@ Cancer: yes
 Diabetes: yes
 </td>
 <td style="text-align:right;">
-0.328
+0.216
 </td>
 <td style="text-align:right;">
-0.131
+0.310
 </td>
 <td style="text-align:right;">
-1.388
+1.241
 </td>
 <td style="text-align:right;">
-0.868
+0.780
 </td>
 <td style="text-align:right;">
-2.181
+1.937
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+High school Education
+</td>
+<td style="text-align:right;">
+-0.008
+</td>
+<td style="text-align:right;">
+0.973
+</td>
+<td style="text-align:right;">
+0.992
+</td>
+<td style="text-align:right;">
+0.582
+</td>
+<td style="text-align:right;">
+1.694
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+More than high school Education
+</td>
+<td style="text-align:right;">
+-0.231
+</td>
+<td style="text-align:right;">
+0.309
+</td>
+<td style="text-align:right;">
+0.794
+</td>
+<td style="text-align:right;">
+0.489
+</td>
+<td style="text-align:right;">
+1.294
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC 12AM-2AM
+</td>
+<td style="text-align:right;">
+0.128
+</td>
+<td style="text-align:right;">
+0.099
+</td>
+<td style="text-align:right;">
+1.137
+</td>
+<td style="text-align:right;">
+0.958
+</td>
+<td style="text-align:right;">
+1.322
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+StrokeYes
+</td>
+<td style="text-align:right;">
+0.193
+</td>
+<td style="text-align:right;">
+0.505
+</td>
+<td style="text-align:right;">
+1.213
+</td>
+<td style="text-align:right;">
+0.636
+</td>
+<td style="text-align:right;">
+2.227
 </td>
 </tr>
 </tbody>
 </table>
-<p>#Robustness of the final model results</p>
+</div>
+</div>
+<div id="comparison-to-the-models-without-pa-accelerometry-derived-measures" class="section level1">
+<h1 class="hasAnchor">
+<a href="#comparison-to-the-models-without-pa-accelerometry-derived-measures" class="anchor"></a>Comparison to the models without PA accelerometry-derived measures</h1>
+<p>In what follows, we compare Net reclassification Index (NRI) for the two models:</p>
+<p>Non-PA model:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="co">#Age, Smoking status, Coronary Heart Failure (CHF), Drinking status, Active-to-sedentary transition probability, Mobility Problem, Gender, Diabetes, Education, and Stroke</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a>noPAvars &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Age"</span>, <span class="st">"SmokeCigs"</span>, <span class="st">"CHF"</span>, <span class="st">"DrinkStatus"</span>, <span class="st">"MobilityProblem"</span>,</span>
+<span id="cb23-3"><a href="#cb23-3"></a>              <span class="st">"Gender"</span>, <span class="st">"Diabetes"</span>, <span class="st">"EducationAdult"</span>, <span class="st">"Stroke"</span>)</span>
+<span id="cb23-4"><a href="#cb23-4"></a>noPA_formula &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(noPAvars,<span class="dt">collapse=</span><span class="st">"+"</span>)</span>
+<span id="cb23-5"><a href="#cb23-5"></a>fit_svy_noPA &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/survey/man/svyglm.html">svyglm</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/formula.html">as.formula</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"yr5_mort ~"</span>, noPA_formula  )),<span class="dt">design=</span>data_analysis_svy_adj, <span class="dt">family=</span><span class="kw"><a href="https://rdrr.io/r/stats/family.html">quasibinomial</a></span>())</span></code></pre></div>
+<p>AUC for the non-PA model: calculate 10-fold CV AUC for the no-PA model</p>
+<p>Cross validated AUC in the non-PA model is 0.798</p>
+<pre><code>##  _________________________________________
+##  
+##      Reclassification table    
+##  _________________________________________
+## 
+##  Outcome: absent 
+##   
+##              Updated Model
+## Initial Model [0,0.3) [0.3,0.5) [0.5,1]  % reclassified
+##     [0,0.3)      2510        40       7               2
+##     [0.3,0.5)      39        50      14              51
+##     [0.5,1]         0         6      15              29
+## 
+##  
+##  Outcome: present 
+##   
+##              Updated Model
+## Initial Model [0,0.3) [0.3,0.5) [0.5,1]  % reclassified
+##     [0,0.3)       175        28       3              15
+##     [0.3,0.5)      16        29      19              55
+##     [0.5,1]         0         5      22              19
+## 
+##  
+##  Combined Data 
+##   
+##              Updated Model
+## Initial Model [0,0.3) [0.3,0.5) [0.5,1]  % reclassified
+##     [0,0.3)      2685        68      10               3
+##     [0.3,0.5)      55        79      33              53
+##     [0.5,1]         0        11      37              23
+##  _________________________________________
+## 
+##  NRI(Categorical) [95% CI]: 0.0917 [ 0.0367 - 0.1467 ] ; p-value: 0.00109 
+##  NRI(Continuous) [95% CI]: 0.3848 [ 0.2673 - 0.5023 ] ; p-value: 0 
+##  IDI [95% CI]: 0.0317 [ 0.02 - 0.0434 ] ; p-value: 0</code></pre>
+</div>
+<div id="comparison-with-the-best-forward-selction-no-pa-model" class="section level1">
+<h1 class="hasAnchor">
+<a href="#comparison-with-the-best-forward-selction-no-pa-model" class="anchor"></a>Comparison with the best forward selction no-PA model</h1>
+<p>Model selection results (cross-validated AUC criteria)</p>
+<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-19-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>Cross-validated AUC of the forward selection model without physical activity: the optimal 10 variable model is 0.803.</p>
+<table class="table">
+<caption>
+AUC for the model without physical activity predictors
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+Variable
+</th>
+<th style="text-align:right;">
+Cross.Validated.AUC
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:right;">
+0.740
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MobilityProblem
+</td>
+<td style="text-align:right;">
+0.767
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SmokeCigs
+</td>
+<td style="text-align:right;">
+0.781
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:right;">
+0.788
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DrinkStatus
+</td>
+<td style="text-align:right;">
+0.795
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CHF
+</td>
+<td style="text-align:right;">
+0.799
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Diabetes
+</td>
+<td style="text-align:right;">
+0.801
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BMI_cat
+</td>
+<td style="text-align:right;">
+0.802
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stroke
+</td>
+<td style="text-align:right;">
+0.803
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cancer
+</td>
+<td style="text-align:right;">
+0.803
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="subgroups-of-the-population" class="section level1">
+<h1 class="hasAnchor">
+<a href="#subgroups-of-the-population" class="anchor"></a>Subgroups of the population</h1>
+<pre><code>## 
+##    0    1 
+## 1828   98</code></pre>
+<pre><code>## 
+##   0   1 
+## 853 199</code></pre>
+<table class="table">
+<thead><tr>
+<th style="text-align:left;">
+all
+</th>
+<th style="text-align:right;">
+all
+</th>
+<th style="text-align:left;">
+Age 50-70
+</th>
+<th style="text-align:right;">
+Age 50-70
+</th>
+<th style="text-align:left;">
+Age 70 above
+</th>
+<th style="text-align:right;">
+Age 70 above
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+TAC
+</td>
+<td style="text-align:right;">
+0.771
+</td>
+<td style="text-align:left;">
+TAC
+</td>
+<td style="text-align:right;">
+0.701
+</td>
+<td style="text-align:left;">
+ASTP
+</td>
+<td style="text-align:right;">
+0.711
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:right;">
+0.758
+</td>
+<td style="text-align:left;">
+MVPA
+</td>
+<td style="text-align:right;">
+0.700
+</td>
+<td style="text-align:left;">
+TAC
+</td>
+<td style="text-align:right;">
+0.706
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MVPA
+</td>
+<td style="text-align:right;">
+0.745
+</td>
+<td style="text-align:left;">
+MobilityProblem
+</td>
+<td style="text-align:right;">
+0.677
+</td>
+<td style="text-align:left;">
+TLAC_6
+</td>
+<td style="text-align:right;">
+0.685
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ASTP
+</td>
+<td style="text-align:right;">
+0.733
+</td>
+<td style="text-align:left;">
+TLAC
+</td>
+<td style="text-align:right;">
+0.672
+</td>
+<td style="text-align:left;">
+ST
+</td>
+<td style="text-align:right;">
+0.679
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ST
+</td>
+<td style="text-align:right;">
+0.728
+</td>
+<td style="text-align:left;">
+ST
+</td>
+<td style="text-align:right;">
+0.661
+</td>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:right;">
+0.676
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC
+</td>
+<td style="text-align:right;">
+0.721
+</td>
+<td style="text-align:left;">
+EducationAdult
+</td>
+<td style="text-align:right;">
+0.658
+</td>
+<td style="text-align:left;">
+TLAC_7
+</td>
+<td style="text-align:right;">
+0.655
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_7
+</td>
+<td style="text-align:right;">
+0.697
+</td>
+<td style="text-align:left;">
+TLAC_8
+</td>
+<td style="text-align:right;">
+0.655
+</td>
+<td style="text-align:left;">
+TLAC
+</td>
+<td style="text-align:right;">
+0.654
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_9
+</td>
+<td style="text-align:right;">
+0.697
+</td>
+<td style="text-align:left;">
+TLAC_10
+</td>
+<td style="text-align:right;">
+0.654
+</td>
+<td style="text-align:left;">
+MVPA
+</td>
+<td style="text-align:right;">
+0.654
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_8
+</td>
+<td style="text-align:right;">
+0.693
+</td>
+<td style="text-align:left;">
+TLAC_9
+</td>
+<td style="text-align:right;">
+0.650
+</td>
+<td style="text-align:left;">
+sPC6
+</td>
+<td style="text-align:right;">
+0.649
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_10
+</td>
+<td style="text-align:right;">
+0.692
+</td>
+<td style="text-align:left;">
+TLAC_7
+</td>
+<td style="text-align:right;">
+0.648
+</td>
+<td style="text-align:left;">
+TLAC_8
+</td>
+<td style="text-align:right;">
+0.636
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_6
+</td>
+<td style="text-align:right;">
+0.682
+</td>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:right;">
+0.647
+</td>
+<td style="text-align:left;">
+TLAC_10
+</td>
+<td style="text-align:right;">
+0.634
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MobilityProblem
+</td>
+<td style="text-align:right;">
+0.672
+</td>
+<td style="text-align:left;">
+ASTP
+</td>
+<td style="text-align:right;">
+0.642
+</td>
+<td style="text-align:left;">
+TLAC_9
+</td>
+<td style="text-align:right;">
+0.633
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sPC6
+</td>
+<td style="text-align:right;">
+0.661
+</td>
+<td style="text-align:left;">
+SATP
+</td>
+<td style="text-align:right;">
+0.636
+</td>
+<td style="text-align:left;">
+TLAC_5
+</td>
+<td style="text-align:right;">
+0.626
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SATP
+</td>
+<td style="text-align:right;">
+0.658
+</td>
+<td style="text-align:left;">
+DrinkStatus
+</td>
+<td style="text-align:right;">
+0.625
+</td>
+<td style="text-align:left;">
+MobilityProblem
+</td>
+<td style="text-align:right;">
+0.616
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_5
+</td>
+<td style="text-align:right;">
+0.629
+</td>
+<td style="text-align:left;">
+SmokeCigs
+</td>
+<td style="text-align:right;">
+0.624
+</td>
+<td style="text-align:left;">
+SmokeCigs
+</td>
+<td style="text-align:right;">
+0.589
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+EducationAdult
+</td>
+<td style="text-align:right;">
+0.612
+</td>
+<td style="text-align:left;">
+TLAC_6
+</td>
+<td style="text-align:right;">
+0.621
+</td>
+<td style="text-align:left;">
+SATP
+</td>
+<td style="text-align:right;">
+0.588
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_11
+</td>
+<td style="text-align:right;">
+0.603
+</td>
+<td style="text-align:left;">
+sPC6
+</td>
+<td style="text-align:right;">
+0.620
+</td>
+<td style="text-align:left;">
+TLAC_2
+</td>
+<td style="text-align:right;">
+0.581
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DrinkStatus
+</td>
+<td style="text-align:right;">
+0.602
+</td>
+<td style="text-align:left;">
+TLAC_4
+</td>
+<td style="text-align:right;">
+0.614
+</td>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:right;">
+0.581
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_4
+</td>
+<td style="text-align:right;">
+0.590
+</td>
+<td style="text-align:left;">
+Diabetes
+</td>
+<td style="text-align:right;">
+0.605
+</td>
+<td style="text-align:left;">
+TLAC_3
+</td>
+<td style="text-align:right;">
+0.569
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SmokeCigs
+</td>
+<td style="text-align:right;">
+0.586
+</td>
+<td style="text-align:left;">
+TLAC_11
+</td>
+<td style="text-align:right;">
+0.593
+</td>
+<td style="text-align:left;">
+TLAC_11
+</td>
+<td style="text-align:right;">
+0.561
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CHF
+</td>
+<td style="text-align:right;">
+0.570
+</td>
+<td style="text-align:left;">
+CHF
+</td>
+<td style="text-align:right;">
+0.580
+</td>
+<td style="text-align:left;">
+CHF
+</td>
+<td style="text-align:right;">
+0.553
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:right;">
+0.559
+</td>
+<td style="text-align:left;">
+TLAC_5
+</td>
+<td style="text-align:right;">
+0.577
+</td>
+<td style="text-align:left;">
+TLAC_1
+</td>
+<td style="text-align:right;">
+0.548
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Diabetes
+</td>
+<td style="text-align:right;">
+0.558
+</td>
+<td style="text-align:left;">
+WT
+</td>
+<td style="text-align:right;">
+0.566
+</td>
+<td style="text-align:left;">
+DrinkStatus
+</td>
+<td style="text-align:right;">
+0.546
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cancer
+</td>
+<td style="text-align:right;">
+0.558
+</td>
+<td style="text-align:left;">
+TLAC_1
+</td>
+<td style="text-align:right;">
+0.558
+</td>
+<td style="text-align:left;">
+BMI_cat
+</td>
+<td style="text-align:right;">
+0.543
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BMI_cat
+</td>
+<td style="text-align:right;">
+0.553
+</td>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:right;">
+0.553
+</td>
+<td style="text-align:left;">
+Stroke
+</td>
+<td style="text-align:right;">
+0.542
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CHD
+</td>
+<td style="text-align:right;">
+0.552
+</td>
+<td style="text-align:left;">
+CHD
+</td>
+<td style="text-align:right;">
+0.551
+</td>
+<td style="text-align:left;">
+WT
+</td>
+<td style="text-align:right;">
+0.540
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stroke
+</td>
+<td style="text-align:right;">
+0.546
+</td>
+<td style="text-align:left;">
+Cancer
+</td>
+<td style="text-align:right;">
+0.549
+</td>
+<td style="text-align:left;">
+CHD
+</td>
+<td style="text-align:right;">
+0.533
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Race
+</td>
+<td style="text-align:right;">
+0.525
+</td>
+<td style="text-align:left;">
+Stroke
+</td>
+<td style="text-align:right;">
+0.544
+</td>
+<td style="text-align:left;">
+TLAC_4
+</td>
+<td style="text-align:right;">
+0.525
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_1
+</td>
+<td style="text-align:right;">
+0.511
+</td>
+<td style="text-align:left;">
+BMI_cat
+</td>
+<td style="text-align:right;">
+0.540
+</td>
+<td style="text-align:left;">
+Diabetes
+</td>
+<td style="text-align:right;">
+0.516
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_12
+</td>
+<td style="text-align:right;">
+0.506
+</td>
+<td style="text-align:left;">
+TLAC_3
+</td>
+<td style="text-align:right;">
+0.532
+</td>
+<td style="text-align:left;">
+Cancer
+</td>
+<td style="text-align:right;">
+0.516
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_3
+</td>
+<td style="text-align:right;">
+0.504
+</td>
+<td style="text-align:left;">
+Race
+</td>
+<td style="text-align:right;">
+0.519
+</td>
+<td style="text-align:left;">
+TLAC_12
+</td>
+<td style="text-align:right;">
+0.501
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLAC_2
+</td>
+<td style="text-align:right;">
+0.500
+</td>
+<td style="text-align:left;">
+TLAC_2
+</td>
+<td style="text-align:right;">
+0.465
+</td>
+<td style="text-align:left;">
+EducationAdult
+</td>
+<td style="text-align:right;">
+0.496
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WT
+</td>
+<td style="text-align:right;">
+0.454
+</td>
+<td style="text-align:left;">
+TLAC_12
+</td>
+<td style="text-align:right;">
+0.401
+</td>
+<td style="text-align:left;">
+Race
+</td>
+<td style="text-align:right;">
+0.493
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>## [1] "TAC+EducationAdult+CHF+TLAC_10+Cancer+CHD+Diabetes+DrinkStatus+TLAC_8+TLAC_4+SmokeCigs+MVPA+MobilityProblem+TLAC_2+WT+BMI_cat+Stroke"</code></pre>
+<pre><code>## [1] "ASTP+Age+sPC6+SmokeCigs+Gender+CHF+TLAC_2"</code></pre>
+</div>
+<div id="robustness-of-the-final-model-results" class="section level1">
+<h1 class="hasAnchor">
+<a href="#robustness-of-the-final-model-results" class="anchor"></a>Robustness of the final model results</h1>
 <p>Our analysis includes 20 variables derived directly from accelerometry measurements. These variables may be highly correlated with one another and with age. The correlation plot between age and all activity derived variables is presented below. Age has high negative correlations with TAC, TLAC and positive correlation with sedentary time. TAC is highly correlated with most activity derived measures, including MVPA, SATP, Sedentary time, TLAC, and TLAC 4PM – 6PM, 6PM – 8PM, 2PM – 4PM, 12PM – 2PM, 10PM – 12 PM, 8AM – 10AM, 6AM – 8AM. ASTP, sedentary time, TLAC and SATP are among top activity derived measures that are highly correlated with multiple other variables. The surrogate for the standard deviation on the 6th PC has low correlation with other activity derived variables, which explains its contribution to the increase in AUC in the forward selection model beyond the conventional activity measures.</p>
 <p>Due to high correlation among different activity summaries, many of these variables contain similar information and often replace each other in the final mortality prediction model. Thus, in practice, we suggest examining a smaller subset of activity derived variables including: TLAC, sedentary and wear time, MVPA, SATP, ASTP, and the surrogates the standard deviation of the sixth PC (SD on PC 6).</p>
-<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-11-1.png" width="100%" style="display: block; margin: auto;"></p>
+<pre><code>## quartz_off_screen 
+##                 2</code></pre>
 <p>The 5-year mortality prediction model reported in this analysis used cross validated AUC as the forward selection criteria. We examined robustness of our results to using EPIC (Figure 4) and AIC (Figure 5) criteria to enter a new variable into the model. While there is difference in the order in which the variables enter into the model, all 3 criteria approaches select mostly the same top 8 variables for the final model. The notable exception is that neither AIC nor EPIC select TAC into the model. This is likely due to the fact that age and TAC have similar explanatory power and both EPIC/AIC select age first. Then, once age is included in the model, other accelerometry measures explain more of the variability unexplained by age than TAC.</p>
-<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-12-1.png" width="768" style="display: block; margin: auto;"></p>
-<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;"></p>
-</div>
+<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-29-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="vignette_prediction_files/figure-html/unnamed-chunk-31-1.png" width="768" style="display: block; margin: auto;"></p>
 <div id="references" class="section level2">
 <h2 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h2>
@@ -2525,18 +3487,33 @@ Diabetes: yes
 <li><p>Leroux A. : rnhanesdata: NHANES Accelerometry Data Pipeline. URL:<a href="https://github.com/andrew-leroux/rnhanesdata" class="uri">https://github.com/andrew-leroux/rnhanesdata</a>. R package version 1.0.</p></li>
 </ol>
 </div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li>
+<a href="#prerequisites">Prerequisites</a>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#nhanes-2003-2004-and-2005-2006-5-year-mortality-model-data-selection">NHANES 2003-2004 and 2005-2006 5-year mortality model data selection</a></li>
       <li><a href="#intuition-behind-fpca">Intuition behind fPCA</a></li>
       <li><a href="#mortality-prediction-model">Mortality prediction model</a></li>
       <li><a href="#results">Results</a></li>
-      <li><a href="#references">References</a></li>
+      </ul>
+</li>
+      <li><a href="#comparison-to-the-models-without-pa-accelerometry-derived-measures">Comparison to the models without PA accelerometry-derived measures</a></li>
+      <li><a href="#comparison-with-the-best-forward-selction-no-pa-model">Comparison with the best forward selction no-PA model</a></li>
+      <li><a href="#subgroups-of-the-population">Subgroups of the population</a></li>
+      <li>
+<a href="#robustness-of-the-final-model-results">Robustness of the final model results</a>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#references">References</a></li>
+      </ul>
+</li>
       </ul>
 </div>
       </div>
@@ -2544,17 +3521,20 @@ Diabetes: yes
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Andrew Leroux.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

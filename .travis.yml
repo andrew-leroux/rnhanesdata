@@ -13,9 +13,12 @@ os:
 
 env:
   global:
+  - RGL_USE_NULL=TRUE
   - R_BUILD_ARGS="--no-manual"
   - R_CHECK_ARGS="--as-cran --install-args=--build"
   - WARNINGS_ARE_ERRORS=1
+  - DISPLAY=:99.0
+  - R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
 
 before_install:
   - fname=travis_helpers.sh
