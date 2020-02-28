@@ -1,8 +1,13 @@
 ---
-title: "Downloading and working with NHANES 2003-2004 and 2005-2006 accelerometry data"
+title: "Introduction to downloading and working with NHANES 2003-2004 and 2005-2006 accelerometry data"
 output:
-  html_document:
-    theme: cerulean
+    prettydoc::html_pretty:
+        theme: cerulean
+        highlight: github
+vignette: >
+  %\VignetteIndexEntry{Introduction to downloading and working with NHANES 2003-2004 and 2005-2006 accelerometry data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8} 
 ---
 
 ```{r global_options, include=FALSE}
@@ -23,14 +28,14 @@ The following packages will be used in this vignette to provide illustration of 
 
 ```{r Paths, results = FALSE, echo = TRUE}
 
-pckgs <- c("knitr","kableExtra",   ## packages used for creating Tables
+pckgs <- c("knitr","kableExtra",              ## packages used for creating Tables
            "devtools",                        ## package used to download R packages stored on GitHub
            "ggplot2", "gridExtra",            ## packages for plotting 
            "corrplot",                        ## for correlation plot
            "reshape2",                        ## for transforming data long -> wide and wide -> long 
-           "dplyr",                ## packages for merging/transforming data
+           "dplyr",                           ## packages for merging/transforming data
            "survey",                          ## package used for analyzing complex survey data in R
-           "mgcv", "refund"                 ## packages used for smoothing/fpca
+           "mgcv", "refund"                   ## packages used for smoothing/fpca
            )
 sapply(pckgs, function(x) if(!require(x,character.only=TRUE,quietly=TRUE)) {
     install.packages(x)
