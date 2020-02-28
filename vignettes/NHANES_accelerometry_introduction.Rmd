@@ -13,7 +13,6 @@ vignette: >
 ```{r global_options, include=FALSE}
 rm(list=ls())
 knitr::opts_chunk$set(warning=FALSE, message=FALSE, echo = FALSE,fig.align='center')
-
 ```
 
 

@@ -74,12 +74,7 @@ We start by downloading NHANES 2003-2004 and 2005-2006 cohorts' information, pro
 # where lab measurement (cholesterol, blood presure) data will be downloaded from the CDC website 
 # and then loaded into R. These files need to be downloaded separately as 
 # the raw files associated with these lab measurements are not included in the rnhanesdata package.
-# Note that this way of creating a temporary directory is a bit "hacky". 
-# A better solution would be to use the tempdir() function, but this can lead to issues with compiling the markdown 
-# document. As a result, here we use the current working directory, which, when compiled, is the directory where the .Rmd
-# file is saved. 
 dir_tmp = tempfile()
-dir.create(dir_tmp)
 
 if (!dir.exists(dir_tmp)){
   dir.create(dir_tmp, showWarnings = FALSE)
@@ -117,8 +112,7 @@ varnames <- c("LBXTC","LBXHDD","LBDHDD",           ## 1. cholesterol. Note LBXHD
 lab_data <- process_covar(varnames = varnames,localpath=dir_tmp)
 
 ## change column name for cholesterol variable that changed names
-lab_data$Covariate_C = lab_data$Covariate_C %>% 
-  rename(LBDHDD = LBXHDD)
+colnames(lab_data$Covariate_C)[colnames(lab_data$Covariate_C) == "LBXHDD"] <- "LBDHDD"
 
 ## combine waves
 CVMarkers <- bind_rows(lab_data$Covariate_C, lab_data$Covariate_D)
