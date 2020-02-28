@@ -62,7 +62,7 @@
 #'
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library("rnhanesdata")
 #' ## download and process the data directly from the cdc
 #' ## the first element of accel_ls corresponds to PAXINTEN_C and
