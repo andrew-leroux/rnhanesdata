@@ -1,7 +1,8 @@
-pandoc: 2.9.2
-pkgdown: 1.4.0
+pandoc: 1.19.2.1
+pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
+  NHANES_accelerometry_introduction: NHANES_accelerometry_introduction.html
   create-all-processed-data: create-all-processed-data.html
   vignette_prediction: vignette_prediction.html
 

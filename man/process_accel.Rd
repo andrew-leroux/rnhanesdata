@@ -73,7 +73,7 @@ The function documentation, and, if necessary the function itself, will be updat
 If the data are directly downloaded from the CDC website, the raw data will be downloaded to a temporary folder and then deleted once it's been read into R.
 }
 \examples{
-\donttest{
+\dontrun{
 library("rnhanesdata")
 ## download and process the data directly from the cdc
 ## the first element of accel_ls corresponds to PAXINTEN_C and
